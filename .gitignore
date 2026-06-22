@@ -1,6 +1,13 @@
 .scratch/
 note.md
 
+# local planning and context files — not for remote
+CONTEXT.md
+docs/
+project.md
+questions.md
+mockup.html
+
 # dependencies
 node_modules
 
