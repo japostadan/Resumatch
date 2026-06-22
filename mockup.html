@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Matching Game — Visual Mockup</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cta:       #4f46e5;
+      --cta-hover: #4338ca;
+      --surface:   #ffffff;
+      --bg:        #f1f5f9;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --green:     #16a34a;
+      --amber:     #d97706;
+      --red:       #dc2626;
+      --radius:    0.75rem;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Navigation bar ── */
+    nav {
+      background: #1e293b;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .logo {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-right: auto;
+    }
+    nav button {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.7);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.15s;
+    }
+    nav button:hover, nav button.active {
+      background: var(--cta);
+      border-color: var(--cta);
+      color: #fff;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; }
+    .screen.visible { display: block; }
+
+    .page {
+      max-width: 480px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+    .page.wide { max-width: 780px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .game-header .badge {
+      display: inline-block;
+      background: #eef2ff;
+      color: var(--cta);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 99px;
+      margin-bottom: 0.75rem;
+    }
+    .game-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .game-header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus { border-color: var(--cta); }
+    textarea { resize: vertical; min-height: 120px; }
+    .field { margin-bottom: 1.25rem; }
+    .hint { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    .btn {
+      display: inline-block;
+      background: var(--cta);
+      color: #fff;
+      padding: 0.65rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--cta-hover); }
+    .btn.secondary {
+      background: transparent;
+      color: var(--cta);
+      border: 1px solid var(--cta);
+    }
+    .btn.secondary:hover { background: #eef2ff; }
+    .btn.danger { background: var(--red); }
+    .btn.danger:hover { background: #b91c1c; }
+    .btn.green { background: var(--green); }
+    .btn.green:hover { background: #15803d; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* ── Game ID display ── */
+    .game-id-box {
+      background: #f8fafc;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .game-id-box .label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .game-id-box .code { font-size: 2.5rem; font-weight: 800; letter-spacing: 0.15em; color: var(--cta); font-variant-numeric: tabular-nums; }
+    .game-id-box .sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ── Lobby player list ── */
+    .player-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .player-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      background: var(--bg);
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .player-list li .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--cta);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .player-list li .name { flex: 1; font-weight: 500; }
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+    }
+    .status-pill.submitted { background: #dcfce7; color: #15803d; }
+    .status-pill.waiting   { background: #fef9c3; color: #92400e; }
+
+    /* ── Stat bar ── */
+    .stat-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-box {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 1.8rem; font-weight: 800; color: var(--cta); }
+    .stat-box .lbl { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+    /* ── Voting ── */
+    .statement-card {
+      background: #eef2ff;
+      border-left: 4px solid var(--cta);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text);
+      font-style: italic;
+    }
+
+    .vote-options { display: flex; flex-direction: column; gap: 0.6rem; }
+    .vote-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--surface);
+    }
+    .vote-option:hover { border-color: var(--cta); background: #eef2ff; }
+    .vote-option.selected { border-color: var(--cta); background: #eef2ff; }
+    .vote-option input[type="radio"] { accent-color: var(--cta); }
+
+    /* ── Progress bar ── */
+    .progress-wrap { margin-bottom: 1.5rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--cta); border-radius: 99px; }
+
+    /* ── Results ── */
+    .result-row {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .result-row .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .result-row .author { font-weight: 700; font-size: 1rem; }
+    .result-row .verdict {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 99px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .verdict.personal    { background: #dcfce7; color: #15803d; }
+    .verdict.generic     { background: #fee2e2; color: #991b1b; }
+    .result-row .quote { font-style: italic; color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem; }
+    .score-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .score-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .score-fill-personal { height: 100%; background: var(--green); border-radius: 99px; }
+    .score-fill-generic  { height: 100%; background: var(--red);   border-radius: 99px; }
+    .score-pct { font-size: 0.8rem; font-weight: 700; color: var(--muted); width: 3rem; text-align: right; }
+
+    /* ── Waiting / success states ── */
+    .center-state {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .center-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .center-state h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .center-state p { color: var(--muted); font-size: 0.9rem; }
+    .pulse {
+      display: inline-block;
+      width: 12px; height: 12px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.4s ease-in-out infinite;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.6rem;
+    }
+
+    .mt-1 { margin-top: 0.75rem; }
+    .mt-2 { margin-top: 1.5rem; }
+    .voted-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 0.6rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .token-box {
+      background: #fef9c3;
+      border: 1px solid #fde68a;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: #92400e;
+      margin-bottom: 1.25rem;
+    }
+    .token-box code { font-family: monospace; word-break: break-all; }
+
+    .host-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .host-controls .label { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+    .host-controls .val   { font-weight: 700; }
+
+    .screen-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">CV Matching Game — Mockup</span>
+  <button onclick="show('create')"    id="nav-create">1. Create Game</button>
+  <button onclick="show('join')"      id="nav-join">2. Join Game</button>
+  <button onclick="show('statement')" id="nav-statement">3. Submit Statement</button>
+  <button onclick="show('lobby-h')"   id="nav-lobby-h">4. Lobby (Host)</button>
+  <button onclick="show('lobby-p')"   id="nav-lobby-p">5. Lobby (Player)</button>
+  <button onclick="show('vote-p')"    id="nav-vote-p">6. Voting (Player)</button>
+  <button onclick="show('vote-h')"    id="nav-vote-h">7. Voting (Host)</button>
+  <button onclick="show('results')"   id="nav-results">8. Results</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     1. CREATE GAME (Host)
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-create">
+  <div class="page">
+    <div class="screen-label">Screen 1 of 8 — Host: Create Game</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Host</div>
+        <h1>Create a game</h1>
+        <p>Share the Game ID and password with your class once created.</p>
+      </div>
+
+      <div class="field">
+        <label for="pw">Room password</label>
+        <input id="pw" type="text" value="sunshine42" />
+        <div class="hint">Trainees will need this to join. Keep it simple — you'll say it aloud.</div>
+      </div>
+
+      <button class="btn" onclick="show('lobby-h')">Create game →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     2. JOIN GAME (Player)
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-join">
+  <div class="page">
+    <div class="screen-label">Screen 2 of 8 — Player: Join Game</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Player</div>
+        <h1>Join a game</h1>
+        <p>Enter the Game ID and password your volunteer shared.</p>
+      </div>
+
+      <div class="field">
+        <label for="gid">Game ID</label>
+        <input id="gid" type="text" value="XK7P" maxlength="6" style="font-size:1.5rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;" />
+      </div>
+
+      <div class="field">
+        <label for="jpw">Password</label>
+        <input id="jpw" type="text" placeholder="Password from your volunteer" />
+      </div>
+
+      <div class="field">
+        <label for="pname">Your name</label>
+        <input id="pname" type="text" value="Maria Santos" />
+      </div>
+
+      <button class="btn" onclick="show('statement')">Join →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     3. SUBMIT STATEMENT (Player)
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-statement">
+  <div class="page">
+    <div class="screen-label">Screen 3 of 8 — Player: Submit Statement</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Player</div>
+        <h1>Your personal statement</h1>
+        <p>Paste the personal statement from your CV. Nobody will see your name while it's being guessed.</p>
+      </div>
+
+      <div class="field">
+        <label for="stmt">Personal statement</label>
+        <textarea id="stmt" rows="6">I moved from the Philippines to the UK three years ago with one goal: to build software that solves real problems. After working in logistics for five years, I realised I wanted to be the person writing the code, not just using it. CYF gave me the structure I needed to make that leap.</textarea>
+      </div>
+
+      <button class="btn" onclick="show('lobby-p')">Submit statement →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     4. LOBBY — HOST VIEW
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-lobby-h">
+  <div class="page wide">
+    <div class="screen-label">Screen 4 of 8 — Host: Lobby Dashboard</div>
+
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Host</div>
+        <h1>Game lobby</h1>
+      </div>
+
+      <div class="game-id-box">
+        <div class="label">Game ID</div>
+        <div class="code">XK7P</div>
+        <div class="sub">Password: <strong>sunshine42</strong> &nbsp;·&nbsp; Share both with the room</div>
+      </div>
+
+      <div class="token-box">
+        <strong>Your host token</strong> — keep this tab open. This token lets you control the game.<br />
+        <code>a3f9b1e7-2d84-4c60-b7a1-dc935fae8012</code>
+      </div>
+
+      <div class="stat-bar">
+        <div class="stat-box"><div class="num">7</div><div class="lbl">Joined</div></div>
+        <div class="stat-box"><div class="num">5</div><div class="lbl">Submitted</div></div>
+        <div class="stat-box"><div class="num">2</div><div class="lbl">Waiting</div></div>
+      </div>
+
+      <div class="section-label">Players</div>
+      <ul class="player-list">
+        <li><div class="avatar">MS</div><span class="name">Maria Santos</span>    <span class="status-pill submitted">Submitted</span></li>
+        <li><div class="avatar">JO</div><span class="name">James Okafor</span>    <span class="status-pill submitted">Submitted</span></li>
+        <li><div class="avatar">AN</div><span class="name">Amara Nwosu</span>     <span class="status-pill submitted">Submitted</span></li>
+        <li><div class="avatar">LK</div><span class="name">Lena Kowalski</span>   <span class="status-pill submitted">Submitted</span></li>
+        <li><div class="avatar">TR</div><span class="name">Tariq Rahman</span>    <span class="status-pill submitted">Submitted</span></li>
+        <li><div class="avatar">YI</div><span class="name">Yuki Inoue</span>      <span class="status-pill waiting">Typing…</span></li>
+        <li><div class="avatar">CB</div><span class="name">Chioma Bello</span>    <span class="status-pill waiting">Waiting</span></li>
+      </ul>
+
+      <hr class="divider" />
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">Players who haven't submitted will be excluded if you force-start.</p>
+      <button class="btn green" onclick="show('vote-h')">Start game (5 players) →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     5. LOBBY — PLAYER WAITING
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-lobby-p">
+  <div class="page">
+    <div class="screen-label">Screen 5 of 8 — Player: Waiting in Lobby</div>
+    <div class="card">
+      <div class="center-state">
+        <div class="icon">✅</div>
+        <h2>Statement submitted!</h2>
+        <p>Waiting for the volunteer to start the game.</p>
+        <p style="margin-top:1.5rem;">
+          <span class="pulse"></span>
+          <span style="color:var(--muted);font-size:0.85rem;">5 of 7 players have submitted</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     6. VOTING ROUND — PLAYER
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-vote-p">
+  <div class="page">
+    <div class="screen-label">Screen 6 of 8 — Player: Voting Round</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Player</div>
+        <h1>Whose statement is this?</h1>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Statement 2 of 5</span>
+          <span>40%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:40%"></div>
+        </div>
+      </div>
+
+      <div class="statement-card">
+        "I moved from the Philippines to the UK three years ago with one goal: to build software that solves real problems. After working in logistics for five years, I realised I wanted to be the person writing the code, not just using it. CYF gave me the structure I needed to make that leap."
+      </div>
+
+      <div class="section-label">Who wrote this?</div>
+      <div class="vote-options">
+        <label class="vote-option">
+          <input type="radio" name="vote" /> James Okafor
+        </label>
+        <label class="vote-option selected">
+          <input type="radio" name="vote" checked /> Maria Santos
+        </label>
+        <label class="vote-option">
+          <input type="radio" name="vote" /> Amara Nwosu
+        </label>
+        <label class="vote-option">
+          <input type="radio" name="vote" /> Lena Kowalski
+        </label>
+        <label class="vote-option">
+          <input type="radio" name="vote" /> Tariq Rahman
+        </label>
+      </div>
+
+      <button class="btn mt-2" onclick="show('vote-h')">Submit vote →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     7. VOTING ROUND — HOST VIEW
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-vote-h">
+  <div class="page wide">
+    <div class="screen-label">Screen 7 of 8 — Host: Voting Round (advance control)</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Host</div>
+        <h1>Statement 2 of 5</h1>
+      </div>
+
+      <div class="host-controls">
+        <div>
+          <div class="label">Votes received</div>
+          <div class="val">4 of 5</div>
+        </div>
+        <div>
+          <div class="label">Voted</div>
+          <div class="val">Maria · James · Amara · Lena</div>
+        </div>
+        <div>
+          <div class="label">Waiting on</div>
+          <div class="val">Tariq</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Statement 2 of 5</span><span>40%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+      </div>
+
+      <div class="statement-card">
+        "I moved from the Philippines to the UK three years ago with one goal: to build software that solves real problems. After working in logistics for five years, I realised I wanted to be the person writing the code, not just using it. CYF gave me the structure I needed to make that leap."
+      </div>
+
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;">You can advance before everyone votes if you want to keep the session moving.</p>
+
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn secondary" style="flex:0 0 auto;width:auto;padding:0.65rem 1.25rem;" disabled>← Previous</button>
+        <button class="btn green" style="flex:1;" onclick="show('results')">Next statement →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     8. RESULTS
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-results">
+  <div class="page wide">
+    <div class="screen-label">Screen 8 of 8 — Results</div>
+    <div class="card">
+      <div class="game-header">
+        <div class="badge">Everyone</div>
+        <h1>Game over — Results</h1>
+        <p>Statements sorted by how personal they were. Higher score = more people guessed correctly.</p>
+      </div>
+
+      <!-- Personal -->
+      <div class="result-row">
+        <div class="top">
+          <div>
+            <div class="author">Maria Santos</div>
+          </div>
+          <span class="verdict personal">Personal ✓</span>
+        </div>
+        <div class="quote">"I moved from the Philippines to the UK three years ago with one goal: to build software that solves real problems…"</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill-personal" style="width:80%"></div></div>
+          <div class="score-pct">80%</div>
+        </div>
+      </div>
+
+      <div class="result-row">
+        <div class="top">
+          <div><div class="author">Tariq Rahman</div></div>
+          <span class="verdict personal">Personal ✓</span>
+        </div>
+        <div class="quote">"Growing up in a refugee camp, a laptop was a luxury. Today I write code every day and it still feels like a miracle…"</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill-personal" style="width:60%"></div></div>
+          <div class="score-pct">60%</div>
+        </div>
+      </div>
+
+      <!-- Generic -->
+      <div class="result-row">
+        <div class="top">
+          <div><div class="author">James Okafor</div></div>
+          <span class="verdict generic">Too Generic</span>
+        </div>
+        <div class="quote">"I am a motivated and hard-working individual with a passion for technology and a desire to learn new skills in a dynamic team environment…"</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill-generic" style="width:20%"></div></div>
+          <div class="score-pct">20%</div>
+        </div>
+      </div>
+
+      <div class="result-row">
+        <div class="top">
+          <div><div class="author">Lena Kowalski</div></div>
+          <span class="verdict generic">Too Generic</span>
+        </div>
+        <div class="quote">"As a passionate software developer, I am eager to apply my skills and contribute to a forward-thinking organisation…"</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill-generic" style="width:20%"></div></div>
+          <div class="score-pct">20%</div>
+        </div>
+      </div>
+
+      <div class="result-row">
+        <div class="top">
+          <div><div class="author">Amara Nwosu</div></div>
+          <span class="verdict generic">Too Generic</span>
+        </div>
+        <div class="quote">"I am a dedicated learner with strong communication skills and a genuine interest in building software solutions…"</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-fill-generic" style="width:0%"></div></div>
+          <div class="score-pct">0%</div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <p style="font-size:0.82rem;color:var(--muted);">Game data will be automatically deleted in 23h 41m.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const screens = ['create','join','statement','lobby-h','lobby-p','vote-p','vote-h','results'];
+
+  function show(id) {
+    screens.forEach(s => {
+      document.getElementById('screen-' + s).classList.remove('visible');
+      const btn = document.getElementById('nav-' + s);
+      if (btn) btn.classList.remove('active');
+    });
+    document.getElementById('screen-' + id).classList.add('visible');
+    const btn = document.getElementById('nav-' + id);
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  show('create');
+</script>
+</body>
+</html>
