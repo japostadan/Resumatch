@@ -1,0 +1,11 @@
+# Normalize all text files to LF on commit.
+# Prevents CRLF/LF conflicts between Windows and Mac/Linux team members.
+* text=auto eol=lf
+
+# Explicitly binary — never touch line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff2 binary
+*.woff binary

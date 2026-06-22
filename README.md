@@ -34,6 +34,23 @@ Built as a MigraCode fullstack final project.
 
 ## Getting started
 
+### Option A — Dev Container (recommended)
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) and the [VS Code Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+1. Open the repo in VS Code
+2. When prompted "Reopen in Container", click it (or run **Dev Containers: Reopen in Container** from the command palette)
+3. Wait for the container to build and `npm install` to finish
+4. Run `npm run dev`
+
+The container pre-installs all recommended extensions and forwards ports automatically. Works identically on Windows, macOS, and Linux.
+
+**GitHub Codespaces:** open the repo on GitHub and click **Code → Codespaces → Create codespace**. Zero local setup required.
+
+### Option B — Local setup
+
+Requires Node 24 ([mise](https://mise.jdx.dev) or [Volta](https://volta.sh) will pin the version automatically).
+
 ```bash
 npm install       # install all workspaces
 npm run dev       # start frontend + backend in parallel
