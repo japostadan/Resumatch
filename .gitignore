@@ -1,6 +1,9 @@
 .scratch/
 note.md
 
+# shared package build output
+shared/dist/
+
 # local planning and context files — not for remote
 CONTEXT.md
 docs/
