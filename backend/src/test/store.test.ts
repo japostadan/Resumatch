@@ -1,13 +1,32 @@
 import { describe, it, expect } from 'vitest'
-import { createGame, joinGame, submitStatement, startGame, getState } from '../store/index.js'
+import {
+  createGame,
+  joinGame,
+  submitStatement,
+  startGame,
+  castVote,
+  getState,
+} from '../store/index.js'
 import {
   GameNotFoundError,
   WrongPasswordError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
+  AlreadyVotedError,
   NotEnoughPlayersError,
 } from '../errors/index.js'
+
+// A started 2-player game (Ada and Bea, both submitted), ready for voting.
+function startedGame() {
+  const { gameId, hostToken } = createGame('secret')
+  const ada = joinGame(gameId, 'secret', 'Ada')
+  const bea = joinGame(gameId, 'secret', 'Bea')
+  submitStatement(gameId, ada.playerToken, 'ada statement')
+  submitStatement(gameId, bea.playerToken, 'bea statement')
+  startGame(gameId, hostToken)
+  return { gameId, hostToken, ada, bea }
+}
 
 describe('createGame', () => {
   it('creates a game and returns a Game ID and Host Token', () => {
@@ -158,5 +177,50 @@ describe('startGame', () => {
     startGame(gameId, hostToken)
 
     expect(() => joinGame(gameId, 'secret', 'Cy')).toThrow(WrongStatusError)
+  })
+})
+
+describe('castVote', () => {
+  it('records a vote and marks the voter as having voted', () => {
+    const { gameId, ada, bea } = startedGame()
+
+    castVote(gameId, ada.playerToken, bea.playerId)
+
+    const view = getState(gameId, ada.playerId)
+    if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+    expect(view.hasVoted).toBe(true)
+  })
+
+  it('rejects a second vote on the same statement', () => {
+    const { gameId, ada, bea } = startedGame()
+    castVote(gameId, ada.playerToken, bea.playerId)
+
+    expect(() => castVote(gameId, ada.playerToken, bea.playerId)).toThrow(AlreadyVotedError)
+  })
+
+  it('rejects a vote with an unknown token', () => {
+    const { gameId, bea } = startedGame()
+
+    expect(() => castVote(gameId, 'not-a-token', bea.playerId)).toThrow(BadTokenError)
+  })
+
+  it('rejects a self-vote', () => {
+    const { gameId, ada } = startedGame()
+
+    expect(() => castVote(gameId, ada.playerToken, ada.playerId)).toThrow(WrongStatusError)
+  })
+
+  it('rejects a vote for an unknown nominee', () => {
+    const { gameId, ada } = startedGame()
+
+    expect(() => castVote(gameId, ada.playerToken, 'ghost')).toThrow(WrongStatusError)
+  })
+
+  it('rejects voting before the game has started', () => {
+    const { gameId } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+
+    expect(() => castVote(gameId, ada.playerToken, bea.playerId)).toThrow(WrongStatusError)
   })
 })

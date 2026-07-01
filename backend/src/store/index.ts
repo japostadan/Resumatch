@@ -6,6 +6,7 @@ import {
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
+  AlreadyVotedError,
   NotEnoughPlayersError,
 } from '../errors/index.js'
 
@@ -110,6 +111,18 @@ export function startGame(gameId: string, hostToken: string): void {
   game.currentStatementIndex = 0
   game.votes = game.statementOrder.map(() => new Map<string, string>())
   game.status = 'ACTIVE'
+}
+
+export function castVote(gameId: string, playerToken: string, nomineeId: string): void {
+  const game = requireGame(gameId)
+  if (game.status !== 'ACTIVE') throw new WrongStatusError('Voting is not open')
+  const voter = requirePlayerByToken(game, playerToken)
+  const currentVotes = game.votes[game.currentStatementIndex]
+  if (currentVotes.has(voter.id)) throw new AlreadyVotedError()
+  if (nomineeId === voter.id || !game.statementOrder.includes(nomineeId)) {
+    throw new WrongStatusError('Nominee is not a valid candidate')
+  }
+  currentVotes.set(voter.id, nomineeId)
 }
 
 export function getState(gameId: string, playerId?: string): GameView {
