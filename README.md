@@ -4,6 +4,14 @@ A classroom web game for [CodeYourFuture](https://codeyourfuture.io) trainees. A
 
 Built as a MigraCode fullstack final project.
 
+## Project status
+
+Early development. The architecture below describes the **target design**; not all of it is built yet.
+
+- 🟢 **Done** — monorepo scaffold (Vite + TanStack Router frontend, Express 5 backend), `@resumatch/shared` types package, typed error classes, CORS + error middleware, `/api/health`, CI, Dev Container
+- 🟡 **In progress** — Game Store (#2), API routes
+- ⚪ **Not started** — frontend screens / feature slices A–D (#3–#6), error states + accessibility (#7), deployment
+
 ## Tech stack
 
 - **Frontend:** React 19 + TypeScript + Vite + TanStack Router + Tailwind CSS v4
