@@ -8,12 +8,8 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <>
-      <main className="p-8">
-        <Outlet />
-      </main>
-
-      {/* Remove TanStackRouterDevtools in production */}
-      <TanStackRouterDevtools />
+      <Outlet />
+      {import.meta.env.DEV && <TanStackRouterDevtools />}
     </>
   )
 }
