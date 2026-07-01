@@ -155,7 +155,7 @@ function buildResults(game: Game): ResultEntry[] {
     for (const nomineeId of votes.values()) {
       if (nomineeId === authorId) correctVotes++
     }
-    const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? 'Personal' : 'Too Generic'
+    const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? 'Distinctive' : 'Generic'
     return {
       playerId: author.id,
       name: author.name,
