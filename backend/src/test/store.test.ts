@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { createGame, joinGame, getState } from '../store/index.js'
-import { GameNotFoundError, WrongPasswordError } from '../errors/index.js'
+import { createGame, joinGame, submitStatement, startGame, getState } from '../store/index.js'
+import {
+  GameNotFoundError,
+  WrongPasswordError,
+  WrongStatusError,
+  BadTokenError,
+  AlreadySubmittedError,
+  NotEnoughPlayersError,
+} from '../errors/index.js'
 
 describe('createGame', () => {
   it('creates a game and returns a Game ID and Host Token', () => {
@@ -43,5 +50,113 @@ describe('joinGame', () => {
 
   it('rejects an unknown game', () => {
     expect(() => joinGame('nope', 'secret', 'Ada')).toThrow(GameNotFoundError)
+  })
+})
+
+describe('submitStatement', () => {
+  it('marks the player as submitted', () => {
+    const { gameId } = createGame('secret')
+    const { playerId, playerToken } = joinGame(gameId, 'secret', 'Ada')
+
+    submitStatement(gameId, playerToken, 'my statement')
+
+    const view = getState(gameId)
+    if (view.status !== 'LOBBY') throw new Error('expected LOBBY')
+    expect(view.players).toContainEqual({ id: playerId, name: 'Ada', hasSubmitted: true })
+  })
+
+  it('rejects an unknown token', () => {
+    const { gameId } = createGame('secret')
+    joinGame(gameId, 'secret', 'Ada')
+
+    expect(() => submitStatement(gameId, 'not-a-token', 'x')).toThrow(BadTokenError)
+  })
+
+  it('rejects a second submission from the same player', () => {
+    const { gameId } = createGame('secret')
+    const { playerToken } = joinGame(gameId, 'secret', 'Ada')
+    submitStatement(gameId, playerToken, 'first')
+
+    expect(() => submitStatement(gameId, playerToken, 'second')).toThrow(AlreadySubmittedError)
+  })
+})
+
+describe('startGame', () => {
+  it('transitions to ACTIVE and shows the first statement to the host', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'ada statement')
+    submitStatement(gameId, bea.playerToken, 'bea statement')
+
+    startGame(gameId, hostToken)
+
+    const view = getState(gameId)
+    if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+    expect(view.currentStatementIndex).toBe(0)
+    expect(view.totalStatements).toBe(2)
+    expect(['ada statement', 'bea statement']).toContain(view.currentStatement)
+    expect(view.hasVoted).toBe(false)
+    expect(view.candidates).toHaveLength(2)
+    expect(view.candidates.map((c) => c.name).sort()).toEqual(['Ada', 'Bea'])
+  })
+
+  it('excludes players who did not submit a statement', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    joinGame(gameId, 'secret', 'Cy') // never submits
+    submitStatement(gameId, ada.playerToken, 'ada statement')
+    submitStatement(gameId, bea.playerToken, 'bea statement')
+
+    startGame(gameId, hostToken)
+
+    const view = getState(gameId)
+    if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+    expect(view.totalStatements).toBe(2)
+    expect(view.candidates.map((c) => c.name).sort()).toEqual(['Ada', 'Bea'])
+  })
+
+  it('rejects a wrong host token', () => {
+    const { gameId } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'a')
+    submitStatement(gameId, bea.playerToken, 'b')
+
+    expect(() => startGame(gameId, 'not-the-host')).toThrow(BadTokenError)
+  })
+
+  it('requires at least two submitted statements', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'only one')
+
+    expect(() => startGame(gameId, hostToken)).toThrow(NotEnoughPlayersError)
+  })
+
+  it('excludes the requesting player from their own candidate list', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'ada statement')
+    submitStatement(gameId, bea.playerToken, 'bea statement')
+    startGame(gameId, hostToken)
+
+    const view = getState(gameId, ada.playerId)
+    if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+    expect(view.candidates.map((c) => c.name)).toEqual(['Bea'])
+  })
+
+  it('rejects joining once the game has started', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'a')
+    submitStatement(gameId, bea.playerToken, 'b')
+    startGame(gameId, hostToken)
+
+    expect(() => joinGame(gameId, 'secret', 'Cy')).toThrow(WrongStatusError)
   })
 })
