@@ -1,14 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   createGame,
   joinGame,
   submitStatement,
   startGame,
   castVote,
+  advanceStatement,
   getState,
 } from '../store/index.js'
 import {
   GameNotFoundError,
+  GameExpiredError,
   WrongPasswordError,
   WrongStatusError,
   BadTokenError,
@@ -27,6 +29,34 @@ function startedGame() {
   startGame(gameId, hostToken)
   return { gameId, hostToken, ada, bea }
 }
+
+// A started 3-player game; statement text is `${name} statement` so tests
+// can map the anonymous currentStatement back to its author.
+function threePlayerGame() {
+  const { gameId, hostToken } = createGame('secret')
+  const players = ['Ada', 'Bea', 'Cy'].map((name) => ({
+    name,
+    ...joinGame(gameId, 'secret', name),
+  }))
+  players.forEach((p) => submitStatement(gameId, p.playerToken, `${p.name} statement`))
+  startGame(gameId, hostToken)
+  return { gameId, hostToken, players }
+}
+
+type StartedPlayer = { name: string; playerId: string; playerToken: string }
+
+// Author of whichever statement is currently displayed.
+function currentAuthor(gameId: string, players: StartedPlayer[]): StartedPlayer {
+  const view = getState(gameId)
+  if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+  const author = players.find((p) => `${p.name} statement` === view.currentStatement)
+  if (!author) throw new Error('no author for current statement')
+  return author
+}
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 describe('createGame', () => {
   it('creates a game and returns a Game ID and Host Token', () => {
@@ -117,7 +147,7 @@ describe('startGame', () => {
     expect(['ada statement', 'bea statement']).toContain(view.currentStatement)
     expect(view.hasVoted).toBe(false)
     expect(view.candidates).toHaveLength(2)
-    expect(view.candidates.map((c) => c.name).sort()).toEqual(['Ada', 'Bea'])
+    expect(view.candidates.map((c) => c.name).toSorted()).toEqual(['Ada', 'Bea'])
   })
 
   it('excludes players who did not submit a statement', () => {
@@ -133,7 +163,7 @@ describe('startGame', () => {
     const view = getState(gameId)
     if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
     expect(view.totalStatements).toBe(2)
-    expect(view.candidates.map((c) => c.name).sort()).toEqual(['Ada', 'Bea'])
+    expect(view.candidates.map((c) => c.name).toSorted()).toEqual(['Ada', 'Bea'])
   })
 
   it('rejects a wrong host token', () => {
@@ -222,5 +252,114 @@ describe('castVote', () => {
     const bea = joinGame(gameId, 'secret', 'Bea')
 
     expect(() => castVote(gameId, ada.playerToken, bea.playerId)).toThrow(WrongStatusError)
+  })
+})
+
+describe('advanceStatement', () => {
+  it('moves to the next statement while statements remain', () => {
+    const { gameId, hostToken } = startedGame()
+
+    advanceStatement(gameId, hostToken)
+
+    const view = getState(gameId)
+    if (view.status !== 'ACTIVE') throw new Error('expected ACTIVE')
+    expect(view.currentStatementIndex).toBe(1)
+  })
+
+  it('rejects a wrong host token', () => {
+    const { gameId } = startedGame()
+
+    expect(() => advanceStatement(gameId, 'not-the-host')).toThrow(BadTokenError)
+  })
+
+  it('finishes the game after the last statement', () => {
+    const { gameId, hostToken } = startedGame()
+
+    advanceStatement(gameId, hostToken) // index 0 -> 1 (last of 2)
+    advanceStatement(gameId, hostToken) // past the last -> FINISHED
+
+    const view = getState(gameId)
+    expect(view.status).toBe('FINISHED')
+  })
+
+  it('rejects advancing before the game has started', () => {
+    const { gameId, hostToken } = createGame('secret')
+
+    expect(() => advanceStatement(gameId, hostToken)).toThrow(WrongStatusError)
+  })
+})
+
+describe('results', () => {
+  it('marks a statement Personal when exactly half of the voters are correct', () => {
+    const { gameId, hostToken, players } = threePlayerGame()
+
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players)
+      const others = players.filter((p) => p.playerId !== author.playerId)
+      // one correct, one wrong → 1 of 2 = 50%
+      castVote(gameId, others[0].playerToken, author.playerId)
+      castVote(gameId, others[1].playerToken, others[0].playerId)
+      advanceStatement(gameId, hostToken)
+    }
+
+    const view = getState(gameId)
+    if (view.status !== 'FINISHED') throw new Error('expected FINISHED')
+    for (const entry of view.results) {
+      expect(entry.totalVotes).toBe(2)
+      expect(entry.correctVotes).toBe(1)
+      expect(entry.verdict).toBe('Personal')
+    }
+  })
+
+  it('marks a statement Too Generic when fewer than half are correct', () => {
+    const { gameId, hostToken, players } = threePlayerGame()
+
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players)
+      const others = players.filter((p) => p.playerId !== author.playerId)
+      // both vote for each other, neither for the author → 0 of 2
+      castVote(gameId, others[0].playerToken, others[1].playerId)
+      castVote(gameId, others[1].playerToken, others[0].playerId)
+      advanceStatement(gameId, hostToken)
+    }
+
+    const view = getState(gameId)
+    if (view.status !== 'FINISHED') throw new Error('expected FINISHED')
+    for (const entry of view.results) {
+      expect(entry.correctVotes).toBe(0)
+      expect(entry.verdict).toBe('Too Generic')
+    }
+  })
+})
+
+describe('24-hour expiry', () => {
+  it('reports a game older than 24 hours as expired', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+    const { gameId } = createGame('secret')
+
+    vi.setSystemTime(new Date('2026-01-02T00:00:01Z')) // 24h + 1s later
+
+    expect(() => getState(gameId)).toThrow(GameExpiredError)
+  })
+
+  it('deletes the expired game so it is gone afterwards', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+    const { gameId } = createGame('secret')
+    vi.setSystemTime(new Date('2026-01-02T00:00:01Z'))
+    expect(() => getState(gameId)).toThrow(GameExpiredError)
+
+    expect(() => getState(gameId)).toThrow(GameNotFoundError)
+  })
+
+  it('keeps a game alive within 24 hours', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+    const { gameId } = createGame('secret')
+
+    vi.setSystemTime(new Date('2026-01-01T23:59:59Z'))
+
+    expect(getState(gameId).status).toBe('LOBBY')
   })
 })

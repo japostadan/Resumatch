@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
-import type { GameView, LobbyPlayer, Candidate } from '@resumatch/shared'
+import type { GameView, LobbyPlayer, Candidate, ResultEntry } from '@resumatch/shared'
 import {
   GameNotFoundError,
+  GameExpiredError,
   WrongPasswordError,
   WrongStatusError,
   BadTokenError,
@@ -30,6 +31,12 @@ type Game = {
 }
 
 const games = new Map<string, Game>()
+
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
+
+function isExpired(game: Game): boolean {
+  return Date.now() - game.createdAt > TWENTY_FOUR_HOURS_MS
+}
 
 function generateGameId(): string {
   let id: string
@@ -86,6 +93,10 @@ export function joinGame(
 function requireGame(gameId: string): Game {
   const game = games.get(gameId)
   if (!game) throw new GameNotFoundError()
+  if (isExpired(game)) {
+    games.delete(gameId)
+    throw new GameExpiredError()
+  }
   return game
 }
 
@@ -125,6 +136,37 @@ export function castVote(gameId: string, playerToken: string, nomineeId: string)
   currentVotes.set(voter.id, nomineeId)
 }
 
+export function advanceStatement(gameId: string, hostToken: string): void {
+  const game = requireGame(gameId)
+  if (game.hostToken !== hostToken) throw new BadTokenError()
+  if (game.status !== 'ACTIVE') throw new WrongStatusError('Game is not in progress')
+  game.currentStatementIndex++
+  if (game.currentStatementIndex >= game.statementOrder.length) {
+    game.status = 'FINISHED'
+  }
+}
+
+function buildResults(game: Game): ResultEntry[] {
+  return game.statementOrder.map((authorId, index) => {
+    const author = playerById(game, authorId)!
+    const votes = game.votes[index]
+    const totalVotes = votes.size
+    let correctVotes = 0
+    for (const nomineeId of votes.values()) {
+      if (nomineeId === authorId) correctVotes++
+    }
+    const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? 'Personal' : 'Too Generic'
+    return {
+      playerId: author.id,
+      name: author.name,
+      statement: author.statement!,
+      correctVotes,
+      totalVotes,
+      verdict,
+    }
+  })
+}
+
 export function getState(gameId: string, playerId?: string): GameView {
   const game = requireGame(gameId)
 
@@ -135,6 +177,10 @@ export function getState(gameId: string, playerId?: string): GameView {
       hasSubmitted: p.statement !== undefined,
     }))
     return { status: 'LOBBY', gameId: game.id, players }
+  }
+
+  if (game.status === 'FINISHED') {
+    return { status: 'FINISHED', gameId: game.id, results: buildResults(game) }
   }
 
   const authorId = game.statementOrder[game.currentStatementIndex]
