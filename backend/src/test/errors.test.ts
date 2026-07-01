@@ -23,20 +23,70 @@ function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFun
 
 function makeApp(thrower: () => never) {
   const app = express()
-  app.get('/test', () => { thrower() })
+  app.get('/test', () => {
+    thrower()
+  })
   app.use(errorHandler)
   return app
 }
 
 const cases: [string, () => never, number][] = [
-  ['GameNotFoundError', () => { throw new GameNotFoundError() }, 404],
-  ['GameExpiredError',  () => { throw new GameExpiredError() },  404],
-  ['WrongPasswordError', () => { throw new WrongPasswordError() }, 403],
-  ['BadTokenError', () => { throw new BadTokenError() }, 403],
-  ['WrongStatusError', () => { throw new WrongStatusError('Wrong phase') }, 409],
-  ['AlreadyVotedError', () => { throw new AlreadyVotedError() }, 409],
-  ['AlreadySubmittedError', () => { throw new AlreadySubmittedError() }, 409],
-  ['NotEnoughPlayersError', () => { throw new NotEnoughPlayersError() }, 422],
+  [
+    'GameNotFoundError',
+    () => {
+      throw new GameNotFoundError()
+    },
+    404,
+  ],
+  [
+    'GameExpiredError',
+    () => {
+      throw new GameExpiredError()
+    },
+    404,
+  ],
+  [
+    'WrongPasswordError',
+    () => {
+      throw new WrongPasswordError()
+    },
+    403,
+  ],
+  [
+    'BadTokenError',
+    () => {
+      throw new BadTokenError()
+    },
+    403,
+  ],
+  [
+    'WrongStatusError',
+    () => {
+      throw new WrongStatusError('Wrong phase')
+    },
+    409,
+  ],
+  [
+    'AlreadyVotedError',
+    () => {
+      throw new AlreadyVotedError()
+    },
+    409,
+  ],
+  [
+    'AlreadySubmittedError',
+    () => {
+      throw new AlreadySubmittedError()
+    },
+    409,
+  ],
+  [
+    'NotEnoughPlayersError',
+    () => {
+      throw new NotEnoughPlayersError()
+    },
+    422,
+  ],
 ]
 
 describe('error handler middleware', () => {
@@ -49,7 +99,9 @@ describe('error handler middleware', () => {
   }
 
   it('maps unknown errors to 500', async () => {
-    const app = makeApp(() => { throw new Error('boom') })
+    const app = makeApp(() => {
+      throw new Error('boom')
+    })
     const res = await request(app).get('/test')
     expect(res.status).toBe(500)
     expect(res.body.error).toBe('Internal server error')
