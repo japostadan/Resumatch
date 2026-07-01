@@ -56,20 +56,22 @@ npm install       # install all workspaces
 npm run dev       # start frontend + backend in parallel
 ```
 
-| Service  | URL                    |
-|----------|------------------------|
-| Frontend | http://localhost:5173  |
-| Backend  | http://localhost:3000  |
+| Service  | URL                   |
+| -------- | --------------------- |
+| Frontend | http://localhost:5173 |
+| Backend  | http://localhost:3000 |
 
 No database setup needed — state is held in server memory.
 
 ## How the game works
 
 ### Roles
+
 - **Host** (volunteer) — creates the game, controls pacing, does not submit a statement or vote
 - **Player** (trainee) — joins with a Game ID + password, submits their CV personal statement, votes
 
 ### Game flow
+
 ```
 LOBBY → ACTIVE → FINISHED
 ```
@@ -82,29 +84,34 @@ LOBBY → ACTIVE → FINISHED
 6. Results show each statement, its author, vote score, and a **Personal** / **Too Generic** verdict
 
 ### Verdicts
+
 - **Personal** — ≥ 50% of voters correctly identified the author
 - **Too Generic** — < 50% identified the author
 
 ## Architecture
 
 ### Game Store
+
 All game state lives in a single in-memory `Map<string, Game>` owned by the `GameStore` module. The store is the sole enforcer of game rules — routes are thin (parse, call store, map typed error to HTTP status). Game data expires 24 hours after creation and is lazily deleted on the next request.
 
 ### API
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/games` | — | Create game → `{ gameId, hostToken }` |
-| POST | `/api/games/:id/join` | — | Join game → `{ playerId, playerToken }` |
-| GET | `/api/games/:id/state` | — | Poll state (`?playerId=xxx` for player view) |
-| POST | `/api/games/:id/statement` | `X-Player-Token` | Submit statement |
-| POST | `/api/games/:id/start` | `X-Host-Token` | Start game |
-| POST | `/api/games/:id/vote` | `X-Player-Token` | Cast vote |
-| POST | `/api/games/:id/next` | `X-Host-Token` | Advance to next statement |
+
+| Method | Path                       | Auth             | Description                                  |
+| ------ | -------------------------- | ---------------- | -------------------------------------------- |
+| POST   | `/api/games`               | —                | Create game → `{ gameId, hostToken }`        |
+| POST   | `/api/games/:id/join`      | —                | Join game → `{ playerId, playerToken }`      |
+| GET    | `/api/games/:id/state`     | —                | Poll state (`?playerId=xxx` for player view) |
+| POST   | `/api/games/:id/statement` | `X-Player-Token` | Submit statement                             |
+| POST   | `/api/games/:id/start`     | `X-Host-Token`   | Start game                                   |
+| POST   | `/api/games/:id/vote`      | `X-Player-Token` | Cast vote                                    |
+| POST   | `/api/games/:id/next`      | `X-Host-Token`   | Advance to next statement                    |
 
 ### Shared types
+
 `shared/` is a types-only workspace package. It exports `GameView` (a discriminated union of `LobbyView | ActiveView | FinishedView`), API body shapes, and `GameStatus`. No logic lives there — scoring is in the store, display formatting is in the frontend.
 
 ### Token persistence
+
 Tokens are stored in the URL hash (`/game/:id#token=xxx`). The hash fragment is never sent to the server and survives page refresh. `localStorage` is not used.
 
 ## Testing
@@ -121,20 +128,21 @@ cd backend  && npm run test         # backend only
 
 ## Scripts
 
-| Command | What it does |
-|---------|-------------|
-| `npm run dev` | Start frontend + backend in parallel |
-| `npm run build` | Build both apps for production |
-| `npm run test` | Run all tests |
-| `npm run typecheck` | Type-check all packages |
-| `npm run lint` | Lint all source files |
-| `npm run format` | Format all files |
+| Command             | What it does                         |
+| ------------------- | ------------------------------------ |
+| `npm run dev`       | Start frontend + backend in parallel |
+| `npm run build`     | Build both apps for production       |
+| `npm run test`      | Run all tests                        |
+| `npm run typecheck` | Type-check all packages              |
+| `npm run lint`      | Lint all source files                |
+| `npm run format`    | Format all files                     |
 
 ## Deployment
 
 Target: **Railway** — supports monorepo deployments, no cold starts, low maintenance burden for CYF volunteers.
 
 **Backend environment variables:**
+
 ```
 PORT=3000
 CORS_ORIGIN=https://your-frontend-domain.com
@@ -145,4 +153,5 @@ No database addon required — the backend is stateless between deploys (in-memo
 ## CI
 
 GitHub Actions runs on every push and pull request to `main`:
+
 - Lint → format check → type-check → test → build
