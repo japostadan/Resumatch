@@ -290,7 +290,7 @@ describe('advanceStatement', () => {
 })
 
 describe('results', () => {
-  it('marks a statement Personal when exactly half of the voters are correct', () => {
+  it('marks a statement Distinctive when exactly half of the voters are correct', () => {
     const { gameId, hostToken, players } = threePlayerGame()
 
     for (let i = 0; i < players.length; i++) {
@@ -307,11 +307,11 @@ describe('results', () => {
     for (const entry of view.results) {
       expect(entry.totalVotes).toBe(2)
       expect(entry.correctVotes).toBe(1)
-      expect(entry.verdict).toBe('Personal')
+      expect(entry.verdict).toBe('Distinctive')
     }
   })
 
-  it('marks a statement Too Generic when fewer than half are correct', () => {
+  it('marks a statement Generic when fewer than half are correct', () => {
     const { gameId, hostToken, players } = threePlayerGame()
 
     for (let i = 0; i < players.length; i++) {
@@ -327,7 +327,7 @@ describe('results', () => {
     if (view.status !== 'FINISHED') throw new Error('expected FINISHED')
     for (const entry of view.results) {
       expect(entry.correctVotes).toBe(0)
-      expect(entry.verdict).toBe('Too Generic')
+      expect(entry.verdict).toBe('Generic')
     }
   })
 })

@@ -17,7 +17,7 @@ export type ResultEntry = {
   statement: string
   correctVotes: number
   totalVotes: number
-  verdict: 'Personal' | 'Too Generic'
+  verdict: 'Distinctive' | 'Generic'
 }
 
 export type LobbyView = {
