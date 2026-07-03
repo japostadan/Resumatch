@@ -1,5 +1,7 @@
 export type GameStatus = 'LOBBY' | 'ACTIVE' | 'FINISHED'
 
+export type Verdict = 'Distinctive' | 'Generic'
+
 export type LobbyPlayer = {
   id: string
   name: string
@@ -17,7 +19,7 @@ export type ResultEntry = {
   statement: string
   correctVotes: number
   totalVotes: number
-  verdict: 'Distinctive' | 'Generic'
+  verdict: Verdict
 }
 
 export type LobbyView = {
