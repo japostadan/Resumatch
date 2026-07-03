@@ -104,7 +104,7 @@ export function Home() {
           <aside className="py-12 md:pl-12">
             <div className="flex items-baseline justify-between border-b-2 border-line pb-3.5 text-xs font-bold tracking-widest text-muted uppercase">
               <span>Development status</span>
-              <span className="text-ink">3 stages</span>
+              <span className="text-ink">{STAGES.length} stages</span>
             </div>
             <ul>
               {STAGES.map((stage) => (
@@ -140,9 +140,11 @@ export function Home() {
           <span>A MigraCode final project · built in the open</span>
           <a
             href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-bold text-ink underline decoration-violet decoration-2"
           >
-            github.com/japostadan/Resumatch
+            View the project on GitHub
           </a>
         </div>
       </footer>
