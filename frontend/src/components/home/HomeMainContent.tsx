@@ -15,14 +15,13 @@ function HomeMainContent() {
       </p>
 
       <div className="mt-10 flex flex-wrap gap-3.5">
-        <button
-          type="button"
-          disabled
-          className="cursor-not-allowed border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white opacity-60"
+        <a
+          href="/host"
+          className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white"
         >
           <span className="text-xs font-bold tracking-wider uppercase opacity-70">Host</span> Create
           a game
-        </button>
+        </a>
         <button
           type="button"
           disabled
@@ -33,7 +32,7 @@ function HomeMainContent() {
         </button>
       </div>
       <p className="mt-4 text-sm text-muted">
-        Both open once the screens are built — follow along on the right.
+        Hosting works now — Join opens once the player screen is built.
       </p>
     </section>
   )

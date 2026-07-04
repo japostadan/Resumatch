@@ -1,0 +1,70 @@
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { CreateGame } from './CreateGame'
+
+function mockFetch(body: unknown, { ok = true, status = 200 } = {}) {
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok,
+    status,
+    json: async () => body,
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  window.location.hash = ''
+})
+
+describe('CreateGame', () => {
+  it('lets the host enter a password and submit', () => {
+    mockFetch({ gameId: 'abc123', hostToken: 't' })
+    render(<CreateGame />)
+
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /create game/i })).toBeInTheDocument()
+  })
+
+  it('prevents an empty-password submission with a validation message and no API call', () => {
+    const fetchMock = mockFetch({})
+    render(<CreateGame />)
+
+    fireEvent.click(screen.getByRole('button', { name: /create game/i }))
+
+    expect(screen.getByText(/enter a password/i)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('shows the Game ID and password clearly on success', async () => {
+    mockFetch({ gameId: 'abc123', hostToken: 'host-tok' })
+    render(<CreateGame />)
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'swordfish' } })
+    fireEvent.click(screen.getByRole('button', { name: /create game/i }))
+
+    expect(await screen.findByText('abc123')).toBeInTheDocument()
+    expect(screen.getByText('swordfish')).toBeInTheDocument()
+  })
+
+  it('stores the host token in the URL hash on success', async () => {
+    mockFetch({ gameId: 'abc123', hostToken: 'host-tok' })
+    render(<CreateGame />)
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'swordfish' } })
+    fireEvent.click(screen.getByRole('button', { name: /create game/i }))
+
+    await screen.findByText('abc123')
+    expect(window.location.hash).toContain('token=host-tok')
+  })
+
+  it('surfaces the server error when creation fails', async () => {
+    mockFetch({ error: 'A password is required' }, { ok: false, status: 400 })
+    render(<CreateGame />)
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'x' } })
+    fireEvent.click(screen.getByRole('button', { name: /create game/i }))
+
+    expect(await screen.findByText(/a password is required/i)).toBeInTheDocument()
+  })
+})
