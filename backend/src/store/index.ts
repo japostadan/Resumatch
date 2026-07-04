@@ -4,6 +4,7 @@ import {
   GameNotFoundError,
   GameExpiredError,
   WrongPasswordError,
+  MissingPasswordError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
@@ -60,6 +61,7 @@ function playerById(game: Game, id: string): Player | undefined {
 }
 
 export function createGame(password: string): { gameId: string; hostToken: string } {
+  if (!password) throw new MissingPasswordError()
   const gameId = generateGameId()
   const hostToken = randomUUID()
   games.set(gameId, {
