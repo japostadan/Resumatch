@@ -24,7 +24,7 @@ failures, and invalid state transitions — not just the sunny day.
 
 - **Render the screen and assert on what the user sees and can do** — query by role,
   label, and text, not by CSS class or component internals.
-- **Co-locate the test with its screen**: `components/CreateGame/CreateGame.test.tsx`.
+- **Co-locate the test with its screen**: `components/createGame/CreateGame.test.tsx`.
   Shared setup (`setup.ts`) stays in `src/test/`.
 - **Mock the network boundary, not our own logic.** Stub `fetch` (or the `lib/api`
   function) so the test drives real component behavior — validation, state, what
