@@ -10,10 +10,9 @@ frontend/src/
   routes/            Thin TanStack Router route definitions — one file per URL.
                      A route file only wires a path to a screen component.
   components/
-    layout/          Shared page chrome used across screens: Header, Footer.
-    ui/              Shared presentational primitives: Button, StatusPill, …
+    common/          Components shared across screens: Header, Footer, Main.
                      Add one here only when a SECOND screen needs it.
-    <Screen>/        One folder per screen (see below).
+    <screen>/        One folder per screen (see below).
   hooks/             Shared React hooks: useGameSession, useGameState.
   lib/               Non-UI modules: the API client (api.ts) and helpers.
   test/              setup.ts and shared test utilities only.
@@ -23,23 +22,25 @@ frontend/src/
 
 - **A screen is a folder.** Each screen the user navigates to lives in its own
   folder under `components/`, together with its co-located test and any private
-  sub-components it grows.
+  sub-components it grows. The folder is the screen name in camelCase; the
+  component files are PascalCase; a screen's private sub-components are prefixed
+  with the screen name.
 
   ```
   components/
-    CreateGame/
-      CreateGame.tsx        the screen
-      CreateGame.test.tsx   its test, co-located
-    Home/
-      Home.tsx
-      HomeContent.tsx       private sub-component
-      DevStatus.tsx         private sub-component
-      Home.test.tsx
+    home/
+      Home.tsx                    the screen
+      HomeMainContent.tsx         private sub-component
+      HomeDevelopmentStatus.tsx   private sub-component
+      Home.test.tsx               its test, co-located
+    createGame/
+      CreateGame.tsx
+      CreateGame.test.tsx
   ```
 
-- **A shared leaf is a flat file.** `layout/` and `ui/` hold small, single-purpose
-  components — `Header.tsx`, `Footer.tsx`, `Button.tsx`. No folder ceremony until
-  one of them genuinely grows sub-parts.
+- **A shared leaf is a flat file.** `common/` holds small, single-purpose
+  components — `Header.tsx`, `Footer.tsx`, `Main.tsx`. No folder ceremony until one
+  of them genuinely grows sub-parts.
 
 Why this split: screens accumulate sub-components and tests, so a folder pays off.
 A 20-line `Footer` in its own folder is just boilerplate. Group by feature; promote
@@ -47,10 +48,11 @@ shared code out **only when it's actually reused**.
 
 ## What is "shared" — and what isn't
 
-Only put something in `layout/` or `ui/` if more than one screen uses it.
-Screen-specific content stays with its screen. For example, Home's development-status
-panel is **Home's** (`components/Home/DevStatus.tsx`), not a `layout/` component —
-no other screen shows it.
+Only put something in `common/` if more than one screen uses it. Screen-specific
+content stays with its screen. For example, Home's development-status panel is
+**Home's** (`components/home/HomeDevelopmentStatus.tsx`), not a `common/` component
+— no other screen shows it. A layout wrapper like `Main` that any screen could use
+_is_ shared, so it lives in `common/`.
 
 ## Routes stay thin
 
@@ -58,7 +60,7 @@ A file in `routes/` maps a path to a screen and nothing else:
 
 ```tsx
 import { createFileRoute } from '@tanstack/react-router'
-import { CreateGame } from '../components/CreateGame/CreateGame'
+import { CreateGame } from '../components/createGame/CreateGame'
 
 export const Route = createFileRoute('/host')({
   component: CreateGame,
@@ -89,8 +91,8 @@ export async function createGame(password: string): Promise<CreatedGame> {
 Import the real file directly:
 
 ```ts
-import { Header } from '../components/layout/Header' // ✅
-import { Header } from '../components/layout' // ❌ no index.ts re-exports
+import { Header } from '../components/common/Header' // ✅
+import { Header } from '../components/common' // ❌ no index.ts re-exports
 ```
 
 Barrels (`index.ts` re-export files) add indirection, slow the bundler, and invite
