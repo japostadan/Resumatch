@@ -61,7 +61,7 @@ function playerById(game: Game, id: string): Player | undefined {
 }
 
 export function createGame(password: string): { gameId: string; hostToken: string } {
-  if (!password) throw new MissingPasswordError()
+  if (typeof password !== 'string' || password.trim() === '') throw new MissingPasswordError()
   const gameId = generateGameId()
   const hostToken = randomUUID()
   games.set(gameId, {

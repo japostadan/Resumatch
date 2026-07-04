@@ -80,11 +80,19 @@ describe('createGame', () => {
     const { gameId } = createGame('secret')
 
     expect(gameId).toMatch(/^[a-z0-9]+$/)
-    expect(gameId.length).toBeLessThanOrEqual(8)
+    expect(gameId.length).toBeLessThanOrEqual(6)
   })
 
   it('rejects an empty password', () => {
     expect(() => createGame('')).toThrow(MissingPasswordError)
+  })
+
+  it('rejects a whitespace-only password', () => {
+    expect(() => createGame('   ')).toThrow(MissingPasswordError)
+  })
+
+  it('rejects a non-string password', () => {
+    expect(() => createGame(123 as unknown as string)).toThrow(MissingPasswordError)
   })
 })
 
