@@ -17,6 +17,7 @@ import {
   AlreadySubmittedError,
   AlreadyVotedError,
   NotEnoughPlayersError,
+  MissingPasswordError,
 } from '../errors/index.js'
 
 // A started 2-player game (Ada and Bea, both submitted), ready for voting.
@@ -73,6 +74,25 @@ describe('createGame', () => {
     const view = getState(gameId)
 
     expect(view).toEqual({ status: 'LOBBY', gameId, players: [] })
+  })
+
+  it('generates a short alphanumeric Game ID', () => {
+    const { gameId } = createGame('secret')
+
+    expect(gameId).toMatch(/^[a-z0-9]+$/)
+    expect(gameId.length).toBeLessThanOrEqual(6)
+  })
+
+  it('rejects an empty password', () => {
+    expect(() => createGame('')).toThrow(MissingPasswordError)
+  })
+
+  it('rejects a whitespace-only password', () => {
+    expect(() => createGame('   ')).toThrow(MissingPasswordError)
+  })
+
+  it('rejects a non-string password', () => {
+    expect(() => createGame(123 as unknown as string)).toThrow(MissingPasswordError)
   })
 })
 

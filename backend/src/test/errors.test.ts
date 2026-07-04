@@ -5,6 +5,7 @@ import {
   GameNotFoundError,
   GameExpiredError,
   WrongPasswordError,
+  MissingPasswordError,
   BadTokenError,
   WrongStatusError,
   AlreadyVotedError,
@@ -51,6 +52,13 @@ const cases: [string, () => never, number][] = [
       throw new WrongPasswordError()
     },
     403,
+  ],
+  [
+    'MissingPasswordError',
+    () => {
+      throw new MissingPasswordError()
+    },
+    400,
   ],
   [
     'BadTokenError',
