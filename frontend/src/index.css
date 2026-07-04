@@ -1,18 +1,40 @@
 @import 'tailwindcss';
 
+/* Self-hosted fonts (bundled via Fontsource) — no third-party requests.
+ * Fraunces: optical-size axis, upright + italic. Space Grotesk: 400/500/700. */
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/700.css';
+
 @theme {
-  /* ── Colors ───────────────────────────────────────────────────────────────
-   * Change these hex/oklch values to match your project's brand.
-   * Great tool to explore oklch colors: https://oklch.com            */
-  --color-brand: oklch(0.55 0.22 264); /* primary buttons & links  */
-  --color-brand-dark: oklch(0.45 0.22 264); /* hover / active state     */
-  --color-surface: oklch(0.98 0 264); /* card & panel background  */
-  --color-muted: oklch(0.55 0.02 264); /* secondary / hint text    */
-  --color-border: oklch(0.88 0.01 264); /* dividers & card borders  */
+  /* ── Colours — dark, warm palette ──────────────────────────────────────────
+   * green/red are reserved for verdicts and build status only — never for
+   * interactive choices (see CONTEXT.md).                                    */
+  --color-canvas: #1a1613; /* warm charcoal page background */
+  --color-surface: #221d18; /* lifted panel                 */
+  --color-ink: #f5f1e8; /* primary text                 */
+  --color-muted: #a8a096; /* secondary text               */
+  --color-line: #4a4239; /* strong rule                  */
+  --color-hair: #2c2620; /* hairline divider             */
+  --color-violet: #a78bfa; /* accents                      */
+  --color-cta: #7c3aed; /* solid primary button         */
+  --color-distinctive: #4ade80; /* verdict: Distinctive (green) */
+  --color-generic: #f87171; /* verdict: Generic (red)       */
+  --color-status: #fbbf24; /* development status (amber)   */
 
   /* ── Typography ───────────────────────────────────────────────────────────
-   * Swap the font-family value to use a web font.
-   * Example with Inter: add the Google Fonts <link> in index.html, then:
-   *   --font-sans: 'Inter', system-ui, sans-serif;              */
-  --font-sans: system-ui, -apple-system, sans-serif;
+   * Bundled via Fontsource (see @import above).                             */
+  --font-display: 'Fraunces Variable', serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
 }

@@ -15,6 +15,8 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource/space-grotesk": "^5.2.10",
     "@tanstack/react-router": "^1.170.15",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
