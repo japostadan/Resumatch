@@ -39,4 +39,4 @@ function HomeContent() {
   )
 }
 
-export default HomeContent;
+export default HomeContent
