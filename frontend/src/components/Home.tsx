@@ -1,4 +1,5 @@
 import Header from "./common/Header";
+import Footer from "./common/Footer";
 
 type StageStatus = 'Done' | 'Up next' | 'Later'
 
@@ -25,8 +26,6 @@ const STAGES: Stage[] = [
     status: 'Later',
   },
 ]
-
-const REPO_URL = 'https://github.com/japostadan/Resumatch'
 
 const stagePill: Record<StageStatus, string> = {
   Done: 'text-distinctive border-distinctive/40 bg-distinctive/10',
@@ -126,19 +125,7 @@ export function Home() {
         </div>
       </main>
 
-      <footer className="border-t-2 border-line">
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap justify-between gap-2 px-8 py-5 text-sm text-muted">
-          <span>A MigraCode final project · built in the open</span>
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-ink underline decoration-violet decoration-2"
-          >
-            View the project on GitHub
-          </a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
