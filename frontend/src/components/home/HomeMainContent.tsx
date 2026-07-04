@@ -1,4 +1,4 @@
-function HomeContent() {
+function HomeMainContent() {
   return (
     <section className="py-12 md:border-r md:border-hair md:pr-14">
       <p className="mb-6 text-xs font-bold tracking-[0.14em] text-violet uppercase">
@@ -39,4 +39,4 @@ function HomeContent() {
   )
 }
 
-export default HomeContent
+export { HomeMainContent }

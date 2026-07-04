@@ -1,8 +1,8 @@
-import Header from '../common/Header'
-import Footer from '../common/Footer'
-import SideBar from '../common/SideBar'
-import Main from '../common/Main'
-import HomeContent from './HomeContent'
+import { Header } from '../common/Header'
+import { Footer } from '../common/Footer'
+import { HomeDevelopmentStatus } from './HomeDevelopmentStatus'
+import { Main } from '../common/Main'
+import { HomeMainContent } from './HomeMainContent'
 
 export function Home() {
   return (
@@ -10,8 +10,10 @@ export function Home() {
       <Header />
 
       <Main>
-        <HomeContent />
-        <SideBar />
+        <div className="grid gap-0 md:grid-cols-[1.7fr_1fr]">
+          <HomeMainContent />
+          <HomeDevelopmentStatus />
+        </div>
       </Main>
 
       <Footer />

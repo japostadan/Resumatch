@@ -42,7 +42,7 @@ const stageMark: Record<StageStatus, string> = {
   Later: '',
 }
 
-function SideBar() {
+function HomeDevelopmentStatus() {
   return (
     <aside className="py-12 md:pl-12">
       <div className="flex items-baseline justify-between border-b-2 border-line pb-3.5 text-xs font-bold tracking-widest text-muted uppercase">
@@ -76,4 +76,4 @@ function SideBar() {
   )
 }
 
-export default SideBar
+export { HomeDevelopmentStatus }
