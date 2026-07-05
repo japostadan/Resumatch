@@ -1,6 +1,6 @@
 # CV Matching Game
 
-A classroom web game for [CodeYourFuture](https://codeyourfuture.io) trainees. A volunteer creates a game, trainees submit their CV personal statements, then vote anonymously on whose statement each entry belongs to. Results show whether each statement is **Personal** (distinctive) or **Too Generic** (interchangeable).
+A classroom web game for MigraCode trainees. A volunteer creates a game, trainees submit their CV personal statements, then vote anonymously on whose statement each entry belongs to. Results show whether each statement is **Personal** (distinctive) or **Too Generic** (interchangeable).
 
 Built as a MigraCode fullstack final project.
 
@@ -10,7 +10,8 @@ Early development. The architecture below describes the **target design**; not a
 
 - 🟢 **Done** — monorepo scaffold (Vite + TanStack Router frontend, Express 5 backend), `@resumatch/shared` types package, typed error classes, CORS + error middleware, `/api/health`, CI, Dev Container
 - 🟡 **In progress** — Game Store (#2), API routes
-- ⚪ **Not started** — frontend screens / feature slices A–D (#3–#6), error states + accessibility (#7), deployment
+- 🟢 **Done** — frontend deployed to Netlify (auto-deploys `main`)
+- ⚪ **Not started** — frontend screens / feature slices A–D (#3–#6), error states + accessibility (#7), backend deployment
 
 ## Tech stack
 
@@ -147,9 +148,23 @@ cd backend  && npm run test         # backend only
 
 ## Deployment
 
-Target: **Railway** — supports monorepo deployments, no cold starts, low maintenance burden for CYF volunteers.
+**Coolify** is the target platform for the final deployment (frontend + backend). Until that's set up, the frontend is hosted on **Netlify** as an interim public URL.
 
-**Backend environment variables:**
+### Frontend — Netlify (interim)
+
+The frontend is a static Vite build hosted on **Netlify**, auto-deployed on every push to `main`. Build settings are version-controlled in [`netlify.toml`](./netlify.toml): it builds only the `frontend` workspace and publishes `frontend/dist`. Client-side routing (deep links, refresh) is handled by the SPA fallback in [`frontend/public/_redirects`](./frontend/public/_redirects), which Vite copies into `dist` at build time.
+
+**One-time setup** (for a volunteer with a Netlify account, to reproduce the site):
+
+1. In Netlify, **Add new site → Import an existing project**, and authorize the GitHub repo.
+2. Leave the build command and publish directory blank — Netlify reads them from `netlify.toml`. (Base directory stays the repo root so npm installs all workspaces.)
+3. Deploy. Netlify then auto-deploys `main` on push and builds a deploy preview for each pull request.
+
+No environment variables are required for the frontend build.
+
+### Backend — Coolify (planned)
+
+**Environment variables:**
 
 ```
 PORT=3000

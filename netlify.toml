@@ -1,0 +1,14 @@
+# Netlify build configuration for the Resumatch frontend.
+#
+# The repo is an npm-workspaces monorepo. Netlify installs every workspace from
+# the root, then this command builds only the frontend workspace and publishes
+# its Vite output. The SPA fallback lives in frontend/public/_redirects (copied
+# into dist at build time), so no [[redirects]] block is needed here.
+
+[build]
+  command = "npm run build --prefix frontend"
+  publish = "frontend/dist"
+
+[build.environment]
+  # Match CI (.github/workflows/ci.yml) and mise.toml, which run on Node 24.
+  NODE_VERSION = "24"
