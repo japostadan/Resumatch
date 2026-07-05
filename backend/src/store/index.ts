@@ -36,6 +36,12 @@ const games = new Map<string, Game>();
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
+// Test-only: drop all games so the module-level store does not leak state
+// across test cases. Not used by production code.
+export function clearGames(): void {
+  games.clear();
+}
+
 function isExpired(game: Game): boolean {
   return Date.now() - game.createdAt > TWENTY_FOUR_HOURS_MS;
 }

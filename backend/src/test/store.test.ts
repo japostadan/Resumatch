@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   createGame,
   joinGame,
@@ -7,6 +7,7 @@ import {
   castVote,
   advanceStatement,
   getState,
+  clearGames,
 } from "../store/index.js";
 import {
   GameNotFoundError,
@@ -55,6 +56,10 @@ function currentAuthor(gameId: string, players: StartedPlayer[]): StartedPlayer 
   if (!author) throw new Error("no author for current statement");
   return author;
 }
+
+beforeEach(() => {
+  clearGames();
+});
 
 afterEach(() => {
   vi.useRealTimers();
@@ -377,6 +382,16 @@ describe("results", () => {
       expect(entry.correctVotes).toBe(0);
       expect(entry.verdict).toBe("Generic");
     }
+  });
+});
+
+describe("clearGames", () => {
+  it("removes every game so a previously created one is gone", () => {
+    const { gameId } = createGame("secret");
+
+    clearGames();
+
+    expect(() => getState(gameId)).toThrow(GameNotFoundError);
   });
 });
 
