@@ -1,26 +1,25 @@
-import { useCallback } from "react";
+import { useCallback } from 'react'
 
 export function useGameSession() {
-  const getPlayerToken = useCallback(() => {
-    const params = new URLSearchParams(
-      window.location.hash.slice(1),
-    );
+  const getToken = useCallback((key: string) => {
+    const params = new URLSearchParams(window.location.hash.slice(1))
 
-    return params.get("playerToken");
-  }, []);
+    return params.get(key)
+  }, [])
 
-  const setPlayerToken = useCallback((token: string) => {
-    const params = new URLSearchParams(
-      window.location.hash.slice(1),
-    );
+  const setToken = useCallback((key: string, token: string) => {
+    const params = new URLSearchParams(window.location.hash.slice(1))
 
-    params.set("playerToken", token);
+    params.set(key, token)
 
-    window.location.hash = params.toString();
-  }, []);
+    window.location.hash = params.toString()
+  }, [])
 
   return {
-    getPlayerToken,
-    setPlayerToken,
-  };
+    getPlayerToken: () => getToken('playerToken'),
+    setPlayerToken: (token: string) => setToken('playerToken', token),
+
+    getHostToken: () => getToken('hostToken'),
+    setHostToken: (token: string) => setToken('hostToken', token),
+  }
 }
