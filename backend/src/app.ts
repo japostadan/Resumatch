@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from 'express'
 import type { CreateGameBody, JoinGameBody } from '@resumatch/shared'
 import { isGameError } from './errors/index.js'
-import { createGame, joinGame } from './store/index.js'
+import { createGame } from './store/index.js'
 
 // Middleware such as express.json() tags client errors (e.g. a malformed body)
 // with a 4xx status; read it so those are not reported as 500s.
@@ -48,6 +48,7 @@ app.post('/api/games', (req, res) => {
   res.status(201).json(createGame(password))
 })
 
+<<<<<<< Updated upstream
 app.post('/api/games/:id/join', (req, res) => {
   const { playerName, password } = (req.body ?? {}) as JoinGameBody
 
@@ -56,6 +57,8 @@ app.post('/api/games/:id/join', (req, res) => {
   res.json(result)
 })
 
+=======
+>>>>>>> Stashed changes
 // ── Error handler (must be last) ────────────────────────────────────────────
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (isGameError(err)) {
@@ -72,3 +75,4 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 })
 
 export { app }
+

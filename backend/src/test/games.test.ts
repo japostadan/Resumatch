@@ -51,3 +51,53 @@ describe('POST /api/games', () => {
     expect(typeof res.body.error).toBe('string')
   })
 })
+
+describe('POST /api/games/:id/join', () => {
+  it('joins a game with the correct password', async () => {
+    const createRes = await request(app)
+      .post('/api/games')
+      .send({ password: 'secret' })
+
+    const gameId = createRes.body.gameId
+
+    const joinRes = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({
+        playerName: 'Alice',
+        password: 'secret',
+      })
+
+    expect(joinRes.status).toBe(200)
+    expect(typeof joinRes.body.playerId).toBe('string')
+    expect(joinRes.body.playerId).toBeTruthy()
+    expect(typeof joinRes.body.playerToken).toBe('string')
+    expect(joinRes.body.playerToken).toBeTruthy()
+  })
+
+  it('rejects an incorrect password', async () => {
+    const createRes = await request(app)
+      .post('/api/games')
+      .send({ password: 'secret' })
+
+    const gameId = createRes.body.gameId
+
+    const joinRes = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({
+        playerName: 'Alice',
+        password: 'wrong-password',
+      })
+
+    expect(joinRes.status).toBe(403)
+    expect(joinRes.body.error).toBe('Wrong password')
+  })
+
+  it('rejects joining an ACTIVE game', async () => {
+    // You'll need a way to create or move a game into ACTIVE state.
+    // The exact implementation depends on your GameStore.
+  })
+
+  it('rejects joining a FINISHED game', async () => {
+    // Same idea as above.
+  })
+})
