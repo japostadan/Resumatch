@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 
 import { joinGame } from '../../lib/api'
 import { useGameSession } from '../../hooks/useGameSession'
+
 
  export function JoinGame() {
   const [gameId, setGameId] = useState('')
@@ -10,9 +10,8 @@ import { useGameSession } from '../../hooks/useGameSession'
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+ const { setPlayerToken } = useGameSession()
 
-  const { setPlayerToken } = useGameSession()
-  const navigate = useNavigate()
 async function handleSubmit(event: FormEvent) {
   event.preventDefault()
 
@@ -31,27 +30,27 @@ async function handleSubmit(event: FormEvent) {
     return
   }
 
-  setError(null)
-  setSubmitting(true)
+setError(null)
+setSubmitting(true)
 
-  try {
-    const result = await joinGame(gameId, playerName, password)
+try {
+  const result = await joinGame(gameId, playerName, password)
 
-    setPlayerToken(result.playerToken)
+  setPlayerToken(result.playerToken)
 
-    navigate({
-      to: `/game/${gameId}/submit`,
-    })
-  } catch (err) {
-    setError(
-      err instanceof Error
-        ? err.message
-        : 'Could not join the game.',
-    )
-  } finally {
-    setSubmitting(false)
-  }
+  window.location.assign(`/game/${gameId}/submit`)
+} catch (err) {
+  setError(
+    err instanceof Error
+      ? err.message
+      : 'Could not join the game.',
+  )
+} finally {
+  setSubmitting(false)
 }
+
+}
+
 return (
   <div className="flex min-h-screen flex-col items-center justify-center px-8">
     <div className="w-full max-w-md">
