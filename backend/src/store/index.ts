@@ -5,6 +5,7 @@ import {
   GameExpiredError,
   WrongPasswordError,
   MissingPasswordError,
+  MissingNameError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
@@ -81,14 +82,19 @@ export function createGame(password: string): { gameId: string; hostToken: strin
 export function joinGame(
   gameId: string,
   password: string,
-  name: string,
+  playerName: string,
 ): { playerId: string; playerToken: string } {
+  if (typeof password !== 'string' || password.trim() === '') throw new MissingPasswordError()
+  if (typeof playerName !== 'string' || playerName.trim() === '') throw new MissingNameError()
+
   const game = requireGame(gameId)
   if (game.password !== password) throw new WrongPasswordError()
-  if (game.status !== 'LOBBY') throw new WrongStatusError('Game has already started')
+  if (game.status === 'ACTIVE') throw new WrongStatusError('Game has already started')
+  if (game.status === 'FINISHED') throw new WrongStatusError('Game has already finished')
+
   const playerId = randomUUID()
   const playerToken = randomUUID()
-  game.players.push({ id: playerId, name, token: playerToken })
+  game.players.push({ id: playerId, name: playerName, token: playerToken })
   return { playerId, playerToken }
 }
 

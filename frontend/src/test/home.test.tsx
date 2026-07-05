@@ -10,10 +10,10 @@ describe('Home', () => {
     ).toBeInTheDocument()
   })
 
-  it('links the Host to the create-game screen and keeps the Player entry disabled', () => {
+  it('links the Host and Player to the create-game and join screens', () => {
     render(<Home />)
     expect(screen.getByRole('link', { name: /create a game/i })).toHaveAttribute('href', '/host')
-    expect(screen.getByRole('button', { name: /join a game/i })).toBeDisabled()
+    expect(screen.getByRole('link', { name: /join a game/i })).toHaveAttribute('href', '/join')
   })
 
   it('shows the three development stages with their status', () => {

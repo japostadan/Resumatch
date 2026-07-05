@@ -18,6 +18,7 @@ import {
   AlreadyVotedError,
   NotEnoughPlayersError,
   MissingPasswordError,
+  MissingNameError,
 } from '../errors/index.js'
 
 // A started 2-player game (Ada and Bea, both submitted), ready for voting.
@@ -117,8 +118,35 @@ describe('joinGame', () => {
     expect(() => joinGame(gameId, 'wrong', 'Ada')).toThrow(WrongPasswordError)
   })
 
+  it('rejects a missing password', () => {
+    const { gameId } = createGame('secret')
+
+    expect(() => joinGame(gameId, '', 'Ada')).toThrow(MissingPasswordError)
+  })
+
+  it('rejects a missing player name', () => {
+    const { gameId } = createGame('secret')
+
+    expect(() => joinGame(gameId, 'secret', '   ')).toThrow(MissingNameError)
+  })
+
   it('rejects an unknown game', () => {
     expect(() => joinGame('nope', 'secret', 'Ada')).toThrow(GameNotFoundError)
+  })
+
+  it('rejects joining once the game has finished', () => {
+    const { gameId, hostToken } = createGame('secret')
+    const ada = joinGame(gameId, 'secret', 'Ada')
+    const bea = joinGame(gameId, 'secret', 'Bea')
+    submitStatement(gameId, ada.playerToken, 'a')
+    submitStatement(gameId, bea.playerToken, 'b')
+    startGame(gameId, hostToken)
+    advanceStatement(gameId, hostToken)
+    advanceStatement(gameId, hostToken)
+
+    const view = getState(gameId)
+    if (view.status !== 'FINISHED') throw new Error('expected FINISHED')
+    expect(() => joinGame(gameId, 'secret', 'Cy')).toThrow(WrongStatusError)
   })
 })
 
