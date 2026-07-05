@@ -1,0 +1,9 @@
+# Dependencies and build output
+node_modules
+**/dist
+**/coverage
+
+# Lockfiles and generated code
+package-lock.json
+**/routeTree.gen.ts
+**/routeTree.gen.js

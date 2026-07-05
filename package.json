@@ -12,15 +12,20 @@
     "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
     "build": "npm run build --prefix shared && npm run build --prefix frontend && npm run build --prefix backend",
     "lint": "oxlint frontend/src backend/src shared/src",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "npm run test --prefix frontend && npm run test --prefix backend",
-    "typecheck": "npm run typecheck --prefix shared && npm run typecheck --prefix frontend && npm run typecheck --prefix backend"
+    "typecheck": "npm run typecheck --prefix shared && npm run typecheck --prefix frontend && npm run typecheck --prefix backend",
+    "prepare": "git config core.hooksPath .githooks"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,css,md,yml,yaml,html}": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
     "concurrently": "^10.0.3",
-    "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0"
+    "lint-staged": "^17.0.8",
+    "oxlint": "^1.69.0",
+    "prettier": "^3.9.4"
   },
   "volta": {
     "node": "24.16.0",

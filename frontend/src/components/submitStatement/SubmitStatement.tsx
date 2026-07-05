@@ -13,5 +13,5 @@ export function SubmitStatement() {
         </p>
       </div>
     </div>
-  )
+  );
 }

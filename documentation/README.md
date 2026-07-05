@@ -8,13 +8,13 @@ start an issue — following these keeps the codebase consistent and keeps CI gr
 
 ## Guides
 
-| Guide                                                    | What it covers                                                 |
-| -------------------------------------------------------- | -------------------------------------------------------------- |
-| [frontend-structure.md](./frontend-structure.md)         | Where React components, screens, hooks and API code live       |
-| [code-style.md](./code-style.md)                         | Naming, exports, comments, TypeScript habits                   |
-| [linting-and-formatting.md](./linting-and-formatting.md) | oxlint + oxfmt setup, editor config, CI gates, do's and don'ts |
-| [testing.md](./testing.md)                               | TDD workflow and how we test the frontend and backend          |
-| [git-and-prs.md](./git-and-prs.md)                       | Branch names, commit style, PR and review flow                 |
+| Guide                                                    | What it covers                                                    |
+| -------------------------------------------------------- | ----------------------------------------------------------------- |
+| [frontend-structure.md](./frontend-structure.md)         | Where React components, screens, hooks and API code live          |
+| [code-style.md](./code-style.md)                         | Naming, exports, comments, TypeScript habits                      |
+| [linting-and-formatting.md](./linting-and-formatting.md) | oxlint + Prettier setup, editor config, CI gates, do's and don'ts |
+| [testing.md](./testing.md)                               | TDD workflow and how we test the frontend and backend             |
+| [git-and-prs.md](./git-and-prs.md)                       | Branch names, commit style, PR and review flow                    |
 
 ## The five checks before every PR
 
@@ -22,7 +22,7 @@ CI runs all of these on every PR to `main`, and they must all pass:
 
 ```bash
 npm run lint          # oxlint — no errors
-npm run format:check  # oxfmt — everything formatted
+npm run format:check  # prettier — everything formatted
 npm run typecheck     # tsc — no type errors
 npm run test          # vitest — all green
 npm run build         # both apps build

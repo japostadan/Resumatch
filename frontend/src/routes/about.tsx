@@ -1,9 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
 // about.tsx → "/about"
-export const Route = createFileRoute('/about')({
+export const Route = createFileRoute("/about")({
   component: AboutPage,
-})
+});
 
 function AboutPage() {
   return (
@@ -13,5 +13,5 @@ function AboutPage() {
         This project was scaffolded with <strong>create-migracode-app</strong>.
       </p>
     </div>
-  )
+  );
 }

@@ -1,70 +1,70 @@
 export class GameNotFoundError extends Error {
-  readonly status = 404
+  readonly status = 404;
   constructor() {
-    super('Game not found')
+    super("Game not found");
   }
 }
 
 export class GameExpiredError extends Error {
-  readonly status = 404
+  readonly status = 404;
   constructor() {
-    super('Game has expired')
+    super("Game has expired");
   }
 }
 
 export class WrongPasswordError extends Error {
-  readonly status = 403
+  readonly status = 403;
   constructor() {
-    super('Wrong password')
+    super("Wrong password");
   }
 }
 
 export class MissingPasswordError extends Error {
-  readonly status = 400
+  readonly status = 400;
   constructor() {
-    super('A password is required')
+    super("A password is required");
   }
 }
 
 export class MissingNameError extends Error {
-  readonly status = 400
+  readonly status = 400;
   constructor() {
-    super('A player name is required')
+    super("A player name is required");
   }
 }
 
 export class BadTokenError extends Error {
-  readonly status = 403
+  readonly status = 403;
   constructor() {
-    super('Missing or invalid token')
+    super("Missing or invalid token");
   }
 }
 
 export class WrongStatusError extends Error {
-  readonly status = 409
+  readonly status = 409;
   constructor(message: string) {
-    super(message)
+    super(message);
   }
 }
 
 export class AlreadyVotedError extends Error {
-  readonly status = 409
+  readonly status = 409;
   constructor() {
-    super('You have already voted on this statement')
+    super("You have already voted on this statement");
   }
 }
 
 export class AlreadySubmittedError extends Error {
-  readonly status = 409
+  readonly status = 409;
   constructor() {
-    super('You have already submitted a statement')
+    super("You have already submitted a statement");
   }
 }
 
 export class NotEnoughPlayersError extends Error {
-  readonly status = 422
+  readonly status = 422;
   constructor() {
-    super('At least 2 players must have submitted a statement')
+    super("At least 2 players must have submitted a statement");
   }
 }
 
@@ -78,7 +78,7 @@ export type GameError =
   | WrongStatusError
   | AlreadyVotedError
   | AlreadySubmittedError
-  | NotEnoughPlayersError
+  | NotEnoughPlayersError;
 
 export function isGameError(err: unknown): err is GameError {
   return (
@@ -92,5 +92,5 @@ export function isGameError(err: unknown): err is GameError {
     err instanceof AlreadyVotedError ||
     err instanceof AlreadySubmittedError ||
     err instanceof NotEnoughPlayersError
-  )
+  );
 }

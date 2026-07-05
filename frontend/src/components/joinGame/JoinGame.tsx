@@ -1,37 +1,37 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { joinGame } from '../../lib/api'
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { joinGame } from "../../lib/api";
 
 export function JoinGame() {
-  const [playerName, setPlayerName] = useState('')
-  const [gameId, setGameId] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const navigate = useNavigate()
+  const [playerName, setPlayerName] = useState("");
+  const [gameId, setGameId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    if (playerName.trim() === '' || gameId.trim() === '' || password.trim() === '') {
-      setError('Enter your name, the Game ID, and the password to join')
-      return
+    event.preventDefault();
+    if (playerName.trim() === "" || gameId.trim() === "" || password.trim() === "") {
+      setError("Enter your name, the Game ID, and the password to join");
+      return;
     }
-    setError(null)
-    setSubmitting(true)
+    setError(null);
+    setSubmitting(true);
     try {
-      const joined = await joinGame(gameId.trim(), password, playerName.trim())
+      const joined = await joinGame(gameId.trim(), password, playerName.trim());
       // Carry the player token in the destination hash — navigating replaces the
       // URL, so writing the hash before navigation would be wiped. The Submit
       // screen reads it back via useGameSession.
       navigate({
-        to: '/game/$gameId/submit',
+        to: "/game/$gameId/submit",
         params: { gameId: gameId.trim() },
         hash: `token=${joined.playerToken}`,
-      })
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not join the game. Please try again.')
+      setError(err instanceof Error ? err.message : "Could not join the game. Please try again.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
@@ -85,11 +85,11 @@ export function JoinGame() {
           disabled={submitting}
           className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
         >
-          {submitting ? 'Joining…' : 'Join game'}
+          {submitting ? "Joining…" : "Join game"}
         </button>
       </form>
     </Shell>
-  )
+  );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -97,5 +97,5 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col items-center justify-center px-8">
       <div className="w-full max-w-md">{children}</div>
     </div>
-  )
+  );
 }

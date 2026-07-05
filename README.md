@@ -19,7 +19,7 @@ Early development. The architecture below describes the **target design**; not a
 - **Shared:** TypeScript types workspace package (`@resumatch/shared`)
 - **Storage:** In-memory (no database — games are short-lived classroom sessions)
 - **Testing:** Vitest + React Testing Library (frontend), Vitest + Supertest (backend)
-- **Linting:** oxlint · **Formatting:** oxfmt · **CI:** GitHub Actions
+- **Linting:** oxlint · **Formatting:** Prettier · **CI:** GitHub Actions
 
 ## Project structure
 

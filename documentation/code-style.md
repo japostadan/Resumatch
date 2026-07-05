@@ -12,7 +12,7 @@ routes, components, the store, shared types.
 export function CreateGame() {
   /* … */
 } // ✅
-export default CreateGame // ❌
+export default CreateGame; // ❌
 ```
 
 Named exports keep import names stable, make symbols greppable, and avoid the
@@ -37,7 +37,7 @@ history is for.
 ```ts
 // Requests go to a relative /api path; the Vite dev server proxies it to the
 // backend, and the deployed site does the same.        ✅ explains why
-const res = await fetch('/api/games' /* … */)
+const res = await fetch("/api/games" /* … */);
 
 // call fetch                                             ❌ restates the code
 ```
