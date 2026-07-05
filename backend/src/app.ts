@@ -14,6 +14,22 @@ function errorStatus(err: unknown): number {
   return 500;
 }
 
+// Error handler (must be mounted last). Exported so tests exercise the shipped
+// handler directly rather than a copy that can silently drift from it.
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  if (isGameError(err)) {
+    res.status(err.status).json({ error: err.message });
+    return;
+  }
+  const status = errorStatus(err);
+  if (status >= 400 && status < 500) {
+    res.status(status).json({ error: err instanceof Error ? err.message : "Invalid request" });
+    return;
+  }
+  console.error(err);
+  res.status(500).json({ error: "Internal server error" });
+}
+
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────────────────────
@@ -57,18 +73,6 @@ app.post("/api/games/:id/join", (req, res) => {
 });
 
 // ── Error handler (must be last) ────────────────────────────────────────────
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  if (isGameError(err)) {
-    res.status(err.status).json({ error: err.message });
-    return;
-  }
-  const status = errorStatus(err);
-  if (status >= 400 && status < 500) {
-    res.status(status).json({ error: err instanceof Error ? err.message : "Invalid request" });
-    return;
-  }
-  console.error(err);
-  res.status(500).json({ error: "Internal server error" });
-});
+app.use(errorHandler);
 
 export { app };
