@@ -54,7 +54,7 @@ export type CreateGameBody = {
 
 export type JoinGameBody = {
   password: string
-  name: string
+  playerName: string
 }
 
 export type SubmitStatementBody = {
