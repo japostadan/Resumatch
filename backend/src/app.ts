@@ -50,12 +50,12 @@ app.post('/api/games', (req, res) => {
 
 
 app.post('/api/games/:id/join', (req, res) => {
-  const body = (req.body ?? {}) as JoinGameBody
+  const { playerName, password } = (req.body ?? {}) as JoinGameBody
 
   const result = joinGame(
     req.params.id,
-    body.name,
-    body.password,
+    password,
+    playerName,
   )
 
   res.json(result)
