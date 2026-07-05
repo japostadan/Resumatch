@@ -1,7 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
 import { app } from "../app.js";
-import { startGame, submitStatement } from "../store/index.js";
+import { startGame, submitStatement, clearGames } from "../store/index.js";
+
+beforeEach(() => {
+  clearGames();
+});
 
 describe("POST /api/games", () => {
   it("creates a game and returns a Game ID and Host Token", async () => {
