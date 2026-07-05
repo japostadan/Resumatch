@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { createGame, type CreatedGame } from '../../lib/api'
+import { useGameSession } from '../../hooks/useGameSession'
 
 export function CreateGame() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [game, setGame] = useState<CreatedGame | null>(null)
+  const { setHostToken } = useGameSession()
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -17,7 +19,7 @@ export function CreateGame() {
     setSubmitting(true)
     try {
       const created = await createGame(password)
-      window.location.hash = `token=${created.hostToken}`
+      setHostToken(created.hostToken)
       setGame(created)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not create the game. Please try again.')
