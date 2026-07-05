@@ -12,7 +12,7 @@ function Header() {
         </span>
       </div>
     </header>
-  )
+  );
 }
 
-export { Header }
+export { Header };

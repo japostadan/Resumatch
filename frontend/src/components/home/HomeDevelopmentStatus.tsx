@@ -1,46 +1,46 @@
-type StageStatus = 'Done' | 'Up next' | 'Later'
+type StageStatus = "Done" | "Up next" | "Later";
 
 type Stage = {
-  name: string
-  detail: string
-  status: StageStatus
-}
+  name: string;
+  detail: string;
+  status: StageStatus;
+};
 
 const STAGES: Stage[] = [
   {
-    name: 'Game engine',
-    detail: 'Rules, scoring and the full game state machine — built and tested.',
-    status: 'Done',
+    name: "Game engine",
+    detail: "Rules, scoring and the full game state machine — built and tested.",
+    status: "Done",
   },
   {
-    name: 'Game API',
-    detail: 'The bridge between the game engine and your browser.',
-    status: 'Up next',
+    name: "Game API",
+    detail: "The bridge between the game engine and your browser.",
+    status: "Up next",
   },
   {
-    name: 'Game screens',
+    name: "Game screens",
     detail: "Create, join, lobby, voting and results — what you'll actually play.",
-    status: 'Later',
+    status: "Later",
   },
-]
+];
 
 const stagePill: Record<StageStatus, string> = {
-  Done: 'text-distinctive border-distinctive/40 bg-distinctive/10',
-  'Up next': 'text-status border-status/45 bg-status/15',
-  Later: 'text-muted border-line bg-muted/10',
-}
+  Done: "text-distinctive border-distinctive/40 bg-distinctive/10",
+  "Up next": "text-status border-status/45 bg-status/15",
+  Later: "text-muted border-line bg-muted/10",
+};
 
 const stageTick: Record<StageStatus, string> = {
-  Done: 'bg-distinctive text-canvas',
-  'Up next': 'bg-status text-canvas',
-  Later: 'border border-line text-muted',
-}
+  Done: "bg-distinctive text-canvas",
+  "Up next": "bg-status text-canvas",
+  Later: "border border-line text-muted",
+};
 
 const stageMark: Record<StageStatus, string> = {
-  Done: '✓',
-  'Up next': '•',
-  Later: '',
-}
+  Done: "✓",
+  "Up next": "•",
+  Later: "",
+};
 
 function HomeDevelopmentStatus() {
   return (
@@ -73,7 +73,7 @@ function HomeDevelopmentStatus() {
         ))}
       </ul>
     </aside>
-  )
+  );
 }
 
-export { HomeDevelopmentStatus }
+export { HomeDevelopmentStatus };

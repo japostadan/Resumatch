@@ -1,4 +1,4 @@
-const REPO_URL = 'https://github.com/japostadan/Resumatch'
+const REPO_URL = "https://github.com/japostadan/Resumatch";
 
 function Footer() {
   return (
@@ -15,7 +15,7 @@ function Footer() {
         </a>
       </div>
     </footer>
-  )
+  );
 }
 
-export { Footer }
+export { Footer };

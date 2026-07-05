@@ -9,8 +9,8 @@ function HomeMainContent() {
       </h1>
       <p className="mt-7 max-w-[42ch] text-lg leading-relaxed text-muted">
         A trainer starts a game. Everyone drops in their CV personal statement. Then the room reads
-        them one by one — anonymously — and votes on whose is whose. Guessed correctly, yours is{' '}
-        <span className="font-bold text-distinctive">Distinctive</span>. Nobody could place it?{' '}
+        them one by one — anonymously — and votes on whose is whose. Guessed correctly, yours is{" "}
+        <span className="font-bold text-distinctive">Distinctive</span>. Nobody could place it?{" "}
         <span className="font-bold text-generic">Generic</span>.
       </p>
 
@@ -28,7 +28,7 @@ function HomeMainContent() {
         </a>
       </div>
     </section>
-  )
+  );
 }
 
-export { HomeMainContent }
+export { HomeMainContent };

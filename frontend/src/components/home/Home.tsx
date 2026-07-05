@@ -1,8 +1,8 @@
-import { Header } from '../common/Header'
-import { Footer } from '../common/Footer'
-import { HomeDevelopmentStatus } from './HomeDevelopmentStatus'
-import { Main } from '../common/Main'
-import { HomeMainContent } from './HomeMainContent'
+import { Header } from "../common/Header";
+import { Footer } from "../common/Footer";
+import { HomeDevelopmentStatus } from "./HomeDevelopmentStatus";
+import { Main } from "../common/Main";
+import { HomeMainContent } from "./HomeMainContent";
 
 export function Home() {
   return (
@@ -18,5 +18,5 @@ export function Home() {
 
       <Footer />
     </div>
-  )
+  );
 }

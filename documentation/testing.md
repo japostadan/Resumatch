@@ -32,19 +32,19 @@ failures, and invalid state transitions — not just the sunny day.
   was called and calls that "coverage."
 
 ```tsx
-it('shows the Game ID on success', async () => {
+it("shows the Game ID on success", async () => {
   vi.stubGlobal(
-    'fetch',
+    "fetch",
     vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ gameId: 'abc123', hostToken: 't' }),
+      json: async () => ({ gameId: "abc123", hostToken: "t" }),
     }),
-  )
-  render(<CreateGame />)
-  fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'pw' } })
-  fireEvent.click(screen.getByRole('button', { name: /create game/i }))
-  expect(await screen.findByText('abc123')).toBeInTheDocument()
-})
+  );
+  render(<CreateGame />);
+  fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "pw" } });
+  fireEvent.click(screen.getByRole("button", { name: /create game/i }));
+  expect(await screen.findByText("abc123")).toBeInTheDocument();
+});
 ```
 
 ## Backend

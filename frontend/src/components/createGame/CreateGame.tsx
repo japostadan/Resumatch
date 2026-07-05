@@ -1,30 +1,30 @@
-import { useState, type FormEvent } from 'react'
-import { createGame, type CreatedGame } from '../../lib/api'
-import { useGameSession } from '../../hooks/useGameSession'
+import { useState, type FormEvent } from "react";
+import { createGame, type CreatedGame } from "../../lib/api";
+import { useGameSession } from "../../hooks/useGameSession";
 
 export function CreateGame() {
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [game, setGame] = useState<CreatedGame | null>(null)
-  const { setToken } = useGameSession()
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [game, setGame] = useState<CreatedGame | null>(null);
+  const { setToken } = useGameSession();
 
   async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    if (password.trim() === '') {
-      setError('Enter a password to create a game')
-      return
+    event.preventDefault();
+    if (password.trim() === "") {
+      setError("Enter a password to create a game");
+      return;
     }
-    setError(null)
-    setSubmitting(true)
+    setError(null);
+    setSubmitting(true);
     try {
-      const created = await createGame(password)
-      setToken(created.hostToken)
-      setGame(created)
+      const created = await createGame(password);
+      setToken(created.hostToken);
+      setGame(created);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create the game. Please try again.')
+      setError(err instanceof Error ? err.message : "Could not create the game. Please try again.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
@@ -52,7 +52,7 @@ export function CreateGame() {
           and enter this Game ID and password. Keep this screen up while everyone joins.
         </p>
       </Shell>
-    )
+    );
   }
 
   return (
@@ -86,11 +86,11 @@ export function CreateGame() {
           disabled={submitting}
           className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
         >
-          {submitting ? 'Creating…' : 'Create game'}
+          {submitting ? "Creating…" : "Create game"}
         </button>
       </form>
     </Shell>
-  )
+  );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -98,7 +98,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col items-center justify-center px-8">
       <div className="w-full max-w-md">{children}</div>
     </div>
-  )
+  );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -107,5 +107,5 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <dt className="text-xs font-bold tracking-widest text-muted uppercase">{label}</dt>
       <dd className="mt-1.5">{children}</dd>
     </div>
-  )
+  );
 }
