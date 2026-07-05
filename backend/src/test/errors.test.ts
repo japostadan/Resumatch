@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import request from "supertest";
-import express, { type NextFunction, type Request, type Response } from "express";
+import express from "express";
+import { errorHandler } from "../app.js";
 import {
   GameNotFoundError,
   GameExpiredError,
@@ -12,17 +13,12 @@ import {
   AlreadyVotedError,
   AlreadySubmittedError,
   NotEnoughPlayersError,
-  isGameError,
 } from "../errors/index.js";
 
-function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
-  if (isGameError(err)) {
-    res.status(err.status).json({ error: err.message });
-    return;
-  }
-  res.status(500).json({ error: "Internal server error" });
-}
-
+// Exercise the real error-handler middleware shipped in app.ts by mounting it
+// behind a route that throws. This avoids re-implementing (and drifting from)
+// the handler while still reaching every branch, including ones no current
+// route can trigger (the generic 4xx pass-through and the 500 fallback).
 function makeApp(thrower: () => never) {
   const app = express();
   app.get("/test", () => {
@@ -106,6 +102,10 @@ const cases: [string, () => never, number][] = [
 ];
 
 describe("error handler middleware", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   for (const [name, thrower, expectedStatus] of cases) {
     it(`maps ${name} to HTTP ${expectedStatus}`, async () => {
       const res = await request(makeApp(thrower)).get("/test");
@@ -114,12 +114,28 @@ describe("error handler middleware", () => {
     });
   }
 
-  it("maps unknown errors to 500", async () => {
-    const app = makeApp(() => {
-      throw new Error("boom");
-    });
-    const res = await request(app).get("/test");
+  it("passes through a non-game error carrying a 4xx status", async () => {
+    const res = await request(
+      makeApp(() => {
+        throw Object.assign(new Error("Malformed body"), { status: 400 });
+      }),
+    ).get("/test");
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Malformed body");
+  });
+
+  it("maps unknown errors to 500 and logs them", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const res = await request(
+      makeApp(() => {
+        throw new Error("boom");
+      }),
+    ).get("/test");
+
     expect(res.status).toBe(500);
     expect(res.body.error).toBe("Internal server error");
+    expect(consoleError).toHaveBeenCalledOnce();
   });
 });
