@@ -80,15 +80,40 @@ export function createGame(password: string): { gameId: string; hostToken: strin
 
 export function joinGame(
   gameId: string,
-  password: string,
   name: string,
+  password: string,
 ): { playerId: string; playerToken: string } {
+  if (typeof password !== 'string' || password.trim() === '') {
+    throw new MissingPasswordError()
+  }
+
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new WrongStatusError('Player name is required')
+  }
+
   const game = requireGame(gameId)
-  if (game.password !== password) throw new WrongPasswordError()
-  if (game.status !== 'LOBBY') throw new WrongStatusError('Game has already started')
+
+  if (game.status === 'ACTIVE') {
+    throw new WrongStatusError('Game has already started')
+  }
+
+  if (game.status === 'FINISHED') {
+    throw new WrongStatusError('Game has already finished')
+  }
+
+  if (game.password !== password) {
+    throw new WrongPasswordError()
+  }
+
   const playerId = randomUUID()
   const playerToken = randomUUID()
-  game.players.push({ id: playerId, name, token: playerToken })
+
+  game.players.push({
+    id: playerId,
+    name: name,
+    token: playerToken,
+  })
+
   return { playerId, playerToken }
 }
 
