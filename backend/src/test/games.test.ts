@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import request from 'supertest'
 import { app } from '../app.js'
+import { startGame, submitStatement } from '../store/index.js'
 
 describe('POST /api/games', () => {
   it('creates a game and returns a Game ID and Host Token', async () => {
@@ -92,12 +93,41 @@ describe('POST /api/games/:id/join', () => {
     expect(joinRes.body.error).toBe('Wrong password')
   })
 
-  it('rejects joining an ACTIVE game', async () => {
-    // You'll need a way to create or move a game into ACTIVE state.
-    // The exact implementation depends on your GameStore.
-  })
+it('rejects joining an ACTIVE game', async () => {
+  const createRes = await request(app)
+    .post('/api/games')
+    .send({ password: 'secret' })
 
-  it('rejects joining a FINISHED game', async () => {
-    // Same idea as above.
-  })
+  const { gameId, hostToken } = createRes.body
+
+  const alice = await request(app)
+    .post(`/api/games/${gameId}/join`)
+    .send({
+      playerName: 'Alice',
+      password: 'secret',
+    })
+
+  const bob = await request(app)
+    .post(`/api/games/${gameId}/join`)
+    .send({
+      playerName: 'Bob',
+      password: 'secret',
+    })
+
+  submitStatement(gameId, alice.body.playerToken, 'I like cats')
+  submitStatement(gameId, bob.body.playerToken, 'I like dogs')
+
+  startGame(gameId, hostToken)
+
+  const joinRes = await request(app)
+    .post(`/api/games/${gameId}/join`)
+    .send({
+      playerName: 'Charlie',
+      password: 'secret',
+    })
+
+  expect(joinRes.status).toBe(409)
+ 
+})
+  
 })
