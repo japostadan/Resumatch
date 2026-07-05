@@ -80,14 +80,14 @@ export function createGame(password: string): { gameId: string; hostToken: strin
 
 export function joinGame(
   gameId: string,
-  name: string,
   password: string,
+  playerName: string,
 ): { playerId: string; playerToken: string } {
   if (typeof password !== 'string' || password.trim() === '') {
     throw new MissingPasswordError()
   }
 
-  if (typeof name !== 'string' || name.trim() === '') {
+  if (typeof playerName !== 'string' || playerName.trim() === '') {
     throw new WrongStatusError('Player name is required')
   }
 
@@ -110,7 +110,7 @@ export function joinGame(
 
   game.players.push({
     id: playerId,
-    name: name,
+    name: playerName,
     token: playerToken,
   })
 
