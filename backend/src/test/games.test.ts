@@ -55,18 +55,14 @@ describe('POST /api/games', () => {
 
 describe('POST /api/games/:id/join', () => {
   it('joins a game with the correct password', async () => {
-    const createRes = await request(app)
-      .post('/api/games')
-      .send({ password: 'secret' })
+    const createRes = await request(app).post('/api/games').send({ password: 'secret' })
 
     const gameId = createRes.body.gameId
 
-    const joinRes = await request(app)
-      .post(`/api/games/${gameId}/join`)
-      .send({
-        playerName: 'Alice',
-        password: 'secret',
-      })
+    const joinRes = await request(app).post(`/api/games/${gameId}/join`).send({
+      playerName: 'Alice',
+      password: 'secret',
+    })
 
     expect(joinRes.status).toBe(200)
     expect(typeof joinRes.body.playerId).toBe('string')
@@ -76,58 +72,63 @@ describe('POST /api/games/:id/join', () => {
   })
 
   it('rejects an incorrect password', async () => {
-    const createRes = await request(app)
-      .post('/api/games')
-      .send({ password: 'secret' })
+    const createRes = await request(app).post('/api/games').send({ password: 'secret' })
 
     const gameId = createRes.body.gameId
 
-    const joinRes = await request(app)
-      .post(`/api/games/${gameId}/join`)
-      .send({
-        playerName: 'Alice',
-        password: 'wrong-password',
-      })
+    const joinRes = await request(app).post(`/api/games/${gameId}/join`).send({
+      playerName: 'Alice',
+      password: 'wrong-password',
+    })
 
     expect(joinRes.status).toBe(403)
     expect(joinRes.body.error).toBe('Wrong password')
   })
 
-it('rejects joining an ACTIVE game', async () => {
-  const createRes = await request(app)
-    .post('/api/games')
-    .send({ password: 'secret' })
+  it('rejects a missing player name with a 400', async () => {
+    const createRes = await request(app).post('/api/games').send({ password: 'secret' })
 
-  const { gameId, hostToken } = createRes.body
+    const joinRes = await request(app)
+      .post(`/api/games/${createRes.body.gameId}/join`)
+      .send({ password: 'secret' })
 
-  const alice = await request(app)
-    .post(`/api/games/${gameId}/join`)
-    .send({
-      playerName: 'Alice',
-      password: 'secret',
-    })
+    expect(joinRes.status).toBe(400)
+    expect(joinRes.body.error).toBe('A player name is required')
+  })
 
-  const bob = await request(app)
-    .post(`/api/games/${gameId}/join`)
-    .send({
-      playerName: 'Bob',
-      password: 'secret',
-    })
+  it('rejects a missing password with a 400', async () => {
+    const createRes = await request(app).post('/api/games').send({ password: 'secret' })
 
-  submitStatement(gameId, alice.body.playerToken, 'I like cats')
-  submitStatement(gameId, bob.body.playerToken, 'I like dogs')
+    const joinRes = await request(app)
+      .post(`/api/games/${createRes.body.gameId}/join`)
+      .send({ playerName: 'Alice' })
 
-  startGame(gameId, hostToken)
+    expect(joinRes.status).toBe(400)
+    expect(joinRes.body.error).toBe('A password is required')
+  })
 
-  const joinRes = await request(app)
-    .post(`/api/games/${gameId}/join`)
-    .send({
-      playerName: 'Charlie',
-      password: 'secret',
-    })
+  it('rejects joining an ACTIVE game', async () => {
+    const createRes = await request(app).post('/api/games').send({ password: 'secret' })
+    const { gameId, hostToken } = createRes.body
 
-  expect(joinRes.status).toBe(409)
- 
-})
-  
+    const alice = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: 'Alice', password: 'secret' })
+
+    const bob = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: 'Bob', password: 'secret' })
+
+    submitStatement(gameId, alice.body.playerToken, 'I like cats')
+    submitStatement(gameId, bob.body.playerToken, 'I like dogs')
+
+    startGame(gameId, hostToken)
+
+    const joinRes = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: 'Charlie', password: 'secret' })
+
+    expect(joinRes.status).toBe(409)
+    expect(joinRes.body.error).toBe('Game has already started')
+  })
 })

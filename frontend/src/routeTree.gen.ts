@@ -9,10 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as HostRouteImport } from './routes/host'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GameGameIdSubmitRouteImport } from './routes/game/$gameId/submit'
 
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HostRoute = HostRouteImport.update({
   id: '/host',
   path: '/host',
@@ -28,39 +35,59 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GameGameIdSubmitRoute = GameGameIdSubmitRouteImport.update({
+  id: '/game/$gameId/submit',
+  path: '/game/$gameId/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/host': typeof HostRoute
+  '/join': typeof JoinRoute
+  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/host': typeof HostRoute
+  '/join': typeof JoinRoute
+  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/host': typeof HostRoute
+  '/join': typeof JoinRoute
+  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/host'
+  fullPaths: '/' | '/about' | '/host' | '/join' | '/game/$gameId/submit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/host'
-  id: '__root__' | '/' | '/about' | '/host'
+  to: '/' | '/about' | '/host' | '/join' | '/game/$gameId/submit'
+  id: '__root__' | '/' | '/about' | '/host' | '/join' | '/game/$gameId/submit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   HostRoute: typeof HostRoute
+  JoinRoute: typeof JoinRoute
+  GameGameIdSubmitRoute: typeof GameGameIdSubmitRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/host': {
       id: '/host'
       path: '/host'
@@ -82,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/game/$gameId/submit': {
+      id: '/game/$gameId/submit'
+      path: '/game/$gameId/submit'
+      fullPath: '/game/$gameId/submit'
+      preLoaderRoute: typeof GameGameIdSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +123,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   HostRoute: HostRoute,
+  JoinRoute: JoinRoute,
+  GameGameIdSubmitRoute: GameGameIdSubmitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

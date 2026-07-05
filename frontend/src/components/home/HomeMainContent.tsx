@@ -22,18 +22,11 @@ function HomeMainContent() {
           <span className="text-xs font-bold tracking-wider uppercase opacity-70">Host</span> Create
           a game
         </a>
-        <button
-          type="button"
-          disabled
-          className="cursor-not-allowed border-2 border-line px-6 py-3.5 text-base font-bold text-ink opacity-60"
-        >
+        <a href="/join" className="border-2 border-line px-6 py-3.5 text-base font-bold text-ink">
           <span className="text-xs font-bold tracking-wider uppercase opacity-70">Player</span> Join
           a game
-        </button>
+        </a>
       </div>
-      <p className="mt-4 text-sm text-muted">
-        Hosting works now — Join opens once the player screen is built.
-      </p>
     </section>
   )
 }
