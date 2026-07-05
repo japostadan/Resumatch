@@ -35,8 +35,8 @@ export class BadTokenError extends Error {
 
 export class WrongStatusError extends Error {
   readonly status = 409
-  constructor(message: string) {
-    super(message)
+  constructor() {
+    super('errorStatus')
   }
 }
 
