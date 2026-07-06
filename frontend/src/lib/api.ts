@@ -39,3 +39,21 @@ export async function joinGame(
   }
   return res.json();
 }
+
+// The player token authenticates the submission via the X-Player-Token header
+// rather than the body, matching the backend route (POST /api/games/:id/statement).
+export async function submitStatement(
+  gameId: string,
+  playerToken: string,
+  statement: string,
+): Promise<void> {
+  const res = await fetch(`/api/games/${gameId}/statement`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Player-Token": playerToken },
+    body: JSON.stringify({ statement }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Could not submit your statement. Please try again.");
+  }
+}
