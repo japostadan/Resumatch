@@ -7,7 +7,7 @@ export function CreateGame() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [game, setGame] = useState<CreatedGame | null>(null);
-  const { setToken } = useGameSession();
+  const { setHostSession } = useGameSession();
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -19,7 +19,7 @@ export function CreateGame() {
     setSubmitting(true);
     try {
       const created = await createGame(password);
-      setToken(created.hostToken);
+      setHostSession(created.hostToken);
       setGame(created);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create the game. Please try again.");

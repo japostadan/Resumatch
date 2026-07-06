@@ -26,7 +26,7 @@ afterEach(() => {
 
 describe("SubmitStatement", () => {
   it("shows the statement field and submit button", () => {
-    window.location.hash = "token=player-tok";
+    window.location.hash = "playerToken=player-tok&playerId=pid";
     mockFetch({ ok: true });
     render(<SubmitStatement />);
 
@@ -35,7 +35,7 @@ describe("SubmitStatement", () => {
   });
 
   it("blocks an empty statement with a validation message and no API call", () => {
-    window.location.hash = "token=player-tok";
+    window.location.hash = "playerToken=player-tok&playerId=pid";
     const fetchMock = mockFetch({ ok: true });
     render(<SubmitStatement />);
 
@@ -46,7 +46,7 @@ describe("SubmitStatement", () => {
   });
 
   it("submits with the player token header and navigates to the lobby on success", async () => {
-    window.location.hash = "token=player-tok";
+    window.location.hash = "playerToken=player-tok&playerId=pid";
     const fetchMock = mockFetch({ ok: true });
     render(<SubmitStatement />);
 
@@ -68,13 +68,13 @@ describe("SubmitStatement", () => {
       expect(navigate).toHaveBeenCalledWith({
         to: "/game/$gameId/lobby",
         params: { gameId: "abc123" },
-        hash: "token=player-tok",
+        hash: "playerToken=player-tok&playerId=pid",
       }),
     );
   });
 
   it("surfaces the server error when submitting fails", async () => {
-    window.location.hash = "token=player-tok";
+    window.location.hash = "playerToken=player-tok&playerId=pid";
     mockFetch({ error: "You have already submitted a statement" }, { ok: false, status: 409 });
     render(<SubmitStatement />);
 

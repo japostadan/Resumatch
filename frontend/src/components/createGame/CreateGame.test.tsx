@@ -55,7 +55,7 @@ describe("CreateGame", () => {
     fireEvent.click(screen.getByRole("button", { name: /create game/i }));
 
     await screen.findByText("abc123");
-    expect(window.location.hash).toContain("token=host-tok");
+    expect(window.location.hash).toContain("hostToken=host-tok");
   });
 
   it("surfaces the server error when creation fails", async () => {

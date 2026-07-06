@@ -61,7 +61,7 @@ describe("JoinGame", () => {
       expect(navigate).toHaveBeenCalledWith({
         to: "/game/$gameId/submit",
         params: { gameId: "abc123" },
-        hash: "token=player-tok",
+        hash: "playerToken=player-tok&playerId=pid",
       }),
     );
   });

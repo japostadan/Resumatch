@@ -1,20 +1,41 @@
 import { useState } from "react";
 
-// The player/host token lives in the URL hash fragment (e.g. #token=abc) so a
-// reload keeps the session without a database or cookies. Both the Create Game
-// and Join Game flows write it; the Lobby screens read it back.
-function readToken(): string | null {
+// The session lives in the URL hash fragment so a reload keeps it without a
+// database or cookies. Role-named keys make the role explicit: a Host carries
+// `hostToken`, a Player carries `playerToken` + `playerId`. The Lobby reads the
+// session back to decide which view to render; the names match the
+// X-Host-Token / X-Player-Token headers these credentials feed.
+export type GameSession =
+  { role: "host"; hostToken: string } | { role: "player"; playerToken: string; playerId: string };
+
+export function hostHash(hostToken: string): string {
+  return `hostToken=${hostToken}`;
+}
+
+export function playerHash(playerToken: string, playerId: string): string {
+  return `playerToken=${playerToken}&playerId=${playerId}`;
+}
+
+function readSession(): GameSession | null {
   const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  return params.get("token");
+
+  const hostToken = params.get("hostToken");
+  if (hostToken) return { role: "host", hostToken };
+
+  const playerToken = params.get("playerToken");
+  const playerId = params.get("playerId");
+  if (playerToken && playerId) return { role: "player", playerToken, playerId };
+
+  return null;
 }
 
 export function useGameSession() {
-  const [token, setTokenState] = useState<string | null>(readToken);
+  const [session, setSession] = useState<GameSession | null>(readSession);
 
-  function setToken(value: string) {
-    window.location.hash = `token=${value}`;
-    setTokenState(value);
+  function setHostSession(hostToken: string) {
+    window.location.hash = hostHash(hostToken);
+    setSession({ role: "host", hostToken });
   }
 
-  return { token, setToken };
+  return { session, setHostSession };
 }
