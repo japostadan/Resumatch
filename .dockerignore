@@ -1,0 +1,19 @@
+# Keep build contexts small and reproducible. Source, workspace manifests, and
+# the lockfile are copied by the Dockerfiles; everything below is rebuilt or
+# irrelevant to the image.
+node_modules
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.github
+.githooks
+.devcontainer
+.vscode
+.scratch
+docs
+documentation
+*.md
+mockup.html
+netlify.toml
+.DS_Store

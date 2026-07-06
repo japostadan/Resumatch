@@ -1,0 +1,31 @@
+# Coolify deployment for the Resumatch monorepo: the Express backend and the
+# nginx-served frontend as one resource on a shared network. The frontend proxies
+# /api to the backend (see frontend/nginx.conf), so only the frontend needs a
+# public domain — assign it to the `frontend` service in the Coolify UI.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: production
+    expose:
+      - "3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    restart: unless-stopped
+    # In Coolify, set this service's public domain (it maps the domain to port
+    # 80). Coolify also honours a SERVICE_FQDN_FRONTEND_80 env var if you prefer
+    # it to generate one automatically.
