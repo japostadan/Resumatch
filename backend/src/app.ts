@@ -85,6 +85,14 @@ export function createApp(store: GameStore) {
     res.json({ ok: true });
   });
 
+  app.post("/api/games/:id/start", (req, res) => {
+    const hostToken = req.header("X-Host-Token") ?? "";
+
+    store.startGame(req.params.id, hostToken);
+
+    res.json({ ok: true });
+  });
+
   app.get("/api/games/:id/state", (req, res) => {
     const playerId = typeof req.query.playerId === "string" ? req.query.playerId : undefined;
 

@@ -239,3 +239,61 @@ describe("GET /api/games/:id/state", () => {
     expect(res.body.error).toBe("Game not found");
   });
 });
+
+describe("POST /api/games/:id/start", () => {
+  // A game with `submitters` players who submitted and `stragglers` who did not.
+  async function stagedGame({ submitters = 2, stragglers = 0 } = {}) {
+    const createRes = await request(app).post("/api/games").send({ password: "secret" });
+    const { gameId, hostToken } = createRes.body;
+
+    for (let i = 0; i < submitters; i++) {
+      const join = await request(app)
+        .post(`/api/games/${gameId}/join`)
+        .send({ playerName: `Submitter ${i}`, password: "secret" });
+      await request(app)
+        .post(`/api/games/${gameId}/statement`)
+        .set("X-Player-Token", join.body.playerToken)
+        .send({ statement: `statement ${i}` });
+    }
+    for (let i = 0; i < stragglers; i++) {
+      await request(app)
+        .post(`/api/games/${gameId}/join`)
+        .send({ playerName: `Straggler ${i}`, password: "secret" });
+    }
+
+    return { gameId, hostToken };
+  }
+
+  it("starts the game and moves it to ACTIVE", async () => {
+    const { gameId, hostToken } = await stagedGame({ submitters: 2 });
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/start`)
+      .set("X-Host-Token", hostToken);
+
+    expect(res.status).toBe(200);
+
+    const state = await request(app).get(`/api/games/${gameId}/state`);
+    expect(state.body.status).toBe("ACTIVE");
+  });
+
+  it("rejects starting with fewer than two submitted statements", async () => {
+    const { gameId, hostToken } = await stagedGame({ submitters: 1, stragglers: 1 });
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/start`)
+      .set("X-Host-Token", hostToken);
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toBe("At least 2 players must have submitted a statement");
+  });
+
+  it("rejects a start from a request without the host token", async () => {
+    const { gameId } = await stagedGame({ submitters: 2 });
+
+    const res = await request(app).post(`/api/games/${gameId}/start`).set("X-Host-Token", "nope");
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe("Missing or invalid token");
+  });
+});
