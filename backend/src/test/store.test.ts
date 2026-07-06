@@ -11,6 +11,7 @@ import {
   NotEnoughPlayersError,
   MissingPasswordError,
   MissingNameError,
+  MissingStatementError,
 } from "../errors/index.js";
 
 let store: GameStore;
@@ -158,6 +159,20 @@ describe("submitStatement", () => {
     const view = store.getState(gameId);
     if (view.status !== "LOBBY") throw new Error("expected LOBBY");
     expect(view.players).toContainEqual({ id: playerId, name: "Ada", hasSubmitted: true });
+  });
+
+  it("rejects an empty statement", () => {
+    const { gameId } = store.createGame("secret");
+    const { playerToken } = store.joinGame(gameId, "secret", "Ada");
+
+    expect(() => store.submitStatement(gameId, playerToken, "   ")).toThrow(MissingStatementError);
+  });
+
+  it("rejects an empty statement before checking the token", () => {
+    const { gameId } = store.createGame("secret");
+    store.joinGame(gameId, "secret", "Ada");
+
+    expect(() => store.submitStatement(gameId, "not-a-token", "")).toThrow(MissingStatementError);
   });
 
   it("rejects an unknown token", () => {

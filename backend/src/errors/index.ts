@@ -33,6 +33,13 @@ export class MissingNameError extends Error {
   }
 }
 
+export class MissingStatementError extends Error {
+  readonly status = 400;
+  constructor() {
+    super("A statement is required");
+  }
+}
+
 export class BadTokenError extends Error {
   readonly status = 403;
   constructor() {
@@ -74,6 +81,7 @@ export type GameError =
   | WrongPasswordError
   | MissingPasswordError
   | MissingNameError
+  | MissingStatementError
   | BadTokenError
   | WrongStatusError
   | AlreadyVotedError
@@ -87,6 +95,7 @@ export function isGameError(err: unknown): err is GameError {
     err instanceof WrongPasswordError ||
     err instanceof MissingPasswordError ||
     err instanceof MissingNameError ||
+    err instanceof MissingStatementError ||
     err instanceof BadTokenError ||
     err instanceof WrongStatusError ||
     err instanceof AlreadyVotedError ||

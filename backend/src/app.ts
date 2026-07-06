@@ -1,5 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from "express";
-import type { CreateGameBody, JoinGameBody } from "@resumatch/shared";
+import type { CreateGameBody, JoinGameBody, SubmitStatementBody } from "@resumatch/shared";
 import { isGameError } from "./errors/index.js";
 import { GameStore } from "./store/index.js";
 
@@ -74,6 +74,15 @@ export function createApp(store: GameStore) {
     const result = store.joinGame(req.params.id, password, playerName);
 
     res.json(result);
+  });
+
+  app.post("/api/games/:id/statement", (req, res) => {
+    const { statement } = (req.body ?? {}) as SubmitStatementBody;
+    const playerToken = req.header("X-Player-Token") ?? "";
+
+    store.submitStatement(req.params.id, playerToken, statement);
+
+    res.json({ ok: true });
   });
 
   // ── Error handler (must be last) ──────────────────────────────────────────

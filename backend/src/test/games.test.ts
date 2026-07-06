@@ -141,3 +141,65 @@ describe("POST /api/games/:id/join", () => {
     expect(joinRes.body.error).toBe("Game has already started");
   });
 });
+
+describe("POST /api/games/:id/statement", () => {
+  async function joinedPlayer(password = "secret") {
+    const createRes = await request(app).post("/api/games").send({ password });
+    const gameId = createRes.body.gameId;
+    const joinRes = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: "Alice", password });
+    return { gameId, playerToken: joinRes.body.playerToken };
+  }
+
+  it("accepts a statement from a joined player", async () => {
+    const { gameId, playerToken } = await joinedPlayer();
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", playerToken)
+      .send({ statement: "I once shipped on a Friday" });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("rejects a second submission from the same player with a clear message", async () => {
+    const { gameId, playerToken } = await joinedPlayer();
+
+    await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", playerToken)
+      .send({ statement: "first" });
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", playerToken)
+      .send({ statement: "second" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe("You have already submitted a statement");
+  });
+
+  it("rejects an empty statement with a 400", async () => {
+    const { gameId, playerToken } = await joinedPlayer();
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", playerToken)
+      .send({ statement: "   " });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("A statement is required");
+  });
+
+  it("rejects a submission with a missing or invalid token", async () => {
+    const { gameId } = await joinedPlayer();
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .send({ statement: "no token" });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe("Missing or invalid token");
+  });
+});
