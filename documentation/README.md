@@ -15,6 +15,7 @@ start an issue — following these keeps the codebase consistent and keeps CI gr
 | [linting-and-formatting.md](./linting-and-formatting.md) | oxlint + Prettier setup, editor config, CI gates, do's and don'ts |
 | [testing.md](./testing.md)                               | TDD workflow and how we test the frontend and backend             |
 | [git-and-prs.md](./git-and-prs.md)                       | Branch names, commit style, PR and review flow                    |
+| [deployment.md](./deployment.md)                         | How the frontend + backend ship to Coolify via Docker Compose     |
 
 ## The five checks before every PR
 
