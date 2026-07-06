@@ -3,8 +3,8 @@
 How Resumatch ships to production on **Coolify**. Both apps deploy from one
 `docker-compose.yaml` as a single resource.
 
-> Live: <http://resumatch.178.105.39.91.sslip.io> (Coolify-generated `sslip.io`
-> domain; swap in a real domain when we have one).
+> Live: <https://resumatch.jamposta.dev> (a subdomain of `jamposta.dev`, served
+> over HTTPS with a Let's Encrypt cert).
 
 ## How it's wired
 
@@ -65,10 +65,14 @@ incognito window, play through. Tear down with
    **branch** to deploy.
 4. **Build Pack → Docker Compose**, **Docker Compose Location** `/docker-compose.yaml`.
    Coolify parses the file and shows both services.
-5. On **`frontend`**, set the **Domain / FQDN**. With a real domain, point an
-   **A record** at the Coolify server IP and enter `https://<domain>` — Coolify
-   provisions Let's Encrypt TLS. Otherwise use the generated `*.sslip.io` URL.
-   Leave **`backend`** with **no domain**.
+5. On **`frontend`**, set the **Domain / FQDN**. Point an **A record** for the
+   subdomain (e.g. `resumatch.jamposta.dev`) at the Coolify server's IP, and
+   enter the FQDN with the **`https://` scheme** — that scheme is what makes
+   Coolify request a Let's Encrypt cert; with `http://` it serves plain HTTP and
+   never provisions TLS. If the domain has a wildcard (`*`) record, add a
+   specific A record for the subdomain so it overrides the wildcard. A
+   `*.sslip.io` URL works as a no-DNS fallback. Leave **`backend`** with **no
+   domain**.
 6. **Deploy.** When `backend` is **healthy** and `frontend` is running, open the
    domain and play through a game.
 
