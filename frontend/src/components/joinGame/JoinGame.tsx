@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { joinGame } from "../../lib/api";
+import { playerHash } from "../../hooks/useGameSession";
 
 export function JoinGame() {
   const [playerName, setPlayerName] = useState("");
@@ -20,13 +21,13 @@ export function JoinGame() {
     setSubmitting(true);
     try {
       const joined = await joinGame(gameId.trim(), password, playerName.trim());
-      // Carry the player token in the destination hash — navigating replaces the
-      // URL, so writing the hash before navigation would be wiped. The Submit
-      // screen reads it back via useGameSession.
+      // Carry the player session in the destination hash — navigating replaces the
+      // URL, so writing the hash before navigation would be wiped. The Submit and
+      // Lobby screens read it back via useGameSession.
       navigate({
         to: "/game/$gameId/submit",
         params: { gameId: gameId.trim() },
-        hash: `token=${joined.playerToken}`,
+        hash: playerHash(joined.playerToken, joined.playerId),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not join the game. Please try again.");

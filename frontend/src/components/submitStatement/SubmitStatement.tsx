@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { submitStatement } from "../../lib/api";
-import { useGameSession } from "../../hooks/useGameSession";
+import { useGameSession, playerHash } from "../../hooks/useGameSession";
 
 export function SubmitStatement() {
   const { gameId } = useParams({ from: "/game/$gameId/submit" });
-  const { token } = useGameSession();
+  const { session } = useGameSession();
   const [statement, setStatement] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -17,18 +17,22 @@ export function SubmitStatement() {
       setError("Write your statement before submitting");
       return;
     }
-    if (!token) {
+    if (session?.role !== "player") {
       setError("Your session has expired. Rejoin the game to continue.");
       return;
     }
     setError(null);
     setSubmitting(true);
     try {
-      await submitStatement(gameId, token, statement.trim());
-      // Carry the player token into the lobby hash — navigating replaces the URL
+      await submitStatement(gameId, session.playerToken, statement.trim());
+      // Carry the player session into the lobby hash — navigating replaces the URL
       // and would otherwise drop it, losing the session on a reload (and for the
       // live lobby view that reads it back via useGameSession).
-      navigate({ to: "/game/$gameId/lobby", params: { gameId }, hash: `token=${token}` });
+      navigate({
+        to: "/game/$gameId/lobby",
+        params: { gameId },
+        hash: playerHash(session.playerToken, session.playerId),
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not submit your statement. Please try again.",

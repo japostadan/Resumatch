@@ -2,6 +2,11 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CreateGame } from "./CreateGame";
 
+const navigate = vi.fn();
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+}));
+
 function mockFetch(body: unknown, { ok = true, status = 200 } = {}) {
   const fetchMock = vi.fn().mockResolvedValue({
     ok,
@@ -14,6 +19,7 @@ function mockFetch(body: unknown, { ok = true, status = 200 } = {}) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.clearAllMocks();
   window.location.hash = "";
 });
 
@@ -55,7 +61,24 @@ describe("CreateGame", () => {
     fireEvent.click(screen.getByRole("button", { name: /create game/i }));
 
     await screen.findByText("abc123");
-    expect(window.location.hash).toContain("token=host-tok");
+    expect(window.location.hash).toContain("hostToken=host-tok");
+  });
+
+  it("takes the host into the lobby, carrying the host session", async () => {
+    mockFetch({ gameId: "abc123", hostToken: "host-tok" });
+    render(<CreateGame />);
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "swordfish" } });
+    fireEvent.click(screen.getByRole("button", { name: /create game/i }));
+
+    await screen.findByText("abc123");
+    fireEvent.click(screen.getByRole("button", { name: /lobby/i }));
+
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/game/$gameId/lobby",
+      params: { gameId: "abc123" },
+      hash: "hostToken=host-tok",
+    });
   });
 
   it("surfaces the server error when creation fails", async () => {

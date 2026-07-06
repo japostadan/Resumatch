@@ -203,3 +203,39 @@ describe("POST /api/games/:id/statement", () => {
     expect(res.body.error).toBe("Missing or invalid token");
   });
 });
+
+describe("GET /api/games/:id/state", () => {
+  it("returns the LOBBY view with each joined player's submission status", async () => {
+    const createRes = await request(app).post("/api/games").send({ password: "secret" });
+    const gameId = createRes.body.gameId;
+
+    const alice = await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: "Alice", password: "secret" });
+    await request(app)
+      .post(`/api/games/${gameId}/join`)
+      .send({ playerName: "Bob", password: "secret" });
+
+    await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", alice.body.playerToken)
+      .send({ statement: "I once shipped on a Friday" });
+
+    const res = await request(app).get(`/api/games/${gameId}/state`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("LOBBY");
+    expect(res.body.gameId).toBe(gameId);
+    expect(res.body.players).toEqual([
+      { id: alice.body.playerId, name: "Alice", hasSubmitted: true },
+      expect.objectContaining({ name: "Bob", hasSubmitted: false }),
+    ]);
+  });
+
+  it("returns a 404 for an unknown game", async () => {
+    const res = await request(app).get("/api/games/nope/state");
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe("Game not found");
+  });
+});
