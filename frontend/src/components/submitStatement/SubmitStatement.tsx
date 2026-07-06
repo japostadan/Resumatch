@@ -25,7 +25,10 @@ export function SubmitStatement() {
     setSubmitting(true);
     try {
       await submitStatement(gameId, token, statement.trim());
-      navigate({ to: "/game/$gameId/lobby", params: { gameId } });
+      // Carry the player token into the lobby hash — navigating replaces the URL
+      // and would otherwise drop it, losing the session on a reload (and for the
+      // live lobby view that reads it back via useGameSession).
+      navigate({ to: "/game/$gameId/lobby", params: { gameId }, hash: `token=${token}` });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not submit your statement. Please try again.",

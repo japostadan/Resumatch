@@ -68,6 +68,7 @@ describe("SubmitStatement", () => {
       expect(navigate).toHaveBeenCalledWith({
         to: "/game/$gameId/lobby",
         params: { gameId: "abc123" },
+        hash: "token=player-tok",
       }),
     );
   });
