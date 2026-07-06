@@ -15,16 +15,18 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 5s
+      interval: 10s
+      timeout: 3s
       retries: 3
+      start_period: 10s
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     # In Coolify, set this service's public domain (it maps the domain to port
     # 80). Coolify also honours a SERVICE_FQDN_FRONTEND_80 env var if you prefer
