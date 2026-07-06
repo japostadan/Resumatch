@@ -85,4 +85,25 @@ describe("useGameState", () => {
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it("surfaces a transient failure but keeps polling and recovers", async () => {
+    vi.useFakeTimers();
+    const fetchMock = mockFetchSequence([{ ok: false, status: 500, body: {} }, { body: lobby }]);
+
+    const { result } = renderHook(() => useGameState("g"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(result.current.error).not.toBeNull();
+    expect(result.current.state).toBeNull();
+
+    // A non-404 failure is not terminal — the next poll recovers.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.state).toEqual(lobby);
+    expect(result.current.error).toBeNull();
+  });
 });

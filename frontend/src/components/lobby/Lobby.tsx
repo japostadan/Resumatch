@@ -91,15 +91,17 @@ function PlayerWaiting({
   error: string | null;
 }) {
   const me = players?.find((p) => p.id === playerId);
+  const confirmed = me?.hasSubmitted ?? false;
 
   return (
     <Shell>
-      <Eyebrow>You&apos;re set</Eyebrow>
-      <Heading>Your statement is in</Heading>
+      <Eyebrow>{confirmed ? "You're set" : "Almost there"}</Eyebrow>
+      <Heading>{confirmed ? "Your statement is in" : "Saving your statement…"}</Heading>
       {error && <Alert>{error}</Alert>}
       <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
-        {me ? `Nice one, ${me.name}. ` : ""}Waiting for the host to start the game — keep this tab
-        open.
+        {confirmed
+          ? `${me ? `Nice one, ${me.name}. ` : ""}Waiting for the host to start the game — keep this tab open.`
+          : "Hang tight while we confirm your submission."}
       </p>
     </Shell>
   );

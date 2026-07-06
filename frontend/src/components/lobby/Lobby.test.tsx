@@ -52,6 +52,16 @@ describe("Lobby", () => {
     expect(screen.getByText(/waiting for the host/i)).toBeInTheDocument();
   });
 
+  it("withholds the confirmation until the polled state shows the submission", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=b";
+    mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    expect(await screen.findByText(/confirm your submission/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your statement is in/i)).not.toBeInTheDocument();
+  });
+
   it("prompts an unknown visitor to rejoin when there is no session", () => {
     window.location.hash = "";
     mockFetch(lobbyView);
