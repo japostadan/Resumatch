@@ -85,6 +85,12 @@ export function createApp(store: GameStore) {
     res.json({ ok: true });
   });
 
+  app.get("/api/games/:id/state", (req, res) => {
+    const playerId = typeof req.query.playerId === "string" ? req.query.playerId : undefined;
+
+    res.json(store.getState(req.params.id, playerId));
+  });
+
   // ── Error handler (must be last) ──────────────────────────────────────────
   app.use(errorHandler);
 
