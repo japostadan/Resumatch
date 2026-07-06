@@ -180,6 +180,18 @@ describe("POST /api/games/:id/statement", () => {
     expect(res.body.error).toBe("You have already submitted a statement");
   });
 
+  it("rejects an empty statement with a 400", async () => {
+    const { gameId, playerToken } = await joinedPlayer();
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", playerToken)
+      .send({ statement: "   " });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("A statement is required");
+  });
+
   it("rejects a submission with a missing or invalid token", async () => {
     const { gameId } = await joinedPlayer();
 

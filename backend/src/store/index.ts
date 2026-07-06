@@ -6,6 +6,7 @@ import {
   WrongPasswordError,
   MissingPasswordError,
   MissingNameError,
+  MissingStatementError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
@@ -144,6 +145,7 @@ export class GameStore {
   }
 
   submitStatement(gameId: string, playerToken: string, statement: string): void {
+    if (typeof statement !== "string" || statement.trim() === "") throw new MissingStatementError();
     const game = this.requireGame(gameId);
     const player = requirePlayerByToken(game, playerToken);
     if (player.statement !== undefined) throw new AlreadySubmittedError();

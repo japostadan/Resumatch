@@ -8,6 +8,7 @@ import {
   WrongPasswordError,
   MissingPasswordError,
   MissingNameError,
+  MissingStatementError,
   BadTokenError,
   WrongStatusError,
   AlreadyVotedError,
@@ -61,6 +62,13 @@ const cases: [string, () => never, number][] = [
     "MissingNameError",
     () => {
       throw new MissingNameError();
+    },
+    400,
+  ],
+  [
+    "MissingStatementError",
+    () => {
+      throw new MissingStatementError();
     },
     400,
   ],
