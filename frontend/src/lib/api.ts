@@ -57,3 +57,16 @@ export async function submitStatement(
     throw new Error(body?.error ?? "Could not submit your statement. Please try again.");
   }
 }
+
+// The host token authenticates the start via the X-Host-Token header, matching
+// the backend route (POST /api/games/:id/start). No request body is needed.
+export async function startGame(gameId: string, hostToken: string): Promise<void> {
+  const res = await fetch(`/api/games/${gameId}/start`, {
+    method: "POST",
+    headers: { "X-Host-Token": hostToken },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Could not start the game. Please try again.");
+  }
+}

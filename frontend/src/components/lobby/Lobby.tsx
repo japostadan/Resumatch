@@ -1,7 +1,15 @@
-import { useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "@tanstack/react-router";
 import type { LobbyPlayer } from "@resumatch/shared";
-import { useGameSession } from "../../hooks/useGameSession";
+import { startGame } from "../../lib/api";
+import { useGameSession, hostHash, playerHash, type GameSession } from "../../hooks/useGameSession";
 import { useGameState } from "../../hooks/useGameState";
+
+function sessionHash(session: GameSession): string {
+  return session.role === "host"
+    ? hostHash(session.hostToken)
+    : playerHash(session.playerToken, session.playerId);
+}
 
 // The Host and Player share this route but see different views. The session's
 // role decides which; a visitor with no session is sent to rejoin.
@@ -9,7 +17,16 @@ export function Lobby() {
   const { gameId } = useParams({ from: "/game/$gameId/lobby" });
   const { session } = useGameSession();
   const playerId = session?.role === "player" ? session.playerId : undefined;
+  const navigate = useNavigate();
   const { state, loading, error } = useGameState(gameId, playerId);
+
+  // When the Host starts, the poll reports ACTIVE and everyone moves to voting,
+  // carrying their session forward so the vote screen can authenticate them.
+  const isActive = state?.status === "ACTIVE";
+  useEffect(() => {
+    if (!isActive || !session) return;
+    navigate({ to: "/game/$gameId/vote", params: { gameId }, hash: sessionHash(session) });
+  }, [isActive, session, gameId, navigate]);
 
   if (!session) {
     return (
@@ -27,22 +44,52 @@ export function Lobby() {
   const players = state?.status === "LOBBY" ? state.players : null;
 
   if (session.role === "host") {
-    return <HostDashboard players={players} loading={loading} error={error} />;
+    return (
+      <HostDashboard
+        gameId={gameId}
+        hostToken={session.hostToken}
+        players={players}
+        loading={loading}
+        error={error}
+      />
+    );
   }
 
   return <PlayerWaiting players={players} playerId={session.playerId} error={error} />;
 }
 
 function HostDashboard({
+  gameId,
+  hostToken,
   players,
   loading,
   error,
 }: {
+  gameId: string;
+  hostToken: string;
   players: LobbyPlayer[] | null;
   loading: boolean;
   error: string | null;
 }) {
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
   const submittedCount = players?.filter((p) => p.hasSubmitted).length ?? 0;
+  const canStart = submittedCount >= 2;
+
+  async function handleStart() {
+    setStartError(null);
+    setStarting(true);
+    try {
+      await startGame(gameId, hostToken);
+      // Leave `starting` set: the next poll reports ACTIVE and Lobby navigates
+      // everyone to voting, so the button stays disabled through the handoff.
+    } catch (err) {
+      setStartError(
+        err instanceof Error ? err.message : "Could not start the game. Please try again.",
+      );
+      setStarting(false);
+    }
+  }
 
   return (
     <Shell>
@@ -76,6 +123,20 @@ function HostDashboard({
             ))}
           </ul>
         </>
+      )}
+      {startError && <Alert>{startError}</Alert>}
+      <button
+        type="button"
+        onClick={handleStart}
+        disabled={!canStart || starting}
+        className="mt-8 border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
+      >
+        {starting ? "Starting…" : "Start game"}
+      </button>
+      {!canStart && (
+        <p className="mt-3 text-sm text-muted">
+          At least 2 players must submit before you can start.
+        </p>
       )}
     </Shell>
   );
