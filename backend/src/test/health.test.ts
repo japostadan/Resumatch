@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
-import { app } from "../app.js";
+import { createApp } from "../app.js";
+import { GameStore } from "../store/index.js";
+
+// The health check holds no game state, so a single app around an empty store
+// is enough for these read-only checks.
+const app = createApp(new GameStore());
 
 describe("GET /api/health", () => {
   it("returns 200 with status ok and a valid timestamp", async () => {
