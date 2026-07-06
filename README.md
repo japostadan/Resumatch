@@ -166,7 +166,7 @@ No environment variables are required for the frontend build.
 
 Both apps deploy to Coolify from a single [`docker-compose.yaml`](./docker-compose.yaml): a `backend` service (the Express API) and a `frontend` service (nginx serving the Vite build). nginx reverse-proxies `/api/` to the backend over the compose network (see [`frontend/nginx.conf`](./frontend/nginx.conf)), so the browser only ever talks to one origin — no CORS and no public backend URL. Each service builds from its own Dockerfile ([`backend/Dockerfile`](./backend/Dockerfile), [`frontend/Dockerfile`](./frontend/Dockerfile)) with the repo root as the build context, because both are npm-workspaces packages that need the root lockfile and the `shared` workspace.
 
-The Dockerfiles pin node `24.16.0` (matching [`mise.toml`](./mise.toml)) and npm `11.6.2` (the version that authored `package-lock.json`), so `npm ci` stays reproducible — a newer npm resolves the optional `yaml` dependency differently and rejects the committed lockfile.
+The Dockerfiles pin node `24.16.0` (matching [`mise.toml`](./mise.toml)); the image's bundled npm is fine because `package-lock.json` is complete, so `npm ci` reproduces it on any recent npm.
 
 **One-time setup** (for a volunteer with access to the Coolify instance):
 
