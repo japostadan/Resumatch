@@ -86,4 +86,19 @@ describe("SubmitStatement", () => {
     expect(await screen.findByText(/already submitted/i)).toBeInTheDocument();
     expect(navigate).not.toHaveBeenCalled();
   });
+
+  it("blocks submission with a session message and no API call when the token is missing", () => {
+    window.location.hash = "";
+    const fetchMock = mockFetch({ ok: true });
+    render(<SubmitStatement />);
+
+    fireEvent.change(screen.getByLabelText(/statement/i), {
+      target: { value: "I once shipped on a Friday" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/session has expired/i);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
 });
