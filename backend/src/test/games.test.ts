@@ -1,10 +1,15 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
-import { app } from "../app.js";
-import { startGame, submitStatement, clearGames } from "../store/index.js";
+import type { Express } from "express";
+import { createApp } from "../app.js";
+import { GameStore } from "../store/index.js";
+
+let store: GameStore;
+let app: Express;
 
 beforeEach(() => {
-  clearGames();
+  store = new GameStore();
+  app = createApp(store);
 });
 
 describe("POST /api/games", () => {
@@ -123,10 +128,10 @@ describe("POST /api/games/:id/join", () => {
       .post(`/api/games/${gameId}/join`)
       .send({ playerName: "Bob", password: "secret" });
 
-    submitStatement(gameId, alice.body.playerToken, "I like cats");
-    submitStatement(gameId, bob.body.playerToken, "I like dogs");
+    store.submitStatement(gameId, alice.body.playerToken, "I like cats");
+    store.submitStatement(gameId, bob.body.playerToken, "I like dogs");
 
-    startGame(gameId, hostToken);
+    store.startGame(gameId, hostToken);
 
     const joinRes = await request(app)
       .post(`/api/games/${gameId}/join`)

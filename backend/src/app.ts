@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import type { CreateGameBody, JoinGameBody } from "@resumatch/shared";
 import { isGameError } from "./errors/index.js";
-import { createGame, joinGame } from "./store/index.js";
+import { GameStore } from "./store/index.js";
 
 // Middleware such as express.json() tags client errors (e.g. a malformed body)
 // with a 4xx status; read it so those are not reported as 500s.
@@ -30,49 +30,54 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   res.status(500).json({ error: "Internal server error" });
 }
 
-const app = express();
+// Build an Express app wired to a specific GameStore. Production constructs
+// one store and one app (see index.ts); tests construct a fresh store per
+// case so no game state leaks between them.
+export function createApp(store: GameStore) {
+  const app = express();
 
-// ── Middleware ──────────────────────────────────────────────────────────────
-app.use(express.json());
+  // ── Middleware ────────────────────────────────────────────────────────────
+  app.use(express.json());
 
-app.use((_req, res, next) => {
-  const origin = process.env.CORS_ORIGIN ?? "http://localhost:5173";
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Host-Token, X-Player-Token");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  next();
-});
+  app.use((_req, res, next) => {
+    const origin = process.env.CORS_ORIGIN ?? "http://localhost:5173";
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Host-Token, X-Player-Token");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    next();
+  });
 
-app.options(/.*/, (_req, res) => {
-  res.sendStatus(204);
-});
+  app.options(/.*/, (_req, res) => {
+    res.sendStatus(204);
+  });
 
-app.use("/api", (_req, res, next) => {
-  res.setHeader("Cache-Control", "no-store");
-  next();
-});
+  app.use("/api", (_req, res, next) => {
+    res.setHeader("Cache-Control", "no-store");
+    next();
+  });
 
-// ── Routes ──────────────────────────────────────────────────────────────────
-// Mount game routes here. Keep this file clean — one line per feature.
+  // ── Routes ──────────────────────────────────────────────────────────────
+  // Mount game routes here. Keep this file clean — one line per feature.
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
-});
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
 
-app.post("/api/games", (req, res) => {
-  const { password } = (req.body ?? {}) as CreateGameBody;
-  res.status(201).json(createGame(password));
-});
+  app.post("/api/games", (req, res) => {
+    const { password } = (req.body ?? {}) as CreateGameBody;
+    res.status(201).json(store.createGame(password));
+  });
 
-app.post("/api/games/:id/join", (req, res) => {
-  const { playerName, password } = (req.body ?? {}) as JoinGameBody;
+  app.post("/api/games/:id/join", (req, res) => {
+    const { playerName, password } = (req.body ?? {}) as JoinGameBody;
 
-  const result = joinGame(req.params.id, password, playerName);
+    const result = store.joinGame(req.params.id, password, playerName);
 
-  res.json(result);
-});
+    res.json(result);
+  });
 
-// ── Error handler (must be last) ────────────────────────────────────────────
-app.use(errorHandler);
+  // ── Error handler (must be last) ──────────────────────────────────────────
+  app.use(errorHandler);
 
-export { app };
+  return app;
+}
