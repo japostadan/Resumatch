@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
-import { useGameSession } from "../../hooks/useGameSession";
+import { useGameSession, hostHash } from "../../hooks/useGameSession";
 
 export function CreateGame() {
   const [password, setPassword] = useState("");
@@ -8,6 +9,7 @@ export function CreateGame() {
   const [submitting, setSubmitting] = useState(false);
   const [game, setGame] = useState<CreatedGame | null>(null);
   const { setHostSession } = useGameSession();
+  const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -49,8 +51,22 @@ export function CreateGame() {
 
         <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
           Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
-          and enter this Game ID and password. Keep this screen up while everyone joins.
+          and enter this Game ID and password. Open the lobby to watch them arrive.
         </p>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate({
+              to: "/game/$gameId/lobby",
+              params: { gameId: game.gameId },
+              hash: hostHash(game.hostToken),
+            })
+          }
+          className="mt-8 border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white"
+        >
+          Open the lobby
+        </button>
       </Shell>
     );
   }
