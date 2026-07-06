@@ -19,9 +19,9 @@ as it does behind the Vite dev proxy.
 Each service builds from its own Dockerfile (`backend/Dockerfile`,
 `frontend/Dockerfile`) with the **repo root** as build context, because both are
 npm-workspaces packages that need the root lockfile and the `shared` workspace.
-The images pin **node 24.16.0** and **npm 11.6.2** so `npm ci` reproduces the
-committed lockfile — a newer npm resolves the optional `yaml` dependency
-differently and rejects it.
+The images pin **node 24.16.0** (matching `mise.toml`/Volta); the bundled npm is
+fine because `package-lock.json` is complete, so `npm ci` reproduces it on any
+recent npm.
 
 ## Test locally before you push
 
@@ -86,10 +86,10 @@ and players start a new one. No database addon or environment variables required
 
 ## Troubleshooting
 
-| Symptom                                               | Cause / fix                                                                                                                |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Build fails: `Missing: yaml@2.9.0 from lock file`     | Image isn't on the pinned npm — check `RUN npm install -g npm@11.6.2` in the Dockerfiles.                                  |
-| Build fails: `Cannot find module '@resumatch/shared'` | `shared/dist` not emitted; a stale `*.tsbuildinfo` leaked into the context. Ensure `.dockerignore` has `**/*.tsbuildinfo`. |
-| `/api/*` → 502                                        | nginx can't reach the backend. Check backend logs and that the service is named `backend`.                                 |
-| `/api/*` → HTML/404                                   | Request fell through to the SPA fallback. Check the `location /api/` block in `frontend/nginx.conf`.                       |
-| TLS not issued                                        | The domain's A record isn't pointing at the Coolify server yet, or DNS hasn't propagated.                                  |
+| Symptom                                               | Cause / fix                                                                                                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Build fails: `Missing: yaml@2.9.0 from lock file`     | `package-lock.json` drifted (a dep changed without regenerating the lock with npm 11.13.0). Run `npm install` with the pinned npm and commit the lock. |
+| Build fails: `Cannot find module '@resumatch/shared'` | `shared/dist` not emitted; a stale `*.tsbuildinfo` leaked into the context. Ensure `.dockerignore` has `**/*.tsbuildinfo`.                             |
+| `/api/*` → 502                                        | nginx can't reach the backend. Check backend logs and that the service is named `backend`.                                                             |
+| `/api/*` → HTML/404                                   | Request fell through to the SPA fallback. Check the `location /api/` block in `frontend/nginx.conf`.                                                   |
+| TLS not issued                                        | The domain's A record isn't pointing at the Coolify server yet, or DNS hasn't propagated.                                                              |

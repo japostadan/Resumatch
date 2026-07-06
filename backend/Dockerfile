@@ -5,12 +5,10 @@
 # types-only) to compile. Build from the repo root:
 #   docker build -f backend/Dockerfile .
 
-# Pin node to the toolchain in mise.toml/Volta and npm to the version that
-# authored package-lock.json, so `npm ci` stays reproducible. A newer npm
-# resolves optional deps differently and rejects the committed lockfile.
+# Pin node to the toolchain in mise.toml/Volta. The image's bundled npm is fine:
+# package-lock.json is complete, so `npm ci` reproduces it on any recent npm.
 FROM node:24.16.0-alpine AS builder
 WORKDIR /app
-RUN npm install -g npm@11.6.2
 
 # Install dependencies from the workspace manifests first so this layer is cached
 # until a package.json or the lockfile actually changes.
