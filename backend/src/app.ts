@@ -99,6 +99,14 @@ export function createApp(store: GameStore) {
     res.json(store.getState(req.params.id, playerId));
   });
 
+  app.post("/api/games/:id/next", (req, res) => {
+    const hostToken = req.header("X-Host-Token") ?? "";
+
+    store.advanceStatement(req.params.id, hostToken);
+
+    res.json({ ok: true });
+  });
+
   // ── Error handler (must be last) ──────────────────────────────────────────
   app.use(errorHandler);
 
