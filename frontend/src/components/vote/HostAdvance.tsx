@@ -17,8 +17,6 @@ export function HostAdvance() {
     : "Error:";
   const statementText = isActive ? state?.currentStatement : "Current game is inactive.";
 
-  console.log(state);
-
   const handleNext = () => {};
 
   return (
