@@ -115,6 +115,28 @@ describe("POST /api/games/:id/vote", () => {
     });
   });
 
+  describe("Bad Nominee", () => {
+    it("returns clear feedback when nomineeId is missing", async () => {
+      const response = await request(app)
+        .post(`/api/games/${gameId}/vote`)
+        .set("X-Player-Token", aliceToken)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe("A nominee is required");
+    });
+
+    it("returns clear feedback when nomineeId is not a candidate", async () => {
+      const response = await request(app)
+        .post(`/api/games/${gameId}/vote`)
+        .set("X-Player-Token", aliceToken)
+        .send({ nomineeId: "not-a-player" });
+
+      expect(response.status).toBe(409);
+      expect(response.body.error).toBe("Nominee is not a valid candidate");
+    });
+  });
+
   describe("Wrong Phase", () => {
     it("returns clear feedback when voting in LOBBY phase", async () => {
       const lobbyGame = store.createGame("secret");
@@ -130,22 +152,10 @@ describe("POST /api/games/:id/vote", () => {
     });
 
     it("returns clear feedback when voting in FINISHED phase", async () => {
-      const stmtCount = 3;
-      for (let i = 0; i < stmtCount; i++) {
-        const authorId = (store as any).games.get(gameId).statementOrder[i];
-        const voters = [aliceId, bobId, charlieId].filter((id) => id !== authorId);
-        for (const voterId of voters) {
-          const voter = [aliceToken, bobToken, charlieToken][
-            [aliceId, bobId, charlieId].indexOf(voterId)
-          ];
-          const nominee = [aliceId, bobId, charlieId].find((id) => id !== voterId)!;
-          await request(app)
-            .post(`/api/games/${gameId}/vote`)
-            .set("X-Player-Token", voter)
-            .send({ nomineeId: nominee });
-        }
-        store.advanceStatement(gameId, hostToken);
-      }
+      // Advancing past the last statement finishes the game; votes are not required.
+      store.advanceStatement(gameId, hostToken);
+      store.advanceStatement(gameId, hostToken);
+      store.advanceStatement(gameId, hostToken);
 
       const response = await request(app)
         .post(`/api/games/${gameId}/vote`)
