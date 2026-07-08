@@ -1,3 +1,4 @@
+import { Shell } from "../common/Shell";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
@@ -106,14 +107,6 @@ export function CreateGame() {
         </button>
       </form>
     </Shell>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-8">
-      <div className="w-full max-w-md">{children}</div>
-    </div>
   );
 }
 
