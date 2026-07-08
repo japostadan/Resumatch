@@ -1,123 +1,153 @@
-import type { Candidate } from "../../lib/api-vote";
-import { useVoting } from "../../hooks/useVoting";
+import { useState, type FormEvent } from "react";
+import { castVote } from "../../lib/api";
+import { useGameState } from "../../hooks/useGameState";
 
-interface PlayerVoteViewProps {
+type PlayerVoteViewProps = {
   gameId: string;
   playerId: string;
-}
+  playerToken: string;
+};
 
-export function PlayerVoteView({ gameId, playerId }: PlayerVoteViewProps) {
-  const {
-    statement,
-    candidates,
-    hasVoted,
-    isActive,
-    submitVote,
-    voteStatus,
-    voteError,
-    isLoading,
-    error,
-  } = useVoting(gameId, playerId);
+// The Player's ballot for the current statement. The polled game state drives
+// what is shown: the ballot while the vote is open, the confirmation once this
+// player has voted, and a waiting message outside the ACTIVE phase. `votedIndex`
+// bridges the gap between a successful vote and the next poll reporting
+// hasVoted, and resets naturally when the Host advances to the next statement.
+export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteViewProps) {
+  const { state, loading, error } = useGameState(gameId, playerId);
+  const [nomineeId, setNomineeId] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [votedIndex, setVotedIndex] = useState<number | null>(null);
 
-  if (!isActive) {
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (nomineeId === "" || state?.status !== "ACTIVE") return;
+    setVoteError(null);
+    setSubmitting(true);
+    try {
+      await castVote(gameId, playerToken, nomineeId);
+      setVotedIndex(state.currentStatementIndex);
+      setNomineeId("");
+    } catch (err) {
+      setVoteError(
+        err instanceof Error ? err.message : "Could not submit your vote. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (state === null) {
     return (
-      <div className="vote-view" data-testid="vote-view">
-        <p className="phase-message">Waiting for the voting round to begin...</p>
-      </div>
+      <Shell>
+        <Eyebrow>Voting round</Eyebrow>
+        <Heading>Setting up the round</Heading>
+        {error ? <Alert>{error}</Alert> : loading && <Muted>Loading the round…</Muted>}
+      </Shell>
     );
   }
 
-  if (isLoading) {
+  if (state.status !== "ACTIVE") {
     return (
-      <div className="vote-view" data-testid="vote-view">
-        <p className="loading">Loading...</p>
-      </div>
+      <Shell>
+        <Eyebrow>Voting round</Eyebrow>
+        <Heading>Hang tight</Heading>
+        {error && <Alert>{error}</Alert>}
+        <Muted>
+          {state.status === "LOBBY"
+            ? "Waiting for the voting round to begin — keep this tab open."
+            : "The game has finished. Results are on their way."}
+        </Muted>
+      </Shell>
     );
   }
 
-  if (error) {
-    return (
-      <div className="vote-view" data-testid="vote-view">
-        <p className="error" role="alert">
-          {error}
-        </p>
-      </div>
-    );
-  }
+  const hasVoted = state.hasVoted || votedIndex === state.currentStatementIndex;
 
-  if (hasVoted || voteStatus === "success") {
+  if (hasVoted) {
     return (
-      <div className="vote-view" data-testid="vote-view">
-        <div className="confirmation" data-testid="vote-confirmation">
-          <h2>Vote Submitted!</h2>
-          <p>Your guess has been recorded. Waiting for other players...</p>
-          {statement && <p className="statement-reminder">Statement: &ldquo;{statement}&rdquo;</p>}
-        </div>
-      </div>
+      <Shell>
+        <Eyebrow>Vote in</Eyebrow>
+        <Heading>Your guess is locked</Heading>
+        {error && <Alert>{error}</Alert>}
+        <Muted>Waiting for the host to move to the next statement — keep this tab open.</Muted>
+      </Shell>
     );
   }
 
   return (
-    <div className="vote-view" data-testid="vote-view">
-      <h2>Who wrote this?</h2>
+    <Shell>
+      <Eyebrow>
+        Statement {state.currentStatementIndex + 1} of {state.totalStatements}
+      </Eyebrow>
+      <Heading>Who wrote this?</Heading>
+      {error && <Alert>{error}</Alert>}
+      <blockquote className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink">
+        &ldquo;{state.currentStatement}&rdquo;
+      </blockquote>
 
-      {statement && (
-        <blockquote className="anonymous-statement" data-testid="anonymous-statement">
-          {statement}
-        </blockquote>
-      )}
-
-      <form
-        className="vote-form"
-        data-testid="vote-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const formData = new FormData(form);
-          const nomineeId = formData.get("nomineeId") as string;
-          if (nomineeId) {
-            submitVote(nomineeId);
-          }
-        }}
-      >
-        <fieldset disabled={voteStatus === "loading"}>
-          <legend>Select the player you think wrote this statement:</legend>
-
-          <div className="candidates-list" role="radiogroup" aria-label="Candidate players">
-            {candidates.map((candidate: Candidate) => (
-              <label key={candidate.id} className="candidate-option">
-                <input
-                  type="radio"
-                  name="nomineeId"
-                  value={candidate.id}
-                  required
-                  data-testid={`candidate-${candidate.id}`}
-                />
-                <span className="candidate-name">{candidate.name}</span>
-              </label>
-            ))}
-          </div>
-
-          {candidates.length === 0 && (
-            <p className="no-candidates">No other players available to vote for.</p>
-          )}
-
-          <button
-            type="submit"
-            className="submit-vote"
-            disabled={voteStatus === "loading"}
-            data-testid="submit-vote"
-          >
-            {voteStatus === "loading" ? "Submitting..." : "Submit Vote"}
-          </button>
+      <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+        <fieldset className="flex flex-col gap-3" disabled={submitting}>
+          <legend className="mb-3 text-sm font-bold tracking-wide text-ink">
+            Select who you think wrote it
+          </legend>
+          {state.candidates.map((candidate) => (
+            <label
+              key={candidate.id}
+              className="flex items-center gap-3 border-2 border-line bg-surface px-4 py-3"
+            >
+              <input
+                type="radio"
+                name="nomineeId"
+                value={candidate.id}
+                checked={nomineeId === candidate.id}
+                onChange={() => setNomineeId(candidate.id)}
+                className="size-4 accent-violet"
+              />
+              <span className="text-lg font-bold text-ink">{candidate.name}</span>
+            </label>
+          ))}
         </fieldset>
-      </form>
 
-      {voteStatus === "error" && voteError && (
-        <p className="error" role="alert" data-testid="vote-error">
-          {voteError}
-        </p>
-      )}
+        {voteError && <Alert>{voteError}</Alert>}
+
+        <button
+          type="submit"
+          disabled={nomineeId === "" || submitting}
+          className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
+        >
+          {submitting ? "Submitting…" : "Submit vote"}
+        </button>
+      </form>
+    </Shell>
+  );
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center px-8">
+      <div className="w-full max-w-md">{children}</div>
     </div>
+  );
+}
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">{children}</p>;
+}
+
+function Heading({ children }: { children: React.ReactNode }) {
+  return <h1 className="mt-4 font-display text-4xl font-black tracking-tight">{children}</h1>;
+}
+
+function Muted({ children }: { children: React.ReactNode }) {
+  return <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">{children}</p>;
+}
+
+function Alert({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="mt-5 text-sm font-bold text-generic">
+      {children}
+    </p>
   );
 }
