@@ -1,6 +1,7 @@
 import { useParams } from "@tanstack/react-router";
 import { useGameSession } from "../../hooks/useGameSession";
 import { PlayerVoteView } from "./PlayerVoteView";
+import { HostAdvance } from "./HostAdvance";
 
 // The Host and Player share this route but see different views, the same split
 // as the Lobby. The Player gets the ballot; the Host keeps a placeholder until
@@ -24,16 +25,7 @@ export function Vote() {
   }
 
   if (session.role === "host") {
-    return (
-      <Shell>
-        <Eyebrow>Game on</Eyebrow>
-        <Heading>The game has started</Heading>
-        <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
-          The room is voting on the first statement. You&apos;ll advance the statements from here in
-          the next slice — keep this tab open.
-        </p>
-      </Shell>
-    );
+    return <HostAdvance />;
   }
 
   return (
