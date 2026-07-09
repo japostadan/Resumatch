@@ -7,6 +7,7 @@ import { Footer } from "../common/Footer";
 import { useGameState } from "../../hooks/useGameState";
 import { useState } from "react";
 import { advanceStatement } from "../../lib/api";
+import { useNavigate } from "@tanstack/react-router";
 
 export function HostAdvance() {
   const { gameId } = useParams({ from: "/game/$gameId/vote" });
@@ -19,8 +20,13 @@ export function HostAdvance() {
   );
   const [advanced, setAdvanced] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   if (state?.status === "FINISHED") {
+    navigate({
+      to: "/game/$gameId/results",
+      params: { gameId },
+    });
   }
 
   if (currentStatementIndex !== (isActive ? state?.currentStatementIndex : 0)) {
