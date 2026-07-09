@@ -225,6 +225,8 @@ export class GameStore {
       totalStatements: game.statementOrder.length,
       candidates,
       hasVoted,
+      votesIn: game.votes[game.currentStatementIndex].size,
+      totalPlayers: game.players.length,
     };
   }
 }

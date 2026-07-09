@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Button } from "../common/Button";
 import { useNavigate } from "@tanstack/react-router";
 import { joinGame } from "../../lib/api";
 import { playerHash } from "../../hooks/useGameSession";
@@ -81,13 +82,9 @@ export function JoinGame() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
-        >
+        <Button type="submit" disabled={submitting}>
           {submitting ? "Joining…" : "Join game"}
-        </button>
+        </Button>
       </form>
     </Shell>
   );

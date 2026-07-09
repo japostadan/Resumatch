@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "../common/Button";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import type { LobbyPlayer } from "@resumatch/shared";
 import { startGame } from "../../lib/api";
@@ -125,14 +126,9 @@ function HostDashboard({
         </>
       )}
       {startError && <Alert>{startError}</Alert>}
-      <button
-        type="button"
-        onClick={handleStart}
-        disabled={!canStart || starting}
-        className="mt-8 border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
-      >
+      <Button type="button" onClick={handleStart} disabled={!canStart || starting} className="mt-8">
         {starting ? "Starting…" : "Start game"}
-      </button>
+      </Button>
       {!canStart && (
         <p className="mt-3 text-sm text-muted">
           At least 2 players must submit before you can start.

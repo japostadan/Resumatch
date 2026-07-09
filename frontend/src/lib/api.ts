@@ -88,3 +88,14 @@ export async function startGame(gameId: string, hostToken: string): Promise<void
     throw new Error(body?.error ?? "Could not start the game. Please try again.");
   }
 }
+
+export async function advanceStatement(gameId: string, hostToken: string): Promise<void> {
+  const res = await fetch(`/api/games/${gameId}/next`, {
+    method: "POST",
+    headers: { "X-Host-Token": hostToken },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Could not advance the game. Please try again.");
+  }
+}

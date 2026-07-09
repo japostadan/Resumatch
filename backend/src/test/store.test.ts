@@ -318,6 +318,49 @@ describe("castVote", () => {
   });
 });
 
+describe("voting progress", () => {
+  it("shows zero votes in and the full player count on a fresh statement", () => {
+    const { gameId } = startedGame();
+
+    const view = store.getState(gameId);
+    if (view.status !== "ACTIVE") throw new Error("expected ACTIVE");
+    expect(view.votesIn).toBe(0);
+    expect(view.totalPlayers).toBe(2);
+  });
+
+  it("counts each vote cast on the current statement", () => {
+    const { gameId, players } = threePlayerGame();
+    const author = currentAuthor(gameId, players);
+    const voters = players.filter((p) => p.playerId !== author.playerId);
+
+    store.castVote(gameId, voters[0].playerToken, author.playerId);
+
+    let view = store.getState(gameId);
+    if (view.status !== "ACTIVE") throw new Error("expected ACTIVE");
+    expect(view.votesIn).toBe(1);
+    expect(view.totalPlayers).toBe(3);
+
+    store.castVote(gameId, voters[1].playerToken, author.playerId);
+
+    view = store.getState(gameId);
+    if (view.status !== "ACTIVE") throw new Error("expected ACTIVE");
+    expect(view.votesIn).toBe(2);
+  });
+
+  it("resets the votes-in count when the host advances", () => {
+    const { gameId, hostToken, players } = threePlayerGame();
+    const author = currentAuthor(gameId, players);
+    const voter = players.find((p) => p.playerId !== author.playerId)!;
+    store.castVote(gameId, voter.playerToken, author.playerId);
+
+    store.advanceStatement(gameId, hostToken);
+
+    const view = store.getState(gameId);
+    if (view.status !== "ACTIVE") throw new Error("expected ACTIVE");
+    expect(view.votesIn).toBe(0);
+  });
+});
+
 describe("advanceStatement", () => {
   it("moves to the next statement while statements remain", () => {
     const { gameId, hostToken } = startedGame();
