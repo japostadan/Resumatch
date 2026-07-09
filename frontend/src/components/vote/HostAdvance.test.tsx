@@ -32,6 +32,8 @@ const activeView = {
     { id: "b", name: "Bob" },
   ],
   hasVoted: false,
+  votesIn: 1,
+  totalPlayers: 3,
 };
 
 const lobbyView = {
@@ -121,13 +123,32 @@ describe("HostAdvance", () => {
     expect(screen.getByRole("button", { name: /next/i })).toBeEnabled();
   });
 
-  it("disables Next when the game is not ACTIVE", async () => {
+  it("shows a waiting screen without a Next button when the game is not ACTIVE", async () => {
     window.location.hash = "hostToken=host-tok";
     mockApi(lobbyView);
 
     render(<HostAdvance />);
 
-    await waitFor(() => expect(screen.getByRole("button", { name: /next/i })).toBeDisabled());
+    expect(await screen.findByRole("heading", { name: /hang tight/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument();
+  });
+
+  it("shows the voting progress for the current statement", async () => {
+    window.location.hash = "hostToken=host-tok";
+    mockApi(activeView);
+
+    render(<HostAdvance />);
+
+    expect(await screen.findByText(/1 of 3 votes in/i)).toBeInTheDocument();
+  });
+
+  it("labels the button Finish game on the last statement", async () => {
+    window.location.hash = "hostToken=host-tok";
+    mockApi({ ...activeView, currentStatementIndex: 1 });
+
+    render(<HostAdvance />);
+
+    expect(await screen.findByRole("button", { name: /finish game/i })).toBeInTheDocument();
   });
 
   it("navigates to the results when the game is FINISHED", async () => {

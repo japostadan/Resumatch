@@ -32,6 +32,8 @@ const activeView = {
     { id: "c", name: "Charlie" },
   ],
   hasVoted: false,
+  votesIn: 0,
+  totalPlayers: 3,
 };
 
 const lobbyView = {
