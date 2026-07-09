@@ -1,4 +1,5 @@
 import { Shell } from "../common/Shell";
+import { Button } from "../common/Button";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
@@ -55,7 +56,7 @@ export function CreateGame() {
           and enter this Game ID and password. Open the lobby to watch them arrive.
         </p>
 
-        <button
+        <Button
           type="button"
           onClick={() =>
             navigate({
@@ -64,10 +65,10 @@ export function CreateGame() {
               hash: hostHash(game.hostToken),
             })
           }
-          className="mt-8 border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white"
+          className="mt-8"
         >
           Open the lobby
-        </button>
+        </Button>
       </Shell>
     );
   }
@@ -98,13 +99,9 @@ export function CreateGame() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
-        >
+        <Button type="submit" disabled={submitting}>
           {submitting ? "Creating…" : "Create game"}
-        </button>
+        </Button>
       </form>
     </Shell>
   );

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Button } from "../common/Button";
 import { castVote } from "../../lib/api";
 import { useGameState } from "../../hooks/useGameState";
 import { useResultsRedirect } from "../../hooks/useResultsRedirect";
@@ -116,13 +117,9 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
 
         {voteError && <Alert>{voteError}</Alert>}
 
-        <button
-          type="submit"
-          disabled={nomineeId === "" || submitting}
-          className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
-        >
+        <Button type="submit" disabled={nomineeId === "" || submitting}>
           {submitting ? "Submitting…" : "Submit vote"}
-        </button>
+        </Button>
       </form>
     </Shell>
   );

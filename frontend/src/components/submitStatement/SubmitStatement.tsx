@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Button } from "../common/Button";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { submitStatement } from "../../lib/api";
 import { useGameSession, playerHash } from "../../hooks/useGameSession";
@@ -71,13 +72,9 @@ export function SubmitStatement() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60"
-          >
+          <Button type="submit" disabled={submitting}>
             {submitting ? "Submitting…" : "Submit statement"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
