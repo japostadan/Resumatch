@@ -36,6 +36,11 @@ export type ActiveView = {
   totalStatements: number;
   candidates: Candidate[];
   hasVoted: boolean;
+  // Voting progress for the current statement, so the Host knows when the
+  // room is ready. Every player can vote (the statement's author casts a
+  // decoy vote), so totalPlayers is the denominator.
+  votesIn: number;
+  totalPlayers: number;
 };
 
 export type FinishedView = {
