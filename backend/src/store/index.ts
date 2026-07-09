@@ -7,6 +7,7 @@ import {
   MissingPasswordError,
   MissingNameError,
   MissingStatementError,
+  MissingNomineeError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
@@ -164,6 +165,7 @@ export class GameStore {
   }
 
   castVote(gameId: string, playerToken: string, nomineeId: string): void {
+    if (typeof nomineeId !== "string" || nomineeId.trim() === "") throw new MissingNomineeError();
     const game = this.requireGame(gameId);
     if (game.status !== "ACTIVE") throw new WrongStatusError("Voting is not open");
     const voter = requirePlayerByToken(game, playerToken);
