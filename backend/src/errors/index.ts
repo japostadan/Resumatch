@@ -40,6 +40,13 @@ export class MissingStatementError extends Error {
   }
 }
 
+export class MissingNomineeError extends Error {
+  readonly status = 400;
+  constructor() {
+    super("A nominee is required");
+  }
+}
+
 export class BadTokenError extends Error {
   readonly status = 403;
   constructor() {
@@ -82,6 +89,7 @@ export type GameError =
   | MissingPasswordError
   | MissingNameError
   | MissingStatementError
+  | MissingNomineeError
   | BadTokenError
   | WrongStatusError
   | AlreadyVotedError
@@ -96,6 +104,7 @@ export function isGameError(err: unknown): err is GameError {
     err instanceof MissingPasswordError ||
     err instanceof MissingNameError ||
     err instanceof MissingStatementError ||
+    err instanceof MissingNomineeError ||
     err instanceof BadTokenError ||
     err instanceof WrongStatusError ||
     err instanceof AlreadyVotedError ||

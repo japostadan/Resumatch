@@ -58,6 +58,24 @@ export async function submitStatement(
   }
 }
 
+// The player token authenticates the vote via the X-Player-Token header,
+// matching the backend route (POST /api/games/:id/vote).
+export async function castVote(
+  gameId: string,
+  playerToken: string,
+  nomineeId: string,
+): Promise<void> {
+  const res = await fetch(`/api/games/${gameId}/vote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Player-Token": playerToken },
+    body: JSON.stringify({ nomineeId }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Could not submit your vote. Please try again.");
+  }
+}
+
 // The host token authenticates the start via the X-Host-Token header, matching
 // the backend route (POST /api/games/:id/start). No request body is needed.
 export async function startGame(gameId: string, hostToken: string): Promise<void> {

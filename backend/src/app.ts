@@ -99,6 +99,15 @@ export function createApp(store: GameStore) {
     res.json(store.getState(req.params.id, playerId));
   });
 
+  app.post("/api/games/:id/vote", (req, res) => {
+    const playerToken = req.header("X-Player-Token") ?? "";
+    const nomineeId = typeof req.body?.nomineeId === "string" ? req.body.nomineeId : "";
+
+    store.castVote(req.params.id, playerToken, nomineeId);
+
+    res.json({ ok: true });
+  });
+
   app.post("/api/games/:id/next", (req, res) => {
     const hostToken = req.header("X-Host-Token") ?? "";
 

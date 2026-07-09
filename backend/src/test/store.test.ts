@@ -374,6 +374,30 @@ describe("results", () => {
     }
   });
 
+  it("excludes the author's decoy vote from their own statement's tally", () => {
+    const { gameId, hostToken, players } = threePlayerGame();
+
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players);
+      const others = players.filter((p) => p.playerId !== author.playerId);
+      // The author bluffs (their vote is wrong by construction); of the two
+      // informed voters one is correct, one wrong → 1 of 2 = Distinctive.
+      // Counting the decoy would make it 1 of 3 and flip the verdict.
+      store.castVote(gameId, author.playerToken, others[1].playerId);
+      store.castVote(gameId, others[0].playerToken, author.playerId);
+      store.castVote(gameId, others[1].playerToken, others[0].playerId);
+      store.advanceStatement(gameId, hostToken);
+    }
+
+    const view = store.getState(gameId);
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    for (const entry of view.results) {
+      expect(entry.totalVotes).toBe(2);
+      expect(entry.correctVotes).toBe(1);
+      expect(entry.verdict).toBe("Distinctive");
+    }
+  });
+
   it("marks a statement Generic when fewer than half are correct", () => {
     const { gameId, hostToken, players } = threePlayerGame();
 

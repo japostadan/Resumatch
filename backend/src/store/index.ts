@@ -7,6 +7,7 @@ import {
   MissingPasswordError,
   MissingNameError,
   MissingStatementError,
+  MissingNomineeError,
   WrongStatusError,
   BadTokenError,
   AlreadySubmittedError,
@@ -65,9 +66,14 @@ function buildResults(game: Game): ResultEntry[] {
   return game.statementOrder.map((authorId, index) => {
     const author = playerById(game, authorId)!;
     const votes = game.votes[index];
-    const totalVotes = votes.size;
+    // The author's vote on their own statement is a decoy: it keeps them
+    // indistinguishable from the other voters but is wrong by construction
+    // (self-nominees are rejected), so it is excluded from the tally (#56).
+    let totalVotes = 0;
     let correctVotes = 0;
-    for (const nomineeId of votes.values()) {
+    for (const [voterId, nomineeId] of votes) {
+      if (voterId === authorId) continue;
+      totalVotes++;
       if (nomineeId === authorId) correctVotes++;
     }
     const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? "Distinctive" : "Generic";
@@ -164,6 +170,7 @@ export class GameStore {
   }
 
   castVote(gameId: string, playerToken: string, nomineeId: string): void {
+    if (typeof nomineeId !== "string" || nomineeId.trim() === "") throw new MissingNomineeError();
     const game = this.requireGame(gameId);
     if (game.status !== "ACTIVE") throw new WrongStatusError("Voting is not open");
     const voter = requirePlayerByToken(game, playerToken);
