@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GameGameIdVoteRouteImport } from './routes/game/$gameId/vote'
 import { Route as GameGameIdSubmitRouteImport } from './routes/game/$gameId/submit'
+import { Route as GameGameIdResultsRouteImport } from './routes/game/$gameId/results'
 import { Route as GameGameIdLobbyRouteImport } from './routes/game/$gameId/lobby'
 
 const JoinRoute = JoinRouteImport.update({
@@ -47,6 +48,11 @@ const GameGameIdSubmitRoute = GameGameIdSubmitRouteImport.update({
   path: '/game/$gameId/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GameGameIdResultsRoute = GameGameIdResultsRouteImport.update({
+  id: '/game/$gameId/results',
+  path: '/game/$gameId/results',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GameGameIdLobbyRoute = GameGameIdLobbyRouteImport.update({
   id: '/game/$gameId/lobby',
   path: '/game/$gameId/lobby',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/host': typeof HostRoute
   '/join': typeof JoinRoute
   '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
+  '/game/$gameId/results': typeof GameGameIdResultsRoute
   '/game/$gameId/submit': typeof GameGameIdSubmitRoute
   '/game/$gameId/vote': typeof GameGameIdVoteRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/host': typeof HostRoute
   '/join': typeof JoinRoute
   '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
+  '/game/$gameId/results': typeof GameGameIdResultsRoute
   '/game/$gameId/submit': typeof GameGameIdSubmitRoute
   '/game/$gameId/vote': typeof GameGameIdVoteRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/host': typeof HostRoute
   '/join': typeof JoinRoute
   '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
+  '/game/$gameId/results': typeof GameGameIdResultsRoute
   '/game/$gameId/submit': typeof GameGameIdSubmitRoute
   '/game/$gameId/vote': typeof GameGameIdVoteRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/join'
     | '/game/$gameId/lobby'
+    | '/game/$gameId/results'
     | '/game/$gameId/submit'
     | '/game/$gameId/vote'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/join'
     | '/game/$gameId/lobby'
+    | '/game/$gameId/results'
     | '/game/$gameId/submit'
     | '/game/$gameId/vote'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/join'
     | '/game/$gameId/lobby'
+    | '/game/$gameId/results'
     | '/game/$gameId/submit'
     | '/game/$gameId/vote'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   HostRoute: typeof HostRoute
   JoinRoute: typeof JoinRoute
   GameGameIdLobbyRoute: typeof GameGameIdLobbyRoute
+  GameGameIdResultsRoute: typeof GameGameIdResultsRoute
   GameGameIdSubmitRoute: typeof GameGameIdSubmitRoute
   GameGameIdVoteRoute: typeof GameGameIdVoteRoute
 }
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GameGameIdSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/game/$gameId/results': {
+      id: '/game/$gameId/results'
+      path: '/game/$gameId/results'
+      fullPath: '/game/$gameId/results'
+      preLoaderRoute: typeof GameGameIdResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/game/$gameId/lobby': {
       id: '/game/$gameId/lobby'
       path: '/game/$gameId/lobby'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   HostRoute: HostRoute,
   JoinRoute: JoinRoute,
   GameGameIdLobbyRoute: GameGameIdLobbyRoute,
+  GameGameIdResultsRoute: GameGameIdResultsRoute,
   GameGameIdSubmitRoute: GameGameIdSubmitRoute,
   GameGameIdVoteRoute: GameGameIdVoteRoute,
 }

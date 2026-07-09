@@ -71,7 +71,7 @@ export async function startGame(gameId: string, hostToken: string): Promise<void
   }
 }
 
-export async function advanceGame(gameId: string, hostToken: string): Promise<void> {
+export async function advanceStatement(gameId: string, hostToken: string): Promise<void> {
   const res = await fetch(`/api/games/${gameId}/next`, {
     method: "POST",
     headers: { "X-Host-Token": hostToken },
