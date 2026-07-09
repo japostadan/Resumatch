@@ -2,8 +2,10 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { Vote } from "./Vote";
 
+const navigate = vi.fn();
 vi.mock("@tanstack/react-router", () => ({
   useParams: () => ({ gameId: "g" }),
+  useNavigate: () => navigate,
 }));
 
 function mockApi(
@@ -132,14 +134,29 @@ describe("Vote", () => {
     expect(screen.queryByRole("button", { name: /submit vote/i })).not.toBeInTheDocument();
   });
 
-  it("shows the host the game-on placeholder instead of a ballot", () => {
+  it("shows the host the advance view instead of a ballot", async () => {
     window.location.hash = "hostToken=host-tok";
     mockApi(activeView);
 
     render(<Vote />);
 
-    expect(screen.getByRole("heading", { name: /game has started/i })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /next/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /submit vote/i })).not.toBeInTheDocument();
+  });
+
+  it("sends the player to the results when the game is FINISHED", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=a";
+    mockApi({ status: "FINISHED", gameId: "g", results: [] });
+
+    render(<Vote />);
+
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/game/$gameId/results",
+        params: { gameId: "g" },
+        hash: "playerToken=player-tok&playerId=a",
+      }),
+    );
   });
 
   it("prompts an unknown visitor to rejoin when there is no session", () => {

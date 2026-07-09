@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { castVote } from "../../lib/api";
 import { useGameState } from "../../hooks/useGameState";
+import { useResultsRedirect } from "../../hooks/useResultsRedirect";
+import { playerHash } from "../../hooks/useGameSession";
 
 type PlayerVoteViewProps = {
   gameId: string;
@@ -19,6 +21,8 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
   const [submitting, setSubmitting] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [votedIndex, setVotedIndex] = useState<number | null>(null);
+
+  useResultsRedirect(gameId, state?.status === "FINISHED", playerHash(playerToken, playerId));
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
