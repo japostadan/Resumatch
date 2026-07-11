@@ -32,6 +32,16 @@ const bothSubmitted = {
   ],
 };
 
+const twoOfThreeSubmitted = {
+  status: "LOBBY",
+  gameId: "g",
+  players: [
+    { id: "a", name: "Alice", hasSubmitted: true },
+    { id: "b", name: "Bob", hasSubmitted: true },
+    { id: "c", name: "Cara", hasSubmitted: false },
+  ],
+};
+
 const activeView = {
   status: "ACTIVE",
   gameId: "g",
@@ -120,6 +130,100 @@ describe("Lobby", () => {
         }),
       ),
     );
+  });
+
+  it("warns instead of starting when players have not submitted yet", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+
+    expect(await screen.findByText(/only 2 of 3 players have submitted/i)).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/games/g/start", expect.anything());
+  });
+
+  it("starts the game after the host confirms leaving pending players out", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+    fireEvent.click(await screen.findByRole("button", { name: /start anyway/i }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/games/g/start",
+        expect.objectContaining({
+          method: "POST",
+          headers: expect.objectContaining({ "X-Host-Token": "host-tok" }),
+        }),
+      ),
+    );
+  });
+
+  // Real timers: the scenario spans three 2-second polls, so this test takes
+  // a few seconds — the price of covering the stale-confirmation regression.
+  it("does not resurface the warning once the room has caught up", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const allThreeSubmitted = {
+      ...twoOfThreeSubmitted,
+      players: twoOfThreeSubmitted.players.map((p) => ({ ...p, hasSubmitted: true })),
+    };
+    const fourthJoined = {
+      ...allThreeSubmitted,
+      players: [...allThreeSubmitted.players, { id: "d", name: "Dan", hasSubmitted: false }],
+    };
+    const polls = [twoOfThreeSubmitted, allThreeSubmitted, fourthJoined];
+    let call = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => polls[Math.min(call++, polls.length - 1)],
+      })),
+    );
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    fireEvent.click(start);
+    expect(await screen.findByText(/only 2 of 3 players have submitted/i)).toBeInTheDocument();
+
+    // Everyone catches up on the next poll: the warning clears itself.
+    await waitFor(
+      () => expect(screen.queryByText(/players have submitted —/i)).not.toBeInTheDocument(),
+      { timeout: 3500 },
+    );
+
+    // A new player joins on the poll after: the stale confirmation must not
+    // pop back up without the host clicking Start again.
+    await screen.findByText("Dan", undefined, { timeout: 3500 });
+    expect(screen.queryByText(/only 3 of 4 players have submitted/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /start game/i })).toBeInTheDocument();
+  }, 15000);
+
+  it("returns to the lobby without starting when the host keeps waiting", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+    fireEvent.click(await screen.findByRole("button", { name: /keep waiting/i }));
+
+    expect(screen.queryByText(/only 2 of 3 players have submitted/i)).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /start game/i })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/games/g/start", expect.anything());
   });
 
   it("moves the host to the vote screen when the game becomes ACTIVE", async () => {
