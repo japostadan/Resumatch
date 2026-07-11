@@ -202,6 +202,33 @@ describe("POST /api/games/:id/statement", () => {
     expect(res.status).toBe(403);
     expect(res.body.error).toBe("Missing or invalid token");
   });
+
+  it("rejects a submission after the game has started with a 409", async () => {
+    const createRes = await request(app).post("/api/games").send({ password: "secret" });
+    const { gameId, hostToken } = createRes.body;
+    const players = [];
+    for (const playerName of ["Alice", "Bea", "Cy"]) {
+      const joinRes = await request(app)
+        .post(`/api/games/${gameId}/join`)
+        .send({ playerName, password: "secret" });
+      players.push(joinRes.body.playerToken);
+    }
+    for (const playerToken of players.slice(0, 2)) {
+      await request(app)
+        .post(`/api/games/${gameId}/statement`)
+        .set("X-Player-Token", playerToken)
+        .send({ statement: "in time" });
+    }
+    await request(app).post(`/api/games/${gameId}/start`).set("X-Host-Token", hostToken);
+
+    const res = await request(app)
+      .post(`/api/games/${gameId}/statement`)
+      .set("X-Player-Token", players[2])
+      .send({ statement: "too late" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe("Game has already started");
+  });
 });
 
 describe("GET /api/games/:id/state", () => {
