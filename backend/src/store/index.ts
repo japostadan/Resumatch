@@ -153,6 +153,8 @@ export class GameStore {
   submitStatement(gameId: string, playerToken: string, statement: string): void {
     if (typeof statement !== "string" || statement.trim() === "") throw new MissingStatementError();
     const game = this.requireGame(gameId);
+    if (game.status === "ACTIVE") throw new WrongStatusError("Game has already started");
+    if (game.status === "FINISHED") throw new WrongStatusError("Game has already finished");
     const player = requirePlayerByToken(game, playerToken);
     if (player.statement !== undefined) throw new AlreadySubmittedError();
     player.statement = statement;

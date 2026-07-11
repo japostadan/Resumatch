@@ -191,6 +191,36 @@ describe("submitStatement", () => {
       AlreadySubmittedError,
     );
   });
+
+  it("rejects a submission after the game has started", () => {
+    const { gameId, hostToken } = store.createGame("secret");
+    const ada = store.joinGame(gameId, "secret", "Ada");
+    const bea = store.joinGame(gameId, "secret", "Bea");
+    const cy = store.joinGame(gameId, "secret", "Cy");
+    store.submitStatement(gameId, ada.playerToken, "ada statement");
+    store.submitStatement(gameId, bea.playerToken, "bea statement");
+    store.startGame(gameId, hostToken);
+
+    expect(() => store.submitStatement(gameId, cy.playerToken, "too late")).toThrow(
+      WrongStatusError,
+    );
+  });
+
+  it("rejects a submission after the game has finished", () => {
+    const { gameId, hostToken } = store.createGame("secret");
+    const ada = store.joinGame(gameId, "secret", "Ada");
+    const bea = store.joinGame(gameId, "secret", "Bea");
+    const cy = store.joinGame(gameId, "secret", "Cy");
+    store.submitStatement(gameId, ada.playerToken, "ada statement");
+    store.submitStatement(gameId, bea.playerToken, "bea statement");
+    store.startGame(gameId, hostToken);
+    store.advanceStatement(gameId, hostToken);
+    store.advanceStatement(gameId, hostToken);
+
+    expect(() => store.submitStatement(gameId, cy.playerToken, "too late")).toThrow(
+      WrongStatusError,
+    );
+  });
 });
 
 describe("startGame", () => {
