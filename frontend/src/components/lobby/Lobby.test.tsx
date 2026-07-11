@@ -32,6 +32,16 @@ const bothSubmitted = {
   ],
 };
 
+const twoOfThreeSubmitted = {
+  status: "LOBBY",
+  gameId: "g",
+  players: [
+    { id: "a", name: "Alice", hasSubmitted: true },
+    { id: "b", name: "Bob", hasSubmitted: true },
+    { id: "c", name: "Cara", hasSubmitted: false },
+  ],
+};
+
 const activeView = {
   status: "ACTIVE",
   gameId: "g",
@@ -120,6 +130,58 @@ describe("Lobby", () => {
         }),
       ),
     );
+  });
+
+  it("warns instead of starting when players have not submitted yet", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+
+    expect(await screen.findByText(/only 2 of 3 players have submitted/i)).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/games/g/start", expect.anything());
+  });
+
+  it("starts the game after the host confirms leaving pending players out", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+    fireEvent.click(await screen.findByRole("button", { name: /start anyway/i }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/games/g/start",
+        expect.objectContaining({
+          method: "POST",
+          headers: expect.objectContaining({ "X-Host-Token": "host-tok" }),
+        }),
+      ),
+    );
+  });
+
+  it("returns to the lobby without starting when the host keeps waiting", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(twoOfThreeSubmitted);
+
+    render(<Lobby />);
+
+    const start = await screen.findByRole("button", { name: /start game/i });
+    await waitFor(() => expect(start).toBeEnabled());
+    fireEvent.click(start);
+    fireEvent.click(await screen.findByRole("button", { name: /keep waiting/i }));
+
+    expect(screen.queryByText(/only 2 of 3 players have submitted/i)).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /start game/i })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/games/g/start", expect.anything());
   });
 
   it("moves the host to the vote screen when the game becomes ACTIVE", async () => {

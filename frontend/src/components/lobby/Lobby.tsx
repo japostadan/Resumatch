@@ -74,10 +74,21 @@ function HostDashboard({
 }) {
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+  const [confirmingStart, setConfirmingStart] = useState(false);
   const submittedCount = players?.filter((p) => p.hasSubmitted).length ?? 0;
   const canStart = submittedCount >= 2;
+  // Starting locks out everyone who hasn't submitted (late statements are
+  // rejected once the game is ACTIVE), so an early start needs an explicit
+  // confirmation. The poll keeps counts live: if the stragglers submit while
+  // the warning is up, it disappears and Start goes back to one click.
+  const pendingCount = (players?.length ?? 0) - submittedCount;
+  const showStartWarning = confirmingStart && pendingCount > 0;
 
   async function handleStart() {
+    if (pendingCount > 0 && !confirmingStart) {
+      setConfirmingStart(true);
+      return;
+    }
     setStartError(null);
     setStarting(true);
     try {
@@ -126,9 +137,31 @@ function HostDashboard({
         </>
       )}
       {startError && <Alert>{startError}</Alert>}
-      <Button type="button" onClick={handleStart} disabled={!canStart || starting} className="mt-8">
-        {starting ? "Starting…" : "Start game"}
-      </Button>
+      {showStartWarning ? (
+        <>
+          <Alert>
+            Only {submittedCount} of {players!.length} players have submitted — players who
+            haven&apos;t will be left out of the game.
+          </Alert>
+          <div className="mt-8 flex gap-4">
+            <Button type="button" onClick={handleStart} disabled={starting}>
+              {starting ? "Starting…" : "Start anyway"}
+            </Button>
+            <Button type="button" onClick={() => setConfirmingStart(false)} disabled={starting}>
+              Keep waiting
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Button
+          type="button"
+          onClick={handleStart}
+          disabled={!canStart || starting}
+          className="mt-8"
+        >
+          {starting ? "Starting…" : "Start game"}
+        </Button>
+      )}
       {!canStart && (
         <p className="mt-3 text-sm text-muted">
           At least 2 players must submit before you can start.
