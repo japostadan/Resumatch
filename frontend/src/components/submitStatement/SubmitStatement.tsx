@@ -4,12 +4,17 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { submitStatement } from "../../lib/api";
 import { useGameSession, playerHash } from "../../hooks/useGameSession";
 
+// The backend's phase rejections for a statement that arrived after Start
+// (#62). Their wording is part of the wire contract, pinned by backend tests.
+const ROUND_CLOSED_ERRORS = ["Game has already started", "Game has already finished"];
+
 export function SubmitStatement() {
   const { gameId } = useParams({ from: "/game/$gameId/submit" });
   const { session } = useGameSession();
   const [statement, setStatement] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [roundClosed, setRoundClosed] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent) {
@@ -35,12 +40,46 @@ export function SubmitStatement() {
         hash: playerHash(session.playerToken, session.playerId),
       });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not submit your statement. Please try again.",
-      );
+      if (err instanceof Error && ROUND_CLOSED_ERRORS.includes(err.message)) {
+        setRoundClosed(true);
+      } else {
+        setError(
+          err instanceof Error ? err.message : "Could not submit your statement. Please try again.",
+        );
+      }
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (roundClosed && session?.role === "player") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center px-8">
+        <div className="w-full max-w-md">
+          <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Round closed</p>
+          <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
+            The game started without your statement
+          </h1>
+          <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
+            Your statement isn&apos;t part of this round, but you can still vote on everyone
+            else&apos;s.
+          </p>
+          <Button
+            type="button"
+            onClick={() =>
+              navigate({
+                to: "/game/$gameId/vote",
+                params: { gameId },
+                hash: playerHash(session.playerToken, session.playerId),
+              })
+            }
+            className="mt-8"
+          >
+            Join the voting
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

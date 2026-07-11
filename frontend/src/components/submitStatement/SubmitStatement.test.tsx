@@ -87,6 +87,40 @@ describe("SubmitStatement", () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it("offers the way into voting when the game started without the player's statement", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=pid";
+    mockFetch({ error: "Game has already started" }, { ok: false, status: 409 });
+    render(<SubmitStatement />);
+
+    fireEvent.change(screen.getByLabelText(/statement/i), {
+      target: { value: "too late" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit statement/i }));
+
+    expect(await screen.findByText(/started without your statement/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /join the voting/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /submit statement/i })).not.toBeInTheDocument();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("joins the voting with the player session when the round closed without them", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=pid";
+    mockFetch({ error: "Game has already started" }, { ok: false, status: 409 });
+    render(<SubmitStatement />);
+
+    fireEvent.change(screen.getByLabelText(/statement/i), {
+      target: { value: "too late" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit statement/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /join the voting/i }));
+
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/game/$gameId/vote",
+      params: { gameId: "abc123" },
+      hash: "playerToken=player-tok&playerId=pid",
+    });
+  });
+
   it("blocks submission with a session message and no API call when the token is missing", () => {
     window.location.hash = "";
     const fetchMock = mockFetch({ ok: true });
