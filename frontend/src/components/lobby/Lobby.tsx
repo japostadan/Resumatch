@@ -84,6 +84,12 @@ function HostDashboard({
   const pendingCount = (players?.length ?? 0) - submittedCount;
   const showStartWarning = confirmingStart && pendingCount > 0;
 
+  // Once the room catches up the confirmation is spent — without this reset a
+  // later joiner would pop the warning back open with no click from the host.
+  useEffect(() => {
+    if (pendingCount === 0) setConfirmingStart(false);
+  }, [pendingCount]);
+
   async function handleStart() {
     if (pendingCount > 0 && !confirmingStart) {
       setConfirmingStart(true);
