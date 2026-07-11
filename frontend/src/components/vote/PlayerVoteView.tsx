@@ -95,7 +95,8 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
       <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
         <fieldset className="flex flex-col gap-3" disabled={submitting}>
           <legend className="mb-3 text-sm font-bold tracking-wide text-ink">
-            Select who you think wrote it
+            Select who you think wrote it —{" "}
+            {state.candidates.length === 1 ? "1 person" : `${state.candidates.length} people`}
           </legend>
           {state.candidates.map((candidate) => (
             <label
@@ -117,9 +118,13 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
 
         {voteError && <Alert>{voteError}</Alert>}
 
-        <Button type="submit" disabled={nomineeId === "" || submitting}>
-          {submitting ? "Submitting…" : "Submit vote"}
-        </Button>
+        {/* Sticky so the action stays visible while a long candidate list
+            scrolls behind it — the movement doubles as the scroll cue. */}
+        <div className="sticky bottom-0 bg-canvas pt-2 pb-4">
+          <Button type="submit" disabled={nomineeId === "" || submitting} className="w-full">
+            {submitting ? "Submitting…" : "Submit vote"}
+          </Button>
+        </div>
       </form>
     </Shell>
   );

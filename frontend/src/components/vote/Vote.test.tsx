@@ -60,6 +60,17 @@ describe("Vote", () => {
     expect(screen.getByRole("radio", { name: "Charlie" })).toBeInTheDocument();
   });
 
+  it("tells the player how many candidates the ballot holds", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=a";
+    mockApi(activeView);
+
+    render(<Vote />);
+
+    expect(
+      await screen.findByText(/select who you think wrote it — 2 people/i),
+    ).toBeInTheDocument();
+  });
+
   it("disables the submit button until a candidate is selected", async () => {
     window.location.hash = "playerToken=player-tok&playerId=a";
     mockApi(activeView);
