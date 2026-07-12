@@ -2,6 +2,7 @@ import { useParams } from "@tanstack/react-router";
 import { useGameSession } from "../../hooks/useGameSession";
 import { PlayerVoteView } from "./PlayerVoteView";
 import { HostAdvance } from "./HostAdvance";
+import { Shell } from "../common/Shell";
 
 // The Host and Player share this route but see different views, the same split
 // as the Lobby. The Player gets the ballot; the Host advances the statements.
@@ -29,14 +30,6 @@ export function Vote() {
 
   return (
     <PlayerVoteView gameId={gameId} playerId={session.playerId} playerToken={session.playerToken} />
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-8">
-      <div className="w-full max-w-md">{children}</div>
-    </div>
   );
 }
 
