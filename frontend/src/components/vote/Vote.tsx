@@ -4,6 +4,7 @@ import { PlayerVoteView } from "./PlayerVoteView";
 import { HostAdvance } from "./HostAdvance";
 import { Shell } from "../common/Shell";
 import { Eyebrow } from "../common/Eyebrow";
+import { Heading } from "../common/Heading";
 
 // The Host and Player share this route but see different views, the same split
 // as the Lobby. The Player gets the ballot; the Host advances the statements.
@@ -32,8 +33,4 @@ export function Vote() {
   return (
     <PlayerVoteView gameId={gameId} playerId={session.playerId} playerToken={session.playerToken} />
   );
-}
-
-function Heading({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-4 font-display text-4xl font-black tracking-tight">{children}</h1>;
 }
