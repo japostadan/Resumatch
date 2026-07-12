@@ -1,6 +1,7 @@
 import { SessionEnded } from "../common/SessionEnded";
 import { useGameSession } from "../../hooks/useGameSession";
 import { Shell } from "../common/Shell";
+import { HostResultView } from "./HostResultView";
 
 export function Results() {
   const { session } = useGameSession();
@@ -10,12 +11,7 @@ export function Results() {
   }
 
   if (session.role === "host") {
-    return (
-      <div>
-        <h1>Results</h1>
-        <p>Host view of results</p>
-      </div>
-    );
+    return HostResultView();
   }
 
   return (
