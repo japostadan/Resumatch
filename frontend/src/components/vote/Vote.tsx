@@ -3,6 +3,7 @@ import { useGameSession } from "../../hooks/useGameSession";
 import { PlayerVoteView } from "./PlayerVoteView";
 import { HostAdvance } from "./HostAdvance";
 import { Shell } from "../common/Shell";
+import { Eyebrow } from "../common/Eyebrow";
 
 // The Host and Player share this route but see different views, the same split
 // as the Lobby. The Player gets the ballot; the Host advances the statements.
@@ -31,10 +32,6 @@ export function Vote() {
   return (
     <PlayerVoteView gameId={gameId} playerId={session.playerId} playerToken={session.playerToken} />
   );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">{children}</p>;
 }
 
 function Heading({ children }: { children: React.ReactNode }) {
