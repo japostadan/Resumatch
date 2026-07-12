@@ -1,6 +1,23 @@
+import { SessionEnded } from "../common/SessionEnded";
+import { useGameSession } from "../../hooks/useGameSession";
 import { Shell } from "../common/Shell";
 
 export function Results() {
+  const { session } = useGameSession();
+
+  if (!session) {
+    return <SessionEnded />;
+  }
+
+  if (session.role === "host") {
+    return (
+      <div>
+        <h1>Results</h1>
+        <p>Host view of results</p>
+      </div>
+    );
+  }
+
   return (
     <Shell>
       <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game is over</p>
