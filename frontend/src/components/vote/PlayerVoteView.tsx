@@ -4,6 +4,11 @@ import { castVote } from "../../lib/api";
 import { useGameState } from "../../hooks/useGameState";
 import { useResultsRedirect } from "../../hooks/useResultsRedirect";
 import { playerHash } from "../../hooks/useGameSession";
+import { Shell } from "../common/Shell";
+import { Eyebrow } from "../common/Eyebrow";
+import { Heading } from "../common/Heading";
+import { Muted } from "../common/Muted";
+import { Alert } from "../common/Alert";
 
 type PlayerVoteViewProps = {
   gameId: string;
@@ -127,33 +132,5 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
         </div>
       </form>
     </Shell>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-8">
-      <div className="w-full max-w-md">{children}</div>
-    </div>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">{children}</p>;
-}
-
-function Heading({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-4 font-display text-4xl font-black tracking-tight">{children}</h1>;
-}
-
-function Muted({ children }: { children: React.ReactNode }) {
-  return <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">{children}</p>;
-}
-
-function Alert({ children }: { children: React.ReactNode }) {
-  return (
-    <p role="alert" className="mt-5 text-sm font-bold text-generic">
-      {children}
-    </p>
   );
 }
