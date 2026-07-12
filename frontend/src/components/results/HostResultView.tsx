@@ -1,9 +1,11 @@
+import { useNavigate } from "@tanstack/react-router";
 import { useGameState } from "../../hooks/useGameState";
 import { Shell } from "../common/Shell";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
 import { Alert } from "../common/Alert";
+import { Button } from "../common/Button";
 
 type HostResultViewProps = {
   gameId: string;
@@ -11,6 +13,7 @@ type HostResultViewProps = {
 
 export function HostResultView({ gameId }: HostResultViewProps) {
   const { state, loading, error } = useGameState(gameId);
+  const navigate = useNavigate();
 
   if (!state) {
     return (
@@ -71,6 +74,18 @@ export function HostResultView({ gameId }: HostResultViewProps) {
       <Eyebrow>Results view</Eyebrow>
       <Heading>Results </Heading>
       <div>{resultViews}</div>
+      <div className="p-6 flex justify-center items-center h-40">
+        <Button
+          type="button"
+          onClick={() =>
+            navigate({
+              to: "/",
+            })
+          }
+        >
+          Finish
+        </Button>
+      </div>
     </Shell>
   );
 }
