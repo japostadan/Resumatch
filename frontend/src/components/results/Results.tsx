@@ -1,9 +1,11 @@
+import { useParams } from "@tanstack/react-router";
 import { SessionEnded } from "../common/SessionEnded";
 import { useGameSession } from "../../hooks/useGameSession";
 import { Shell } from "../common/Shell";
 import { HostResultView } from "./HostResultView";
 
 export function Results() {
+  const { gameId } = useParams({ from: "/game/$gameId/results" });
   const { session } = useGameSession();
 
   if (!session) {
@@ -11,7 +13,7 @@ export function Results() {
   }
 
   if (session.role === "host") {
-    return HostResultView();
+    return <HostResultView gameId={gameId} />;
   }
 
   return (
