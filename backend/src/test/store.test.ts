@@ -492,7 +492,7 @@ describe("results", () => {
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     expect(view.results.map((r) => r.correctVotes)).toEqual([2, 1, 0]);
     expect(view.results.map((r) => r.playerId)).toEqual(
-      [...authorsInShownOrder].reverse().map((a) => a.playerId),
+      authorsInShownOrder.toReversed().map((a) => a.playerId),
     );
   });
 

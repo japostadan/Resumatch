@@ -2,6 +2,9 @@ import { useParams } from "@tanstack/react-router";
 import { SessionEnded } from "../common/SessionEnded";
 import { useGameSession } from "../../hooks/useGameSession";
 import { Shell } from "../common/Shell";
+import { Eyebrow } from "../common/Eyebrow";
+import { Heading } from "../common/Heading";
+import { Muted } from "../common/Muted";
 import { HostResultView } from "./HostResultView";
 import { MainLayout } from "../common/MainLayout";
 
@@ -28,13 +31,11 @@ export function Results() {
   return (
     <MainLayout>
       <Shell>
-        <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game is over</p>
-        <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-          The game has finished
-        </h1>
-        <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
+        <Eyebrow>Game is over</Eyebrow>
+        <Heading>The game has finished</Heading>
+        <Muted>
           Results opens in the next slice. Keep this tab open — the results are being dealt out.
-        </p>
+        </Muted>
       </Shell>
     </MainLayout>
   );

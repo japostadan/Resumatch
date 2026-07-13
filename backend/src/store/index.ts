@@ -93,7 +93,7 @@ function buildResults(game: Game): ResultEntry[] {
       verdict,
     };
   });
-  return entries.sort((a, b) => score(b) - score(a));
+  return entries.toSorted((a, b) => score(b) - score(a));
 }
 
 // The single owner of all Game state. Each instance holds its own set of

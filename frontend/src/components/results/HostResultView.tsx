@@ -31,48 +31,49 @@ export function HostResultView({ gameId }: HostResultViewProps) {
         <Eyebrow>Results view</Eyebrow>
         <Heading>Hang tight</Heading>
         {error && <Alert>{error}</Alert>}
-        <Muted> The game has finished. Results are on their way. </Muted>
+        <Muted>The game is still in progress. Results appear once it finishes.</Muted>
       </Shell>
     );
   }
 
-  const resultViews = state.results
-    .toSorted((a, b) => b.correctVotes - a.correctVotes)
-    .map((result) => (
-      <blockquote
-        key={result.playerId}
-        className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink"
-      >
-        <div className="flex justify-between items-center mb-2">
-          <div className="font-bold text-base">{result.name}</div>
-          <div
-            className={
-              "rounded-full text-sm text-white pr-2 pl-2 " +
-              (result.verdict === "Distinctive" ? "bg-green-700" : "bg-blue-700")
-            }
-          >
-            {result.verdict}
-          </div>
+  // The backend ranks results by correct-vote share, most distinctive first.
+  const resultViews = state.results.map((result) => (
+    <blockquote
+      key={result.playerId}
+      className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink"
+    >
+      <div className="flex justify-between items-center mb-2">
+        <div className="font-bold text-base">{result.name}</div>
+        <div
+          className={
+            "rounded-full text-sm font-bold text-canvas px-2 " +
+            (result.verdict === "Distinctive" ? "bg-distinctive" : "bg-generic")
+          }
+        >
+          {result.verdict}
         </div>
-        <div className="p-6 italic text-lg">{result.statement}</div>
-        <div>
-          <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-violet-500 transition-all duration-300"
-              style={{ width: `${(result.correctVotes / result.totalVotes) * 100}%` }}
-            />
-          </div>
-          <div className="p-2 flex justify-center text-base">
-            {result.correctVotes}/{result.totalVotes}
-          </div>
+      </div>
+      <div className="p-6 italic text-lg">{result.statement}</div>
+      <div>
+        <progress
+          aria-label={`Correct guesses for ${result.name}`}
+          value={result.correctVotes}
+          // A zero-max progress bar is invalid HTML; an unvoted statement
+          // shows an empty bar out of 1 instead.
+          max={result.totalVotes === 0 ? 1 : result.totalVotes}
+          className="h-4 w-full appearance-none overflow-hidden rounded-full bg-hair [&::-webkit-progress-bar]:bg-hair [&::-webkit-progress-value]:bg-violet [&::-moz-progress-bar]:bg-violet"
+        />
+        <div className="p-2 flex justify-center text-base">
+          {result.correctVotes}/{result.totalVotes}
         </div>
-      </blockquote>
-    ));
+      </div>
+    </blockquote>
+  ));
 
   return (
     <Shell>
       <Eyebrow>Results view</Eyebrow>
-      <Heading>Results </Heading>
+      <Heading>Results</Heading>
       <div>{resultViews}</div>
       <div className="p-6 flex justify-center items-center h-40">
         <Button
