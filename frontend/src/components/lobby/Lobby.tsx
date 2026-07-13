@@ -118,6 +118,13 @@ function HostDashboard({
     <Shell>
       <Eyebrow>Lobby</Eyebrow>
       <Heading>Who&apos;s in the room</Heading>
+
+      <div className="mt-5 border-2 border-line bg-surface p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-violet">Game ID</p>
+        <code className="mt-2 block font-mono text-2xl font-bold tracking-[0.2em] text-ink">
+          {gameId}
+        </code>
+      </div>
       {error && <Alert>{error}</Alert>}
       {players === null ? (
         loading && <p className="mt-6 text-base text-muted">Loading the room…</p>
