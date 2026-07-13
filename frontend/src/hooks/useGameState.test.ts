@@ -86,6 +86,29 @@ describe("useGameState", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("stops polling once the game is FINISHED", async () => {
+    vi.useFakeTimers();
+    const finished = { status: "FINISHED", gameId: "g", results: [] };
+    const fetchMock = mockFetchSequence([{ body: lobby }, { body: finished }]);
+
+    const { result } = renderHook(() => useGameState("g"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.state).toEqual(finished);
+
+    // The game is terminal — its state can never change, so no further polls.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("surfaces a transient failure but keeps polling and recovers", async () => {
     vi.useFakeTimers();
     const fetchMock = mockFetchSequence([{ ok: false, status: 500, body: {} }, { body: lobby }]);

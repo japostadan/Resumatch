@@ -2,6 +2,7 @@ import { useParams } from "@tanstack/react-router";
 import { useGameSession } from "../../hooks/useGameSession";
 import { PlayerVoteView } from "./PlayerVoteView";
 import { HostAdvance } from "./HostAdvance";
+import { SessionEnded } from "../common/SessionEnded";
 
 // The Host and Player share this route but see different views, the same split
 // as the Lobby. The Player gets the ballot; the Host advances the statements.
@@ -11,16 +12,7 @@ export function Vote() {
   const { session } = useGameSession();
 
   if (!session) {
-    return (
-      <Shell>
-        <Eyebrow>Session ended</Eyebrow>
-        <Heading>Rejoin the game</Heading>
-        <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
-          We couldn&apos;t find your session on this device. Head back and rejoin with the Game ID
-          and password.
-        </p>
-      </Shell>
-    );
+    return <SessionEnded />;
   }
 
   if (session.role === "host") {
@@ -30,20 +22,4 @@ export function Vote() {
   return (
     <PlayerVoteView gameId={gameId} playerId={session.playerId} playerToken={session.playerToken} />
   );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-8">
-      <div className="w-full max-w-md">{children}</div>
-    </div>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">{children}</p>;
-}
-
-function Heading({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-4 font-display text-4xl font-black tracking-tight">{children}</h1>;
 }

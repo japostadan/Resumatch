@@ -62,8 +62,15 @@ function requirePlayerByToken(game: Game, token: string): Player {
   return player;
 }
 
+// A statement's score is its share of correct votes — the same measure the
+// verdict thresholds on — so the most distinctive statements come first.
+// An unvoted statement scores 0 rather than dividing by zero.
+function score(entry: ResultEntry): number {
+  return entry.totalVotes === 0 ? 0 : entry.correctVotes / entry.totalVotes;
+}
+
 function buildResults(game: Game): ResultEntry[] {
-  return game.statementOrder.map((authorId, index) => {
+  const entries = game.statementOrder.map((authorId, index): ResultEntry => {
     const author = playerById(game, authorId)!;
     const votes = game.votes[index];
     // The author's vote on their own statement is a decoy: it keeps them
@@ -86,6 +93,7 @@ function buildResults(game: Game): ResultEntry[] {
       verdict,
     };
   });
+  return entries.toSorted((a, b) => score(b) - score(a));
 }
 
 // The single owner of all Game state. Each instance holds its own set of
