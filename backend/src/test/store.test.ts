@@ -471,6 +471,114 @@ describe("results", () => {
     }
   });
 
+  it("orders results by correct-vote share, most distinctive first", () => {
+    const { gameId, hostToken, players } = threePlayerGame();
+
+    // Give the statement shown i-th exactly i correct votes (0, 1, 2), so the
+    // displayed order is the exact reverse of the expected score order.
+    const authorsInShownOrder: StartedPlayer[] = [];
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players);
+      authorsInShownOrder.push(author);
+      const others = players.filter((p) => p.playerId !== author.playerId);
+      others.forEach((voter, v) => {
+        const wrongNominee = others.find((p) => p.playerId !== voter.playerId)!;
+        store.castVote(gameId, voter.playerToken, v < i ? author.playerId : wrongNominee.playerId);
+      });
+      store.advanceStatement(gameId, hostToken);
+    }
+
+    const view = store.getState(gameId);
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    expect(view.results.map((r) => r.correctVotes)).toEqual([2, 1, 0]);
+    expect(view.results.map((r) => r.playerId)).toEqual(
+      [...authorsInShownOrder].reverse().map((a) => a.playerId),
+    );
+  });
+
+  it("ranks a fully-guessed statement above an equal correct count with more voters", () => {
+    const { gameId, hostToken, players } = threePlayerGame();
+
+    // Shown order: 1 of 2 correct, then 0 of 2, then 1 of 1 (one voter
+    // abstains). Ranking by share puts the 1-of-1 first despite its raw
+    // correct count tying the 1-of-2.
+    const authorsInShownOrder: StartedPlayer[] = [];
+    const correctPerRound = [1, 0, 1];
+    const votersPerRound = [2, 2, 1];
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players);
+      authorsInShownOrder.push(author);
+      const others = players.filter((p) => p.playerId !== author.playerId);
+      others.slice(0, votersPerRound[i]).forEach((voter, v) => {
+        const wrongNominee = others.find((p) => p.playerId !== voter.playerId)!;
+        store.castVote(
+          gameId,
+          voter.playerToken,
+          v < correctPerRound[i] ? author.playerId : wrongNominee.playerId,
+        );
+      });
+      store.advanceStatement(gameId, hostToken);
+    }
+
+    const view = store.getState(gameId);
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    expect(view.results.map((r) => r.playerId)).toEqual(
+      [authorsInShownOrder[2], authorsInShownOrder[0], authorsInShownOrder[1]].map(
+        (a) => a.playerId,
+      ),
+    );
+  });
+
+  it("marks an unvoted statement Generic and ranks it below a voted one", () => {
+    const { gameId, hostToken, ada, bea } = startedGame();
+
+    // The first statement's voter guesses correctly (1 of 1); the host
+    // advances past the second statement with no votes at all (0 of 0).
+    const view0 = store.getState(gameId);
+    if (view0.status !== "ACTIVE") throw new Error("expected ACTIVE");
+    const firstAuthor = view0.currentStatement === "ada statement" ? ada : bea;
+    const firstVoter = firstAuthor === ada ? bea : ada;
+    store.castVote(gameId, firstVoter.playerToken, firstAuthor.playerId);
+    store.advanceStatement(gameId, hostToken);
+    store.advanceStatement(gameId, hostToken);
+
+    const view = store.getState(gameId);
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    expect(view.results.map((r) => r.playerId)).toEqual([
+      firstAuthor.playerId,
+      firstVoter.playerId,
+    ]);
+    expect(view.results[1]).toMatchObject({ correctVotes: 0, totalVotes: 0, verdict: "Generic" });
+  });
+
+  it("marks a statement Generic when correct votes fall just under half", () => {
+    const { gameId, hostToken } = store.createGame("secret");
+    const players = ["Ada", "Bea", "Cy", "Di"].map((name) => ({
+      name,
+      ...store.joinGame(gameId, "secret", name),
+    }));
+    players.forEach((p) => store.submitStatement(gameId, p.playerToken, `${p.name} statement`));
+    store.startGame(gameId, hostToken);
+
+    for (let i = 0; i < players.length; i++) {
+      const author = currentAuthor(gameId, players);
+      const others = players.filter((p) => p.playerId !== author.playerId);
+      // one correct, two wrong → 1 of 3, just under the 50% threshold
+      store.castVote(gameId, others[0].playerToken, author.playerId);
+      store.castVote(gameId, others[1].playerToken, others[0].playerId);
+      store.castVote(gameId, others[2].playerToken, others[0].playerId);
+      store.advanceStatement(gameId, hostToken);
+    }
+
+    const view = store.getState(gameId);
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    for (const entry of view.results) {
+      expect(entry.totalVotes).toBe(3);
+      expect(entry.correctVotes).toBe(1);
+      expect(entry.verdict).toBe("Generic");
+    }
+  });
+
   it("marks a statement Generic when fewer than half are correct", () => {
     const { gameId, hostToken, players } = threePlayerGame();
 
