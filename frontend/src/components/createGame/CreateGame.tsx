@@ -36,55 +36,46 @@ export function CreateGame() {
   if (game) {
     const joinUrl = new URL("join/", window.location.origin);
     joinUrl.searchParams.set("gameId", game.gameId);
-    joinUrl.searchParams.set("password", password);
 
     return (
       <Shell>
-        return (
-        <Shell>
-          <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
-          <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-            Read this out to the room
-          </h1>
+        <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
 
-          <dl className="mt-9 grid gap-4">
-            <Field label="Game ID">
-              <span className="font-display text-5xl font-black tracking-wider text-violet">
-                {game.gameId}
-              </span>
-            </Field>
-            <Field label="Password">
-              <span className="font-display text-3xl font-bold">{password}</span>
-            </Field>
-          </dl>
+        <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
+          Read this out to the room
+        </h1>
 
-          <dl className="mt-9 grid gap-4">
-            <Field label="Game ID">
-              <span className="font-display text-5xl font-black tracking-wider text-violet">
-                {game.gameId}
-              </span>
-            </Field>
+        <dl className="mt-9 grid gap-4">
+          <Field label="Game ID">
+            <span className="font-display text-5xl font-black tracking-wider text-violet">
+              {game.gameId}
+            </span>
+          </Field>
 
-            <Field label="Scan to join">
+          <Field label="Scan to join">
+            <div className="flex justify-center">
               <GameQRCode value={joinUrl.toString()} />
-            </Field>
+            </div>
+          </Field>
 
-            <Field label="Password">
-              <span className="font-display text-3xl font-bold">{password}</span>
-            </Field>
-          </dl>
+          <Field label="Password">
+            <span className="font-display text-3xl font-bold">{password}</span>
+          </Field>
+        </dl>
 
-          <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
-            Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
-            and enter this Game ID and password. Open the lobby to watch them arrive.
-          </p>
-        </Shell>
+        <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
+          Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
+          and enter this Game ID and password. Open the lobby to watch them arrive.
+        </p>
+
         <Button
           type="button"
           onClick={() =>
             navigate({
               to: "/game/$gameId/lobby",
-              params: { gameId: game.gameId },
+              params: {
+                gameId: game.gameId,
+              } as never,
               hash: hostHash(game.hostToken),
             })
           }
@@ -99,15 +90,18 @@ export function CreateGame() {
   return (
     <Shell>
       <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Host a game</p>
+
       <h1 className="mt-4 font-display text-4xl font-black tracking-tight">Create a game</h1>
+
       <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
-        Pick a password for this session. You&apos;ll share it, along with the Game ID, with the
-        room so everyone can join.
+        Pick a password for this session. You'll share it, along with the Game ID, with the room so
+        everyone can join.
       </p>
 
       <form className="mt-9 flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
         <label className="flex flex-col gap-2">
           <span className="text-sm font-bold tracking-wide text-ink">Game password</span>
+
           <input
             type="text"
             value={password}
