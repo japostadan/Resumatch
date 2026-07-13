@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
 import { useGameSession, hostHash } from "../../hooks/useGameSession";
+import { GameQRCode } from "../QrCode/QRCode";
 
 export function CreateGame() {
   const [password, setPassword] = useState("");
@@ -33,29 +34,51 @@ export function CreateGame() {
   }
 
   if (game) {
+    const joinUrl = new URL("join/", window.location.origin);
+    joinUrl.searchParams.set("gameId", game.gameId);
+    joinUrl.searchParams.set("password", password);
+
     return (
       <Shell>
-        <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
-        <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-          Read this out to the room
-        </h1>
+        return (
+        <Shell>
+          <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
+          <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
+            Read this out to the room
+          </h1>
 
-        <dl className="mt-9 grid gap-4">
-          <Field label="Game ID">
-            <span className="font-display text-5xl font-black tracking-wider text-violet">
-              {game.gameId}
-            </span>
-          </Field>
-          <Field label="Password">
-            <span className="font-display text-3xl font-bold">{password}</span>
-          </Field>
-        </dl>
+          <dl className="mt-9 grid gap-4">
+            <Field label="Game ID">
+              <span className="font-display text-5xl font-black tracking-wider text-violet">
+                {game.gameId}
+              </span>
+            </Field>
+            <Field label="Password">
+              <span className="font-display text-3xl font-bold">{password}</span>
+            </Field>
+          </dl>
 
-        <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
-          Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
-          and enter this Game ID and password. Open the lobby to watch them arrive.
-        </p>
+          <dl className="mt-9 grid gap-4">
+            <Field label="Game ID">
+              <span className="font-display text-5xl font-black tracking-wider text-violet">
+                {game.gameId}
+              </span>
+            </Field>
 
+            <Field label="Scan to join">
+              <GameQRCode value={joinUrl.toString()} />
+            </Field>
+
+            <Field label="Password">
+              <span className="font-display text-3xl font-bold">{password}</span>
+            </Field>
+          </dl>
+
+          <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
+            Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
+            and enter this Game ID and password. Open the lobby to watch them arrive.
+          </p>
+        </Shell>
         <Button
           type="button"
           onClick={() =>
