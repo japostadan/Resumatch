@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useGameState } from "../../hooks/useGameState";
-import { Shell } from "../common/Shell";
+import { ResultsPane } from "./ResultsPane";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
@@ -17,22 +17,22 @@ export function HostResultView({ gameId }: HostResultViewProps) {
 
   if (!state) {
     return (
-      <Shell>
+      <ResultsPane>
         <Eyebrow>Results view</Eyebrow>
         <Heading>Setting up the results</Heading>
         {error ? <Alert>{error}</Alert> : loading && <Muted>Loading the results…</Muted>}
-      </Shell>
+      </ResultsPane>
     );
   }
 
   if (state.status !== "FINISHED") {
     return (
-      <Shell>
+      <ResultsPane>
         <Eyebrow>Results view</Eyebrow>
         <Heading>Hang tight</Heading>
         {error && <Alert>{error}</Alert>}
         <Muted>The game is still in progress. Results appear once it finishes.</Muted>
-      </Shell>
+      </ResultsPane>
     );
   }
 
@@ -71,7 +71,7 @@ export function HostResultView({ gameId }: HostResultViewProps) {
   ));
 
   return (
-    <Shell>
+    <ResultsPane>
       <Eyebrow>Results view</Eyebrow>
       <Heading>Results</Heading>
       <div>{resultViews}</div>
@@ -87,6 +87,6 @@ export function HostResultView({ gameId }: HostResultViewProps) {
           Finish
         </Button>
       </div>
-    </Shell>
+    </ResultsPane>
   );
 }

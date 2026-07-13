@@ -10,9 +10,10 @@ type GameStateResult = {
 };
 
 // Polls the game state every 2 seconds and returns the latest GameView. A 404
-// is terminal — the game has expired or never existed — so polling stops and a
-// message is surfaced. Other failures are treated as transient and polling
-// continues so a brief network blip recovers on its own.
+// (game expired or never existed) and a FINISHED view are both terminal — the
+// state can never change again — so polling stops. Other failures are treated
+// as transient and polling continues so a brief network blip recovers on its
+// own.
 export function useGameState(gameId: string, playerId?: string): GameStateResult {
   const [state, setState] = useState<GameView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,7 @@ export function useGameState(gameId: string, playerId?: string): GameStateResult
           setState(view);
           setError(null);
           setLoading(false);
+          if (view.status === "FINISHED") return; // terminal — do not schedule another poll
         }
       } catch {
         if (active) {
