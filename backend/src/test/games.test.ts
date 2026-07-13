@@ -265,6 +265,67 @@ describe("GET /api/games/:id/state", () => {
     expect(res.status).toBe(404);
     expect(res.body.error).toBe("Game not found");
   });
+
+  describe("FINISHED phase", () => {
+    async function finishedGame() {
+      const createRes = await request(app).post("/api/games").send({ password: "secret" });
+      const { gameId, hostToken } = createRes.body;
+
+      const alice = await request(app)
+        .post(`/api/games/${gameId}/join`)
+        .send({ playerName: "Alice", password: "secret" });
+      const bob = await request(app)
+        .post(`/api/games/${gameId}/join`)
+        .send({ playerName: "Bob", password: "secret" });
+
+      await request(app)
+        .post(`/api/games/${gameId}/statement`)
+        .set("X-Player-Token", alice.body.playerToken)
+        .send({ statement: "Alice statement" });
+      await request(app)
+        .post(`/api/games/${gameId}/statement`)
+        .set("X-Player-Token", bob.body.playerToken)
+        .send({ statement: "Bob statement" });
+
+      await request(app).post(`/api/games/${gameId}/start`).set("X-Host-Token", hostToken);
+      await request(app).post(`/api/games/${gameId}/next`).set("X-Host-Token", hostToken);
+      await request(app).post(`/api/games/${gameId}/next`).set("X-Host-Token", hostToken);
+
+      return { gameId, hostToken, alice: alice.body, bob: bob.body };
+    }
+
+    it("returns the full reveal for the Host Token", async () => {
+      const { gameId, hostToken } = await finishedGame();
+
+      const res = await request(app)
+        .get(`/api/games/${gameId}/state`)
+        .set("X-Host-Token", hostToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.results).toHaveLength(2);
+    });
+
+    it("returns only the caller's own result for a Player Token", async () => {
+      const { gameId, alice } = await finishedGame();
+
+      const res = await request(app)
+        .get(`/api/games/${gameId}/state`)
+        .set("X-Player-Token", alice.playerToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.results).toHaveLength(1);
+      expect(res.body.results[0].playerId).toBe(alice.playerId);
+    });
+
+    it("rejects a request with no credentials", async () => {
+      const { gameId } = await finishedGame();
+
+      const res = await request(app).get(`/api/games/${gameId}/state`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toBe("Missing or invalid token");
+    });
+  });
 });
 
 describe("POST /api/games/:id/start", () => {

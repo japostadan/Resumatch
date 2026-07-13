@@ -143,7 +143,7 @@ describe("joinGame", () => {
     store.advanceStatement(gameId, hostToken);
     store.advanceStatement(gameId, hostToken);
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     expect(() => store.joinGame(gameId, "secret", "Cy")).toThrow(WrongStatusError);
   });
@@ -414,7 +414,7 @@ describe("advanceStatement", () => {
     store.advanceStatement(gameId, hostToken); // index 0 -> 1 (last of 2)
     store.advanceStatement(gameId, hostToken); // past the last -> FINISHED
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     expect(view.status).toBe("FINISHED");
   });
 
@@ -438,7 +438,7 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     for (const entry of view.results) {
       expect(entry.totalVotes).toBe(2);
@@ -462,7 +462,7 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     for (const entry of view.results) {
       expect(entry.totalVotes).toBe(2);
@@ -488,7 +488,7 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     expect(view.results.map((r) => r.correctVotes)).toEqual([2, 1, 0]);
     expect(view.results.map((r) => r.playerId)).toEqual(
@@ -520,7 +520,7 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     expect(view.results.map((r) => r.playerId)).toEqual(
       [authorsInShownOrder[2], authorsInShownOrder[0], authorsInShownOrder[1]].map(
@@ -542,7 +542,7 @@ describe("results", () => {
     store.advanceStatement(gameId, hostToken);
     store.advanceStatement(gameId, hostToken);
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     expect(view.results.map((r) => r.playerId)).toEqual([
       firstAuthor.playerId,
@@ -570,7 +570,7 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     for (const entry of view.results) {
       expect(entry.totalVotes).toBe(3);
@@ -591,12 +591,68 @@ describe("results", () => {
       store.advanceStatement(gameId, hostToken);
     }
 
-    const view = store.getState(gameId);
+    const view = store.getState(gameId, undefined, { hostToken });
     if (view.status !== "FINISHED") throw new Error("expected FINISHED");
     for (const entry of view.results) {
       expect(entry.correctVotes).toBe(0);
       expect(entry.verdict).toBe("Generic");
     }
+  });
+});
+
+describe("FINISHED view access control", () => {
+  // Fast-forwards a started game to FINISHED without casting any votes — the
+  // access-control tests only care about who can see the reveal, not scores.
+  function finishedGame() {
+    const { gameId, hostToken, players } = threePlayerGame();
+    for (let i = 0; i < players.length; i++) {
+      store.advanceStatement(gameId, hostToken);
+    }
+    return { gameId, hostToken, players };
+  }
+
+  it("returns the full reveal for the host token", () => {
+    const { gameId, hostToken, players } = finishedGame();
+
+    const view = store.getState(gameId, undefined, { hostToken });
+
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    expect(view.results.map((r) => r.playerId).sort()).toEqual(
+      players.map((p) => p.playerId).sort(),
+    );
+  });
+
+  it("returns only the caller's own result for a player token", () => {
+    const { gameId, players } = finishedGame();
+    const [ada] = players;
+
+    const view = store.getState(gameId, undefined, { playerToken: ada.playerToken });
+
+    if (view.status !== "FINISHED") throw new Error("expected FINISHED");
+    expect(view.results).toHaveLength(1);
+    expect(view.results[0].playerId).toBe(ada.playerId);
+  });
+
+  it("rejects a request with no credentials", () => {
+    const { gameId } = finishedGame();
+
+    expect(() => store.getState(gameId)).toThrow(BadTokenError);
+  });
+
+  it("rejects a host token that doesn't match the game", () => {
+    const { gameId } = finishedGame();
+
+    expect(() => store.getState(gameId, undefined, { hostToken: "not-the-host" })).toThrow(
+      BadTokenError,
+    );
+  });
+
+  it("rejects a player token that doesn't belong to the game", () => {
+    const { gameId } = finishedGame();
+
+    expect(() => store.getState(gameId, undefined, { playerToken: "not-a-player" })).toThrow(
+      BadTokenError,
+    );
   });
 });
 

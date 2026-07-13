@@ -202,7 +202,11 @@ export class GameStore {
     }
   }
 
-  getState(gameId: string, playerId?: string): GameView {
+  getState(
+    gameId: string,
+    playerId?: string,
+    auth?: { hostToken?: string; playerToken?: string },
+  ): GameView {
     const game = this.requireGame(gameId);
 
     if (game.status === "LOBBY") {
@@ -215,7 +219,21 @@ export class GameStore {
     }
 
     if (game.status === "FINISHED") {
-      return { status: "FINISHED", gameId: game.id, results: buildResults(game) };
+      // The reveal names every author, so it is gated: the Host Token gets
+      // the full reveal, a Player Token gets only that player's own result
+      // (what the Takeaway Card needs), and anyone else is rejected (#80).
+      if (auth?.hostToken !== undefined && auth.hostToken === game.hostToken) {
+        return { status: "FINISHED", gameId: game.id, results: buildResults(game) };
+      }
+      const caller =
+        auth?.playerToken !== undefined
+          ? game.players.find((p) => p.token === auth.playerToken)
+          : undefined;
+      if (caller !== undefined) {
+        const ownResult = buildResults(game).filter((r) => r.playerId === caller.id);
+        return { status: "FINISHED", gameId: game.id, results: ownResult };
+      }
+      throw new BadTokenError();
     }
 
     const authorId = game.statementOrder[game.currentStatementIndex];
