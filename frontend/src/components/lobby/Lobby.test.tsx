@@ -62,6 +62,28 @@ describe("Lobby", () => {
     expect(within(bob).getByText(/waiting/i)).toBeInTheDocument();
   });
 
+  //ISSUE #73-HOST LOBBY GAME-ID
+  it("shows the Game ID to the host", async () => {
+    window.location.hash = "hostToken=host-tok";
+    mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    expect(await screen.findByText(/game id/i)).toBeInTheDocument();
+    expect(await screen.findByText("g", { selector: "code" })).toBeInTheDocument();
+  });
+
+  it("does not show the Game ID to players", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=a";
+    mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    await screen.findByText(/statement is in/i);
+
+    expect(screen.queryByText(/game id/i)).not.toBeInTheDocument();
+  });
+
   it("confirms to the player that their statement was submitted", async () => {
     window.location.hash = "playerToken=player-tok&playerId=a";
     mockFetch(lobbyView);
