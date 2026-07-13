@@ -6,6 +6,11 @@ import { useGameState } from "../../hooks/useGameState";
 import { useResultsRedirect } from "../../hooks/useResultsRedirect";
 import { advanceStatement } from "../../lib/api";
 import { Button } from "../common/Button";
+import { Eyebrow } from "../common/Eyebrow";
+import { Heading } from "../common/Heading";
+import { Muted } from "../common/Muted";
+import { Alert } from "../common/Alert";
+import { StatementCard } from "../common/StatementCard";
 
 // The Host's control for the voting round: the statement the room is
 // discussing front and centre (this screen is likely on the projector), the
@@ -70,9 +75,7 @@ export function HostAdvance() {
       </Eyebrow>
       <Heading>Who wrote this?</Heading>
       {error && <Alert>{error}</Alert>}
-      <blockquote className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink">
-        &ldquo;{state.currentStatement}&rdquo;
-      </blockquote>
+      <StatementCard>&ldquo;{state.currentStatement}&rdquo;</StatementCard>
       <Muted>
         {state.votesIn} of {state.totalPlayers} votes in
       </Muted>
@@ -81,25 +84,5 @@ export function HostAdvance() {
         {isLastStatement ? "Finish game" : "Next statement"}
       </Button>
     </Shell>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">{children}</p>;
-}
-
-function Heading({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-4 font-display text-4xl font-black tracking-tight">{children}</h1>;
-}
-
-function Muted({ children }: { children: React.ReactNode }) {
-  return <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">{children}</p>;
-}
-
-function Alert({ children }: { children: React.ReactNode }) {
-  return (
-    <p role="alert" className="mt-5 text-sm font-bold text-generic">
-      {children}
-    </p>
   );
 }

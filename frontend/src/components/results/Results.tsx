@@ -18,23 +18,19 @@ export function Results() {
     return <SessionEnded />;
   }
 
-  if (session.role === "host") {
-    return (
-      <MainLayout>
-        <HostResultView gameId={gameId} />
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
-      <ResultsPane>
-        <Eyebrow>Game is over</Eyebrow>
-        <Heading>The game has finished</Heading>
-        <Muted>
-          Results opens in the next slice. Keep this tab open — the results are being dealt out.
-        </Muted>
-      </ResultsPane>
+      {session.role === "host" ? (
+        <HostResultView gameId={gameId} />
+      ) : (
+        <ResultsPane>
+          <Eyebrow>Game is over</Eyebrow>
+          <Heading>The game has finished</Heading>
+          <Muted>
+            Results opens in the next slice. Keep this tab open — the results are being dealt out.
+          </Muted>
+        </ResultsPane>
+      )}
     </MainLayout>
   );
 }
