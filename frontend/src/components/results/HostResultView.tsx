@@ -6,6 +6,7 @@ import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
 import { Alert } from "../common/Alert";
 import { Button } from "../common/Button";
+import { StatementCard } from "../common/StatementCard";
 
 type HostResultViewProps = {
   gameId: string;
@@ -38,10 +39,7 @@ export function HostResultView({ gameId }: HostResultViewProps) {
 
   // The backend ranks results by correct-vote share, most distinctive first.
   const resultViews = state.results.map((result) => (
-    <blockquote
-      key={result.playerId}
-      className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink"
-    >
+    <StatementCard key={result.playerId}>
       <div className="flex justify-between items-center mb-2">
         <div className="font-bold text-base">{result.name}</div>
         <div
@@ -67,7 +65,7 @@ export function HostResultView({ gameId }: HostResultViewProps) {
           {result.correctVotes}/{result.totalVotes}
         </div>
       </div>
-    </blockquote>
+    </StatementCard>
   ));
 
   return (

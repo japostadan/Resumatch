@@ -9,6 +9,7 @@ import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
 import { Alert } from "../common/Alert";
+import { StatementCard } from "../common/StatementCard";
 
 type PlayerVoteViewProps = {
   gameId: string;
@@ -93,9 +94,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
       </Eyebrow>
       <Heading>Who wrote this?</Heading>
       {error && <Alert>{error}</Alert>}
-      <blockquote className="mt-6 border-2 border-line bg-surface px-5 py-4 text-lg font-medium text-ink">
-        &ldquo;{state.currentStatement}&rdquo;
-      </blockquote>
+      <StatementCard>&ldquo;{state.currentStatement}&rdquo;</StatementCard>
 
       <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
         <fieldset className="flex flex-col gap-3" disabled={submitting}>
