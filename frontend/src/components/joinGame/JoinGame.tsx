@@ -3,10 +3,10 @@ import { Button } from "../common/Button";
 import { useNavigate } from "@tanstack/react-router";
 import { joinGame } from "../../lib/api";
 import { playerHash } from "../../hooks/useGameSession";
-import { Route } from "../../routes";
+import { Route } from "../../routes/join";
 
 export function JoinGame() {
-  const { gameId: initialGameId } = Route.useSearch();
+  const { gameId: initialGameId = "" } = Route.useSearch();
   const [playerName, setPlayerName] = useState("");
   const [gameId, setGameId] = useState(initialGameId);
   const [password, setPassword] = useState("");
