@@ -70,7 +70,7 @@ function score(entry: ResultEntry): number {
 }
 
 function buildResults(game: Game): ResultEntry[] {
-  const entries = game.statementOrder.map((authorId, index) => {
+  const entries = game.statementOrder.map((authorId, index): ResultEntry => {
     const author = playerById(game, authorId)!;
     const votes = game.votes[index];
     // The author's vote on their own statement is a decoy: it keeps them
