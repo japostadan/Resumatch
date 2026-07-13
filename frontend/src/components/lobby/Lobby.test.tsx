@@ -62,7 +62,6 @@ describe("Lobby", () => {
     expect(within(bob).getByText(/waiting/i)).toBeInTheDocument();
   });
 
-  //ISSUE #73-HOST LOBBY GAME-ID
   it("shows the Game ID to the host", async () => {
     window.location.hash = "hostToken=host-tok";
     mockFetch(lobbyView);
