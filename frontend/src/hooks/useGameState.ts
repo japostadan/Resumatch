@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import type { GameView } from "@resumatch/shared";
+import { HOST_TOKEN_HEADER, PLAYER_TOKEN_HEADER } from "../lib/api";
+import type { GameSession } from "./useGameSession";
 
 const POLL_INTERVAL_MS = 2000;
 
@@ -9,9 +11,14 @@ type GameStateResult = {
   error: string | null;
 };
 
-export type GameStateCredentials = {
-  hostToken?: string;
-  playerToken?: string;
+// A poll response that ends polling for good: the message to surface, keyed
+// by the HTTP status that produces it. Neither condition can resolve itself
+// by retrying, so a status landing here short-circuits the transient-failure
+// path below. A future terminal status (e.g. a 410 for an archived game)
+// only needs an entry here, not a new copy of the early-return block.
+const TERMINAL_STATUS_MESSAGES: Record<number, string> = {
+  404: "This game has expired or no longer exists.",
+  403: "You don't have access to this game.",
 };
 
 // Polls the game state every 2 seconds and returns the latest GameView. A 404
@@ -20,20 +27,20 @@ export type GameStateCredentials = {
 // polling stops. Other failures are treated as transient and polling
 // continues so a brief network blip recovers on its own.
 //
-// The FINISHED reveal is gated server-side (#80), so callers that poll past
-// the end of the game must pass their Host or Player Token to keep reading
-// state once it flips to FINISHED — a stale or missing credential now gets
-// the terminal 403 message below instead of retrying forever.
+// The FINISHED reveal is gated server-side by role, so callers that poll past
+// the end of the game must pass their session to keep reading state once it
+// flips to FINISHED — a stale or missing session surfaces as the terminal 403
+// message above rather than retrying forever.
 export function useGameState(
   gameId: string,
   playerId?: string,
-  credentials?: GameStateCredentials,
+  session?: GameSession | null,
 ): GameStateResult {
   const [state, setState] = useState<GameView | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const hostToken = credentials?.hostToken;
-  const playerToken = credentials?.playerToken;
+  const hostToken = session?.role === "host" ? session.hostToken : undefined;
+  const playerToken = session?.role === "player" ? session.playerToken : undefined;
 
   useEffect(() => {
     let active = true;
@@ -43,20 +50,16 @@ export function useGameState(
       try {
         const query = playerId ? `?playerId=${encodeURIComponent(playerId)}` : "";
         const headers: HeadersInit = {};
-        if (hostToken) headers["X-Host-Token"] = hostToken;
-        if (playerToken) headers["X-Player-Token"] = playerToken;
+        if (hostToken) headers[HOST_TOKEN_HEADER] = hostToken;
+        if (playerToken) headers[PLAYER_TOKEN_HEADER] = playerToken;
         const res = await fetch(`/api/games/${gameId}/state${query}`, { headers });
         if (!active) return;
 
-        if (res.status === 404) {
-          setError("This game has expired or no longer exists.");
+        const terminalMessage = TERMINAL_STATUS_MESSAGES[res.status];
+        if (terminalMessage) {
+          setError(terminalMessage);
           setLoading(false);
           return; // terminal — do not schedule another poll
-        }
-        if (res.status === 403) {
-          setError("You don't have access to this game.");
-          setLoading(false);
-          return; // terminal — a bad credential will never start working
         }
         if (!res.ok) {
           setError("Could not reach the game. Retrying…");

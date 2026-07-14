@@ -1,3 +1,6 @@
+export const HOST_TOKEN_HEADER = "X-Host-Token";
+export const PLAYER_TOKEN_HEADER = "X-Player-Token";
+
 export type CreatedGame = {
   gameId: string;
   hostToken: string;
@@ -49,7 +52,7 @@ export async function submitStatement(
 ): Promise<void> {
   const res = await fetch(`/api/games/${gameId}/statement`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Player-Token": playerToken },
+    headers: { "Content-Type": "application/json", [PLAYER_TOKEN_HEADER]: playerToken },
     body: JSON.stringify({ statement }),
   });
   if (!res.ok) {
@@ -67,7 +70,7 @@ export async function castVote(
 ): Promise<void> {
   const res = await fetch(`/api/games/${gameId}/vote`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Player-Token": playerToken },
+    headers: { "Content-Type": "application/json", [PLAYER_TOKEN_HEADER]: playerToken },
     body: JSON.stringify({ nomineeId }),
   });
   if (!res.ok) {
@@ -81,7 +84,7 @@ export async function castVote(
 export async function startGame(gameId: string, hostToken: string): Promise<void> {
   const res = await fetch(`/api/games/${gameId}/start`, {
     method: "POST",
-    headers: { "X-Host-Token": hostToken },
+    headers: { [HOST_TOKEN_HEADER]: hostToken },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
@@ -92,7 +95,7 @@ export async function startGame(gameId: string, hostToken: string): Promise<void
 export async function advanceStatement(gameId: string, hostToken: string): Promise<void> {
   const res = await fetch(`/api/games/${gameId}/next`, {
     method: "POST",
-    headers: { "X-Host-Token": hostToken },
+    headers: { [HOST_TOKEN_HEADER]: hostToken },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
