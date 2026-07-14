@@ -72,9 +72,9 @@ describe("Lobby", () => {
     expect(within(bob).getByText(/waiting/i)).toBeInTheDocument();
   });
 
-  // Reopening a Lobby tab/link for a game that has since finished polls
-  // straight into the gated FINISHED view (#80) — the Host Token must ride
-  // along so that poll isn't rejected.
+  // Reopening a Lobby tab/link for a game that has already finished polls
+  // straight into the gated FINISHED view, which requires credentials — the
+  // Host Token must ride along so that poll isn't rejected.
   it("polls the state with the host token", async () => {
     window.location.hash = "hostToken=host-tok";
     const fetchMock = mockFetch(lobbyView);

@@ -12,8 +12,8 @@ type PlayerResultViewProps = {
   playerToken: string;
 };
 
-// Hand-authored per #24 — tailored to the verdict, not the specific
-// statement, so it stays true without needing AI or a backend call.
+// Hand-authored copy tailored to the verdict, not the specific statement, so
+// it stays true for every player without needing AI or a backend call.
 const TAKEAWAY_CARDS: Record<Verdict, { heading: string; intro: string; items: string[] }> = {
   Distinctive: {
     heading: "Keep what worked, push further",
@@ -37,8 +37,9 @@ const TAKEAWAY_CARDS: Record<Verdict, { heading: string; intro: string; items: s
 };
 
 // The Player's own reveal: just their verdict and a matching Takeaway Card,
-// never the full room reveal the Host projects (#24). The backend already
-// scopes the FINISHED response to this player's own result (#80).
+// never the full room reveal the Host projects. The backend already scopes
+// the FINISHED response to this player's own result, so there is no other
+// player's data to accidentally render here.
 export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResultViewProps) {
   const { state, loading, error } = useGameState(gameId, playerId, {
     role: "player",
