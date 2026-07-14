@@ -1,6 +1,6 @@
 import type { Verdict } from "@resumatch/shared";
 import { useGameState } from "../../hooks/useGameState";
-import { ResultsStatusGate } from "./ResultsStatusGate";
+import { StatusGate } from "../common/StatusGate";
 import { ResultsPane } from "./ResultsPane";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
@@ -47,10 +47,13 @@ export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResult
   });
 
   return (
-    <ResultsStatusGate
+    <StatusGate
       state={state}
       loading={loading}
       error={error}
+      targetStatus="FINISHED"
+      wrapper={ResultsPane}
+      loadingEyebrow="Results view"
       loadingHeading="Setting up your results"
       loadingBody="Loading your results…"
       pendingEyebrow="Game is over"
@@ -90,6 +93,6 @@ export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResult
           </ResultsPane>
         );
       }}
-    </ResultsStatusGate>
+    </StatusGate>
   );
 }
