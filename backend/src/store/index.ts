@@ -241,7 +241,7 @@ export class GameStore {
     if (game.status === "FINISHED") {
       // The reveal names every author, so it is gated: the Host Token gets
       // the full reveal, a Player Token gets only that player's own result
-      // (what the Takeaway Card needs), and anyone else is rejected (#80).
+      // (what the Takeaway Card needs), and anyone else is rejected.
       if (isHostToken(game, auth?.hostToken)) {
         return { status: "FINISHED", gameId: game.id, results: buildResults(game) };
       }
