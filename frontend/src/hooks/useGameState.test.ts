@@ -49,16 +49,28 @@ describe("useGameState", () => {
     );
   });
 
-  it("sends the Host Token and Player Token as headers when provided", async () => {
+  it("sends the Host Token header for a host session", async () => {
     const fetchMock = mockFetchSequence([{ body: lobby }]);
 
-    renderHook(() =>
-      useGameState("g", undefined, { hostToken: "host-tok", playerToken: "player-tok" }),
-    );
+    renderHook(() => useGameState("g", undefined, { role: "host", hostToken: "host-tok" }));
 
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", {
-        headers: { "X-Host-Token": "host-tok", "X-Player-Token": "player-tok" },
+        headers: { "X-Host-Token": "host-tok" },
+      }),
+    );
+  });
+
+  it("sends the Player Token header for a player session", async () => {
+    const fetchMock = mockFetchSequence([{ body: lobby }]);
+
+    renderHook(() =>
+      useGameState("g", "pid", { role: "player", playerToken: "player-tok", playerId: "pid" }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state?playerId=pid", {
+        headers: { "X-Player-Token": "player-tok" },
       }),
     );
   });

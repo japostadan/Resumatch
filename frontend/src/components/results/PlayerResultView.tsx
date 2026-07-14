@@ -40,7 +40,11 @@ const TAKEAWAY_CARDS: Record<Verdict, { heading: string; intro: string; items: s
 // never the full room reveal the Host projects (#24). The backend already
 // scopes the FINISHED response to this player's own result (#80).
 export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResultViewProps) {
-  const { state, loading, error } = useGameState(gameId, playerId, { playerToken });
+  const { state, loading, error } = useGameState(gameId, playerId, {
+    role: "player",
+    playerId,
+    playerToken,
+  });
 
   return (
     <ResultsStatusGate

@@ -13,7 +13,7 @@ type HostResultViewProps = {
 };
 
 export function HostResultView({ gameId, hostToken }: HostResultViewProps) {
-  const { state, loading, error } = useGameState(gameId, undefined, { hostToken });
+  const { state, loading, error } = useGameState(gameId, undefined, { role: "host", hostToken });
   const navigate = useNavigate();
 
   return (
