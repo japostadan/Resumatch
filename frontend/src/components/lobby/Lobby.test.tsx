@@ -153,6 +153,16 @@ describe("Lobby", () => {
     expect(screen.getByRole("heading", { name: /rejoin/i })).toBeInTheDocument();
   });
 
+  it("shows the host a QR code while waiting in the lobby", async () => {
+    window.location.hash = "hostToken=host-tok";
+    mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    await screen.findByText("Alice");
+    expect(await screen.findByAltText(/qr code for joining the game/i)).toBeInTheDocument();
+  });
+
   it("disables the host Start button until at least two statements are submitted", async () => {
     window.location.hash = "hostToken=host-tok";
     mockFetch(lobbyView); // only Alice has submitted

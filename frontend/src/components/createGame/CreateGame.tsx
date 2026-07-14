@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
 import { useGameSession, hostHash } from "../../hooks/useGameSession";
+import { GameQRCode } from "../QrCode/QRCode";
 
 export function CreateGame() {
   const [password, setPassword] = useState("");
@@ -33,9 +34,13 @@ export function CreateGame() {
   }
 
   if (game) {
+    const joinUrl = new URL("/join", window.location.origin);
+    joinUrl.searchParams.set("gameId", game.gameId);
+
     return (
       <Shell>
         <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
+
         <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
           Read this out to the room
         </h1>
@@ -46,6 +51,13 @@ export function CreateGame() {
               {game.gameId}
             </span>
           </Field>
+
+          <Field label="Scan to join">
+            <div className="flex justify-center">
+              <GameQRCode value={joinUrl.toString()} />
+            </div>
+          </Field>
+
           <Field label="Password">
             <span className="font-display text-3xl font-bold">{password}</span>
           </Field>
@@ -76,15 +88,18 @@ export function CreateGame() {
   return (
     <Shell>
       <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Host a game</p>
+
       <h1 className="mt-4 font-display text-4xl font-black tracking-tight">Create a game</h1>
+
       <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
-        Pick a password for this session. You&apos;ll share it, along with the Game ID, with the
-        room so everyone can join.
+        Pick a password for this session. You'll share it, along with the Game ID, with the room so
+        everyone can join.
       </p>
 
       <form className="mt-9 flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
         <label className="flex flex-col gap-2">
           <span className="text-sm font-bold tracking-wide text-ink">Game password</span>
+
           <input
             type="text"
             value={password}

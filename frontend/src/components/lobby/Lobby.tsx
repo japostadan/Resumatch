@@ -10,6 +10,7 @@ import type { LobbyPlayer } from "@resumatch/shared";
 import { startGame } from "../../lib/api";
 import { useGameSession, hostHash, playerHash, type GameSession } from "../../hooks/useGameSession";
 import { useGameState } from "../../hooks/useGameState";
+import { GameQRCode } from "../QrCode/QRCode";
 
 function sessionHash(session: GameSession): string {
   return session.role === "host"
@@ -88,6 +89,8 @@ function HostDashboard({
   // the warning is up, it disappears and Start goes back to one click.
   const pendingCount = (players?.length ?? 0) - submittedCount;
   const showStartWarning = confirmingStart && pendingCount > 0;
+  const joinUrl = new URL("/join", window.location.origin);
+  joinUrl.searchParams.set("gameId", gameId);
 
   // Once the room catches up the confirmation is spent — without this reset a
   // later joiner would pop the warning back open with no click from the host.
@@ -124,6 +127,9 @@ function HostDashboard({
         <code className="mt-2 block font-mono text-2xl font-bold tracking-[0.2em] text-ink">
           {gameId}
         </code>
+      </div>
+      <div className="mt-6 flex justify-center">
+        <GameQRCode value={joinUrl.toString()} />
       </div>
       {error && <Alert>{error}</Alert>}
       {players === null ? (
