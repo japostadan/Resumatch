@@ -1,10 +1,10 @@
 import type { Verdict } from "@resumatch/shared";
 import { useGameState } from "../../hooks/useGameState";
+import { ResultsStatusGate } from "./ResultsStatusGate";
 import { ResultsPane } from "./ResultsPane";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
-import { Alert } from "../common/Alert";
 
 type PlayerResultViewProps = {
   gameId: string;
@@ -42,56 +42,50 @@ const TAKEAWAY_CARDS: Record<Verdict, { heading: string; intro: string; items: s
 export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResultViewProps) {
   const { state, loading, error } = useGameState(gameId, playerId, { playerToken });
 
-  if (!state) {
-    return (
-      <ResultsPane>
-        <Eyebrow>Results view</Eyebrow>
-        <Heading>Setting up your results</Heading>
-        {error ? <Alert>{error}</Alert> : loading && <Muted>Loading your results…</Muted>}
-      </ResultsPane>
-    );
-  }
-
-  if (state.status !== "FINISHED") {
-    return (
-      <ResultsPane>
-        <Eyebrow>Game is over</Eyebrow>
-        <Heading>The game has finished</Heading>
-        {error && <Alert>{error}</Alert>}
-        <Muted>Keep this tab open — your results are being dealt out.</Muted>
-      </ResultsPane>
-    );
-  }
-
-  const ownResult = state.results[0];
-
-  if (!ownResult) {
-    return (
-      <ResultsPane>
-        <Eyebrow>Game is over</Eyebrow>
-        <Heading>Thanks for playing</Heading>
-        <Muted>
-          You didn&apos;t have a statement in this round, so there&apos;s no card for you.
-        </Muted>
-      </ResultsPane>
-    );
-  }
-
-  const card = TAKEAWAY_CARDS[ownResult.verdict];
-
   return (
-    <ResultsPane>
-      <Eyebrow>Your result</Eyebrow>
-      <Heading>{ownResult.verdict}</Heading>
-      <div className="mt-6 border-2 border-line bg-surface px-5 py-4">
-        <div className="text-lg font-bold text-ink">{card.heading}</div>
-        <Muted>{card.intro}</Muted>
-        <ul className="mt-4 list-disc space-y-2 pl-5 text-base text-ink">
-          {card.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div>
-    </ResultsPane>
+    <ResultsStatusGate
+      state={state}
+      loading={loading}
+      error={error}
+      loadingHeading="Setting up your results"
+      loadingBody="Loading your results…"
+      pendingEyebrow="Game is over"
+      pendingHeading="The game has finished"
+      pendingBody="Keep this tab open — your results are being dealt out."
+    >
+      {(finished) => {
+        const ownResult = finished.results[0];
+
+        if (!ownResult) {
+          return (
+            <ResultsPane>
+              <Eyebrow>Game is over</Eyebrow>
+              <Heading>Thanks for playing</Heading>
+              <Muted>
+                You didn&apos;t have a statement in this round, so there&apos;s no card for you.
+              </Muted>
+            </ResultsPane>
+          );
+        }
+
+        const card = TAKEAWAY_CARDS[ownResult.verdict];
+
+        return (
+          <ResultsPane>
+            <Eyebrow>Your result</Eyebrow>
+            <Heading>{ownResult.verdict}</Heading>
+            <div className="mt-6 border-2 border-line bg-surface px-5 py-4">
+              <div className="text-lg font-bold text-ink">{card.heading}</div>
+              <Muted>{card.intro}</Muted>
+              <ul className="mt-4 list-disc space-y-2 pl-5 text-base text-ink">
+                {card.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </ResultsPane>
+        );
+      }}
+    </ResultsStatusGate>
   );
 }

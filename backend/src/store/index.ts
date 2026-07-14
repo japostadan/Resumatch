@@ -56,8 +56,12 @@ function playerById(game: Game, id: string): Player | undefined {
   return game.players.find((p) => p.id === id);
 }
 
+function playerByToken(game: Game, token: string): Player | undefined {
+  return game.players.find((p) => p.token === token);
+}
+
 function requirePlayerByToken(game: Game, token: string): Player {
-  const player = game.players.find((p) => p.token === token);
+  const player = playerByToken(game, token);
   if (!player) throw new BadTokenError();
   return player;
 }
@@ -226,9 +230,7 @@ export class GameStore {
         return { status: "FINISHED", gameId: game.id, results: buildResults(game) };
       }
       const caller =
-        auth?.playerToken !== undefined
-          ? game.players.find((p) => p.token === auth.playerToken)
-          : undefined;
+        auth?.playerToken !== undefined ? playerByToken(game, auth.playerToken) : undefined;
       if (caller !== undefined) {
         const ownResult = buildResults(game).filter((r) => r.playerId === caller.id);
         return { status: "FINISHED", gameId: game.id, results: ownResult };
