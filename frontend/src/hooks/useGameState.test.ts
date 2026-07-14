@@ -36,7 +36,7 @@ describe("useGameState", () => {
     await waitFor(() => expect(result.current.state).toEqual(lobby));
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state");
+    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", { headers: {} });
   });
 
   it("passes the playerId as a query param when provided", async () => {
@@ -44,7 +44,23 @@ describe("useGameState", () => {
 
     renderHook(() => useGameState("g", "pid"));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state?playerId=pid"));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state?playerId=pid", { headers: {} }),
+    );
+  });
+
+  it("sends the Host Token and Player Token as headers when provided", async () => {
+    const fetchMock = mockFetchSequence([{ body: lobby }]);
+
+    renderHook(() =>
+      useGameState("g", undefined, { hostToken: "host-tok", playerToken: "player-tok" }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", {
+        headers: { "X-Host-Token": "host-tok", "X-Player-Token": "player-tok" },
+      }),
+    );
   });
 
   it("polls again every 2 seconds", async () => {

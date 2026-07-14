@@ -9,15 +9,30 @@ type GameStateResult = {
   error: string | null;
 };
 
+export type GameStateCredentials = {
+  hostToken?: string;
+  playerToken?: string;
+};
+
 // Polls the game state every 2 seconds and returns the latest GameView. A 404
 // (game expired or never existed) and a FINISHED view are both terminal — the
 // state can never change again — so polling stops. Other failures are treated
 // as transient and polling continues so a brief network blip recovers on its
 // own.
-export function useGameState(gameId: string, playerId?: string): GameStateResult {
+//
+// The FINISHED reveal is gated server-side (#80), so callers that poll past
+// the end of the game must pass their Host or Player Token to keep reading
+// state once it flips to FINISHED.
+export function useGameState(
+  gameId: string,
+  playerId?: string,
+  credentials?: GameStateCredentials,
+): GameStateResult {
   const [state, setState] = useState<GameView | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hostToken = credentials?.hostToken;
+  const playerToken = credentials?.playerToken;
 
   useEffect(() => {
     let active = true;
@@ -26,7 +41,10 @@ export function useGameState(gameId: string, playerId?: string): GameStateResult
     async function poll() {
       try {
         const query = playerId ? `?playerId=${encodeURIComponent(playerId)}` : "";
-        const res = await fetch(`/api/games/${gameId}/state${query}`);
+        const headers: HeadersInit = {};
+        if (hostToken) headers["X-Host-Token"] = hostToken;
+        if (playerToken) headers["X-Player-Token"] = playerToken;
+        const res = await fetch(`/api/games/${gameId}/state${query}`, { headers });
         if (!active) return;
 
         if (res.status === 404) {
@@ -61,7 +79,7 @@ export function useGameState(gameId: string, playerId?: string): GameStateResult
       active = false;
       clearTimeout(timer);
     };
-  }, [gameId, playerId]);
+  }, [gameId, playerId, hostToken, playerToken]);
 
   return { state, loading, error };
 }

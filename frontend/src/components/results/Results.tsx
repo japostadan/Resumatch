@@ -1,12 +1,9 @@
 import { useParams } from "@tanstack/react-router";
 import { SessionEnded } from "../common/SessionEnded";
 import { useGameSession } from "../../hooks/useGameSession";
-import { Eyebrow } from "../common/Eyebrow";
-import { Heading } from "../common/Heading";
-import { Muted } from "../common/Muted";
 import { HostResultView } from "./HostResultView";
+import { PlayerResultView } from "./PlayerResultView";
 import { MainLayout } from "../common/MainLayout";
-import { ResultsPane } from "./ResultsPane";
 
 export function Results() {
   const { gameId } = useParams({ from: "/game/$gameId/results" });
@@ -21,15 +18,13 @@ export function Results() {
   return (
     <MainLayout>
       {session.role === "host" ? (
-        <HostResultView gameId={gameId} />
+        <HostResultView gameId={gameId} hostToken={session.hostToken} />
       ) : (
-        <ResultsPane>
-          <Eyebrow>Game is over</Eyebrow>
-          <Heading>The game has finished</Heading>
-          <Muted>
-            Results opens in the next slice. Keep this tab open — the results are being dealt out.
-          </Muted>
-        </ResultsPane>
+        <PlayerResultView
+          gameId={gameId}
+          playerId={session.playerId}
+          playerToken={session.playerToken}
+        />
       )}
     </MainLayout>
   );

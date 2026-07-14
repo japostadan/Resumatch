@@ -110,15 +110,37 @@ describe("Results", () => {
     expect(screen.getByText("Generic")).toHaveClass("bg-generic");
   });
 
-  it("does not show a player the full reveal", async () => {
+  it("shows the Distinctive Takeaway Card for a player whose statement stood out, not the full reveal", async () => {
     window.location.hash = "playerToken=player-tok&playerId=a";
-    mockFetch(finishedView);
+    mockFetch({ status: "FINISHED", gameId: "g", results: [finishedView.results[0]] });
 
     render(<Results />);
 
-    expect(await screen.findByText(/the game has finished/i)).toBeInTheDocument();
+    expect(await screen.findByText(/keep what worked, push further/i)).toBeInTheDocument();
+    expect(screen.getByText(/your statement stood out/i)).toBeInTheDocument();
+    expect(screen.getByText(/don't sand them down/i)).toBeInTheDocument();
     expect(screen.queryByText(/sorts my socks/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Bea")).not.toBeInTheDocument();
     expect(screen.queryByText(/hard-working team player/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the Generic Takeaway Card for a player whose statement blended in", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=b";
+    mockFetch({ status: "FINISHED", gameId: "g", results: [finishedView.results[1]] });
+
+    render(<Results />);
+
+    expect(await screen.findByText(/make it unmistakably yours/i)).toBeInTheDocument();
+    expect(screen.getByText(/quantify one outcome/i)).toBeInTheDocument();
+  });
+
+  it("thanks a player with no own result instead of crashing", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=c";
+    mockFetch({ status: "FINISHED", gameId: "g", results: [] });
+
+    render(<Results />);
+
+    expect(await screen.findByText(/thanks for playing/i)).toBeInTheDocument();
   });
 
   it("prompts an unknown visitor to rejoin when there is no session", () => {

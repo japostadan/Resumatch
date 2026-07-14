@@ -10,10 +10,11 @@ import { StatementCard } from "../common/StatementCard";
 
 type HostResultViewProps = {
   gameId: string;
+  hostToken: string;
 };
 
-export function HostResultView({ gameId }: HostResultViewProps) {
-  const { state, loading, error } = useGameState(gameId);
+export function HostResultView({ gameId, hostToken }: HostResultViewProps) {
+  const { state, loading, error } = useGameState(gameId, undefined, { hostToken });
   const navigate = useNavigate();
 
   if (!state) {
