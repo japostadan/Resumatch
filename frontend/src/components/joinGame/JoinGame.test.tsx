@@ -1,10 +1,29 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { JoinGame } from "./JoinGame";
+import { Route } from "../../routes/join";
+import { CreateGame } from "../createGame/CreateGame";
+
+const mockedUseSearch = vi.mocked(Route.useSearch);
 
 const navigate = vi.fn();
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => navigate,
+
+vi.mock("@tanstack/react-router", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
+
+  return {
+    ...actual,
+    useNavigate: () => navigate,
+  };
+});
+
+vi.mock("../../routes/join", () => ({
+  Route: {
+    useSearch: vi.fn(() => ({
+      gameId: "",
+    })),
+  },
 }));
 
 function mockFetch(body: unknown, { ok = true, status = 200 } = {}) {
@@ -64,6 +83,36 @@ describe("JoinGame", () => {
         hash: "playerToken=player-tok&playerId=pid",
       }),
     );
+  });
+
+  it("prefills the Game ID from the URL", () => {
+    mockedUseSearch.mockReturnValue({
+      gameId: "ABC123",
+    });
+
+    render(<JoinGame />);
+
+    expect(screen.getByLabelText(/game id/i)).toHaveValue("ABC123");
+  });
+
+  it("uses the Game ID in the QR code join URL", async () => {
+    // Arrange
+    mockFetch({
+      gameId: "ABC123",
+      hostToken: "host-token",
+    });
+
+    render(<CreateGame />);
+
+    fireEvent.change(screen.getByLabelText(/game password/i), {
+      target: { value: "secret" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /create game/i }));
+
+    // Wait for the QR code image to appear
+    const qrImage = await screen.findByAltText(/qr code for joining the game/i);
+    expect(qrImage).toBeInTheDocument();
   });
 
   it("surfaces the server error when joining fails", async () => {
