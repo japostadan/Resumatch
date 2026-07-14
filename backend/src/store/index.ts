@@ -66,6 +66,10 @@ function requirePlayerByToken(game: Game, token: string): Player {
   return player;
 }
 
+function isHostToken(game: Game, token: string | undefined): boolean {
+  return token !== undefined && token === game.hostToken;
+}
+
 // A statement's score is its share of correct votes — the same measure the
 // verdict thresholds on — so the most distinctive statements come first.
 // An unvoted statement scores 0 rather than dividing by zero.
@@ -73,31 +77,43 @@ function score(entry: ResultEntry): number {
   return entry.totalVotes === 0 ? 0 : entry.correctVotes / entry.totalVotes;
 }
 
+function buildResultEntry(game: Game, authorId: string, statementIndex: number): ResultEntry {
+  const author = playerById(game, authorId)!;
+  const votes = game.votes[statementIndex];
+  // The author's vote on their own statement is a decoy: it keeps them
+  // indistinguishable from the other voters but is wrong by construction
+  // (self-nominees are rejected), so it is excluded from the tally (#56).
+  let totalVotes = 0;
+  let correctVotes = 0;
+  for (const [voterId, nomineeId] of votes) {
+    if (voterId === authorId) continue;
+    totalVotes++;
+    if (nomineeId === authorId) correctVotes++;
+  }
+  const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? "Distinctive" : "Generic";
+  return {
+    playerId: author.id,
+    name: author.name,
+    statement: author.statement!,
+    correctVotes,
+    totalVotes,
+    verdict,
+  };
+}
+
 function buildResults(game: Game): ResultEntry[] {
-  const entries = game.statementOrder.map((authorId, index): ResultEntry => {
-    const author = playerById(game, authorId)!;
-    const votes = game.votes[index];
-    // The author's vote on their own statement is a decoy: it keeps them
-    // indistinguishable from the other voters but is wrong by construction
-    // (self-nominees are rejected), so it is excluded from the tally (#56).
-    let totalVotes = 0;
-    let correctVotes = 0;
-    for (const [voterId, nomineeId] of votes) {
-      if (voterId === authorId) continue;
-      totalVotes++;
-      if (nomineeId === authorId) correctVotes++;
-    }
-    const verdict = totalVotes > 0 && correctVotes * 2 >= totalVotes ? "Distinctive" : "Generic";
-    return {
-      playerId: author.id,
-      name: author.name,
-      statement: author.statement!,
-      correctVotes,
-      totalVotes,
-      verdict,
-    };
-  });
+  const entries = game.statementOrder.map((authorId, index) =>
+    buildResultEntry(game, authorId, index),
+  );
   return entries.toSorted((a, b) => score(b) - score(a));
+}
+
+// Used by a single player's reveal poll, which only needs its own row: skips
+// the scan and sort that every other row in buildResults would cost it.
+function buildResultFor(game: Game, playerId: string): ResultEntry | undefined {
+  const statementIndex = game.statementOrder.indexOf(playerId);
+  if (statementIndex === -1) return undefined;
+  return buildResultEntry(game, playerId, statementIndex);
 }
 
 // The single owner of all Game state. Each instance holds its own set of
@@ -226,14 +242,14 @@ export class GameStore {
       // The reveal names every author, so it is gated: the Host Token gets
       // the full reveal, a Player Token gets only that player's own result
       // (what the Takeaway Card needs), and anyone else is rejected (#80).
-      if (auth?.hostToken !== undefined && auth.hostToken === game.hostToken) {
+      if (isHostToken(game, auth?.hostToken)) {
         return { status: "FINISHED", gameId: game.id, results: buildResults(game) };
       }
       const caller =
         auth?.playerToken !== undefined ? playerByToken(game, auth.playerToken) : undefined;
       if (caller !== undefined) {
-        const ownResult = buildResults(game).filter((r) => r.playerId === caller.id);
-        return { status: "FINISHED", gameId: game.id, results: ownResult };
+        const ownResult = buildResultFor(game, caller.id);
+        return { status: "FINISHED", gameId: game.id, results: ownResult ? [ownResult] : [] };
       }
       throw new BadTokenError();
     }
