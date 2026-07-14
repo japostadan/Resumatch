@@ -128,6 +128,9 @@ function HostDashboard({
           {gameId}
         </code>
       </div>
+      <div className="mt-6 flex justify-center">
+        <GameQRCode value={joinUrl.toString()} />
+      </div>
       {error && <Alert>{error}</Alert>}
       {players === null ? (
         loading && <p className="mt-6 text-base text-muted">Loading the room…</p>
@@ -160,15 +163,6 @@ function HostDashboard({
       {startError && <Alert>{startError}</Alert>}
       {showStartWarning ? (
         <>
-          <Eyebrow>Lobby</Eyebrow>
-          <Heading>Who&apos;s in the room</Heading>
-          <p className="mt-4 text-lg font-bold text-violet">Game ID: {gameId}</p>
-
-          <div className="mt-6 flex flex-justify-center">
-            <GameQRCode value={joinUrl.toString()} />
-          </div>
-          {error && <Alert>{error}</Alert>}
-
           <Alert>
             Only {submittedCount} of {players!.length} players have submitted — players who
             haven&apos;t will be left out of the game.

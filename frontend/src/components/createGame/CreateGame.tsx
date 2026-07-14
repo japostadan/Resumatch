@@ -73,9 +73,7 @@ export function CreateGame() {
           onClick={() =>
             navigate({
               to: "/game/$gameId/lobby",
-              params: {
-                gameId: game.gameId,
-              } as never,
+              params: { gameId: game.gameId },
               hash: hostHash(game.hostToken),
             })
           }
