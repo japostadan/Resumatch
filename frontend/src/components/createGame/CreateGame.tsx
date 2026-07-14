@@ -34,7 +34,7 @@ export function CreateGame() {
   }
 
   if (game) {
-    const joinUrl = new URL("join/", window.location.origin);
+    const joinUrl = new URL("/join", window.location.origin);
     joinUrl.searchParams.set("gameId", game.gameId);
 
     return (
