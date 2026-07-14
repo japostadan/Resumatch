@@ -21,7 +21,7 @@ export function HostAdvance() {
   const { gameId } = useParams({ from: "/game/$gameId/vote" });
   const { session } = useGameSession();
   const hostToken = session?.role === "host" ? session.hostToken : "";
-  const { state, loading, error } = useGameState(gameId);
+  const { state, loading, error } = useGameState(gameId, undefined, { hostToken });
   const [advancing, setAdvancing] = useState(false);
   const [advancedFromIndex, setAdvancedFromIndex] = useState<number | null>(null);
   const [advanceError, setAdvanceError] = useState<string | null>(null);

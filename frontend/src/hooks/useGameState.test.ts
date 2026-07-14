@@ -36,7 +36,7 @@ describe("useGameState", () => {
     await waitFor(() => expect(result.current.state).toEqual(lobby));
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state");
+    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", { headers: {} });
   });
 
   it("passes the playerId as a query param when provided", async () => {
@@ -44,7 +44,23 @@ describe("useGameState", () => {
 
     renderHook(() => useGameState("g", "pid"));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state?playerId=pid"));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state?playerId=pid", { headers: {} }),
+    );
+  });
+
+  it("sends the Host Token and Player Token as headers when provided", async () => {
+    const fetchMock = mockFetchSequence([{ body: lobby }]);
+
+    renderHook(() =>
+      useGameState("g", undefined, { hostToken: "host-tok", playerToken: "player-tok" }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", {
+        headers: { "X-Host-Token": "host-tok", "X-Player-Token": "player-tok" },
+      }),
+    );
   });
 
   it("polls again every 2 seconds", async () => {
@@ -80,6 +96,29 @@ describe("useGameState", () => {
     expect(result.current.error).toMatch(/expired/i);
 
     // No further polling after the terminal 404.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops polling and surfaces a message when access is denied (403)", async () => {
+    vi.useFakeTimers();
+    const fetchMock = mockFetchSequence([{ body: lobby }, { ok: false, status: 403, body: {} }]);
+
+    const { result } = renderHook(() => useGameState("g"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.error).toMatch(/don't have access/i);
+
+    // No further polling after the terminal 403 — retrying can never succeed,
+    // the credential is simply wrong.
     await act(async () => {
       await vi.advanceTimersByTimeAsync(4000);
     });

@@ -53,7 +53,9 @@ describe("POST /api/games/:id/next", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ ok: true });
 
-      const state = await request(app).get(`/api/games/${gameId}/state`);
+      const state = await request(app)
+        .get(`/api/games/${gameId}/state`)
+        .set("X-Host-Token", hostToken);
       expect(state.body.status).toBe("FINISHED");
     });
 

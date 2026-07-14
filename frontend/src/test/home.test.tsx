@@ -16,13 +16,12 @@ describe("Home", () => {
     expect(screen.getByRole("link", { name: /join a game/i })).toHaveAttribute("href", "/join");
   });
 
-  it("shows the three development stages with their status", () => {
+  it("shows the four how-it-works steps", () => {
     render(<Home />);
-    expect(screen.getByText("Game engine")).toBeInTheDocument();
-    expect(screen.getByText("Done")).toBeInTheDocument();
-    expect(screen.getByText("Game API")).toBeInTheDocument();
-    expect(screen.getByText("Up next")).toBeInTheDocument();
-    expect(screen.getByText("Game screens")).toBeInTheDocument();
-    expect(screen.getByText("Later")).toBeInTheDocument();
+    expect(screen.getByText(/how it works/i)).toBeInTheDocument();
+    expect(screen.getByText("Open or join a game")).toBeInTheDocument();
+    expect(screen.getByText("Submit your statement")).toBeInTheDocument();
+    expect(screen.getByText("Guess who wrote it")).toBeInTheDocument();
+    expect(screen.getByText("See your results")).toBeInTheDocument();
   });
 });

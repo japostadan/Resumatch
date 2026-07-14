@@ -23,7 +23,7 @@ type PlayerVoteViewProps = {
 // bridges the gap between a successful vote and the next poll reporting
 // hasVoted, and resets naturally when the Host advances to the next statement.
 export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteViewProps) {
-  const { state, loading, error } = useGameState(gameId, playerId);
+  const { state, loading, error } = useGameState(gameId, playerId, { playerToken });
   const [nomineeId, setNomineeId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);

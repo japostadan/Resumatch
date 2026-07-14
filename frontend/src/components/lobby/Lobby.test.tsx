@@ -72,6 +72,37 @@ describe("Lobby", () => {
     expect(within(bob).getByText(/waiting/i)).toBeInTheDocument();
   });
 
+  // Reopening a Lobby tab/link for a game that has since finished polls
+  // straight into the gated FINISHED view (#80) — the Host Token must ride
+  // along so that poll isn't rejected.
+  it("polls the state with the host token", async () => {
+    window.location.hash = "hostToken=host-tok";
+    const fetchMock = mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    await screen.findByText("Alice");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/games/g/state",
+      expect.objectContaining({ headers: expect.objectContaining({ "X-Host-Token": "host-tok" }) }),
+    );
+  });
+
+  it("polls the state with the player token", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=a";
+    const fetchMock = mockFetch(lobbyView);
+
+    render(<Lobby />);
+
+    await screen.findByText(/statement is in/i);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/games/g/state?playerId=a",
+      expect.objectContaining({
+        headers: expect.objectContaining({ "X-Player-Token": "player-tok" }),
+      }),
+    );
+  });
+
   it("shows the Game ID to the host", async () => {
     window.location.hash = "hostToken=host-tok";
     mockFetch(lobbyView);

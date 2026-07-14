@@ -95,8 +95,10 @@ export function createApp(store: GameStore) {
 
   app.get("/api/games/:id/state", (req, res) => {
     const playerId = typeof req.query.playerId === "string" ? req.query.playerId : undefined;
+    const hostToken = req.header("X-Host-Token");
+    const playerToken = req.header("X-Player-Token");
 
-    res.json(store.getState(req.params.id, playerId));
+    res.json(store.getState(req.params.id, playerId, { hostToken, playerToken }));
   });
 
   app.post("/api/games/:id/vote", (req, res) => {

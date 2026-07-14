@@ -66,14 +66,16 @@ describe("HostAdvance", () => {
     expect(screen.getByRole("button", { name: /next/i })).toBeEnabled();
   });
 
-  it("polls the game state without a playerId", async () => {
+  it("polls the game state without a playerId, sending the Host Token", async () => {
     window.location.hash = "hostToken=host-tok";
     const fetchMock = mockApi(activeView);
 
     render(<HostAdvance />);
 
     await screen.findByText(/juggle flaming torches/i);
-    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state");
+    expect(fetchMock).toHaveBeenCalledWith("/api/games/g/state", {
+      headers: { "X-Host-Token": "host-tok" },
+    });
   });
 
   it("advances the statement with the host token when Next is pressed", async () => {

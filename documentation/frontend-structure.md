@@ -31,7 +31,7 @@ frontend/src/
     home/
       Home.tsx                    the screen
       HomeMainContent.tsx         private sub-component
-      HomeDevelopmentStatus.tsx   private sub-component
+      HomeHowItWorks.tsx          private sub-component
       Home.test.tsx               its test, co-located
     createGame/
       CreateGame.tsx
@@ -49,8 +49,8 @@ shared code out **only when it's actually reused**.
 ## What is "shared" — and what isn't
 
 Only put something in `common/` if more than one screen uses it. Screen-specific
-content stays with its screen. For example, Home's development-status panel is
-**Home's** (`components/home/HomeDevelopmentStatus.tsx`), not a `common/` component
+content stays with its screen. For example, Home's how-it-works panel is
+**Home's** (`components/home/HomeHowItWorks.tsx`), not a `common/` component
 — no other screen shows it. A layout wrapper like `Main` that any screen could use
 _is_ shared, so it lives in `common/`.
 
