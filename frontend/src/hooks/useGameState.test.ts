@@ -102,6 +102,29 @@ describe("useGameState", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("stops polling and surfaces a message when access is denied (403)", async () => {
+    vi.useFakeTimers();
+    const fetchMock = mockFetchSequence([{ body: lobby }, { ok: false, status: 403, body: {} }]);
+
+    const { result } = renderHook(() => useGameState("g"));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.error).toMatch(/don't have access/i);
+
+    // No further polling after the terminal 403 — retrying can never succeed,
+    // the credential is simply wrong.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("stops polling once the game is FINISHED", async () => {
     vi.useFakeTimers();
     const finished = { status: "FINISHED", gameId: "g", results: [] };

@@ -23,8 +23,10 @@ export function Lobby() {
   const { gameId } = useParams({ from: "/game/$gameId/lobby" });
   const { session } = useGameSession();
   const playerId = session?.role === "player" ? session.playerId : undefined;
+  const hostToken = session?.role === "host" ? session.hostToken : undefined;
+  const playerToken = session?.role === "player" ? session.playerToken : undefined;
   const navigate = useNavigate();
-  const { state, loading, error } = useGameState(gameId, playerId);
+  const { state, loading, error } = useGameState(gameId, playerId, { hostToken, playerToken });
 
   // When the Host starts, the poll reports ACTIVE and everyone moves to voting,
   // carrying their session forward so the vote screen can authenticate them.

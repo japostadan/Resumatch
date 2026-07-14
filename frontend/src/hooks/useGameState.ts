@@ -15,14 +15,15 @@ export type GameStateCredentials = {
 };
 
 // Polls the game state every 2 seconds and returns the latest GameView. A 404
-// (game expired or never existed) and a FINISHED view are both terminal — the
-// state can never change again — so polling stops. Other failures are treated
-// as transient and polling continues so a brief network blip recovers on its
-// own.
+// (game expired or never existed), a 403 (wrong or missing credentials), and a
+// FINISHED view are all terminal — retrying cannot change any of them — so
+// polling stops. Other failures are treated as transient and polling
+// continues so a brief network blip recovers on its own.
 //
 // The FINISHED reveal is gated server-side (#80), so callers that poll past
 // the end of the game must pass their Host or Player Token to keep reading
-// state once it flips to FINISHED.
+// state once it flips to FINISHED — a stale or missing credential now gets
+// the terminal 403 message below instead of retrying forever.
 export function useGameState(
   gameId: string,
   playerId?: string,
@@ -51,6 +52,11 @@ export function useGameState(
           setError("This game has expired or no longer exists.");
           setLoading(false);
           return; // terminal — do not schedule another poll
+        }
+        if (res.status === 403) {
+          setError("You don't have access to this game.");
+          setLoading(false);
+          return; // terminal — a bad credential will never start working
         }
         if (!res.ok) {
           setError("Could not reach the game. Retrying…");
