@@ -134,6 +134,19 @@ describe("Results", () => {
     expect(screen.getByText(/quantify one outcome/i)).toBeInTheDocument();
   });
 
+  it("matches its own result by playerId rather than trusting array position", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=b";
+    // Unfiltered: Ada (playerId "a") sits at index 0, Bea (playerId "b") at index 1.
+    mockFetch(finishedView);
+
+    render(<Results />);
+
+    expect(await screen.findByText(/make it unmistakably yours/i)).toBeInTheDocument();
+    expect(screen.queryByText(/keep what worked, push further/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Ada")).not.toBeInTheDocument();
+    expect(screen.queryByText(/sorts my socks/i)).not.toBeInTheDocument();
+  });
+
   it("thanks a player with no own result instead of crashing", async () => {
     window.location.hash = "playerToken=player-tok&playerId=c";
     mockFetch({ status: "FINISHED", gameId: "g", results: [] });

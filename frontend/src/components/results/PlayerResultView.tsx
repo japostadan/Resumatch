@@ -54,7 +54,7 @@ export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResult
       pendingBody="Keep this tab open — your results are being dealt out."
     >
       {(finished) => {
-        const ownResult = finished.results[0];
+        const ownResult = finished.results.find((r) => r.playerId === playerId);
 
         if (!ownResult) {
           return (
