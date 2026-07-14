@@ -8,190 +8,190 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as JoinRouteImport } from './routes/join'
-import { Route as HostRouteImport } from './routes/host'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as GameGameIdVoteRouteImport } from './routes/game/$gameId/vote'
-import { Route as GameGameIdSubmitRouteImport } from './routes/game/$gameId/submit'
-import { Route as GameGameIdResultsRouteImport } from './routes/game/$gameId/results'
-import { Route as GameGameIdLobbyRouteImport } from './routes/game/$gameId/lobby'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as JoinRouteImport } from "./routes/join";
+import { Route as HostRouteImport } from "./routes/host";
+import { Route as AboutRouteImport } from "./routes/about";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as GameGameIdVoteRouteImport } from "./routes/game/$gameId/vote";
+import { Route as GameGameIdSubmitRouteImport } from "./routes/game/$gameId/submit";
+import { Route as GameGameIdResultsRouteImport } from "./routes/game/$gameId/results";
+import { Route as GameGameIdLobbyRouteImport } from "./routes/game/$gameId/lobby";
 
 const JoinRoute = JoinRouteImport.update({
-  id: '/join',
-  path: '/join',
+  id: "/join",
+  path: "/join",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const HostRoute = HostRouteImport.update({
-  id: '/host',
-  path: '/host',
+  id: "/host",
+  path: "/host",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+  id: "/about",
+  path: "/about",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const GameGameIdVoteRoute = GameGameIdVoteRouteImport.update({
-  id: '/game/$gameId/vote',
-  path: '/game/$gameId/vote',
+  id: "/game/$gameId/vote",
+  path: "/game/$gameId/vote",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const GameGameIdSubmitRoute = GameGameIdSubmitRouteImport.update({
-  id: '/game/$gameId/submit',
-  path: '/game/$gameId/submit',
+  id: "/game/$gameId/submit",
+  path: "/game/$gameId/submit",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const GameGameIdResultsRoute = GameGameIdResultsRouteImport.update({
-  id: '/game/$gameId/results',
-  path: '/game/$gameId/results',
+  id: "/game/$gameId/results",
+  path: "/game/$gameId/results",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const GameGameIdLobbyRoute = GameGameIdLobbyRouteImport.update({
-  id: '/game/$gameId/lobby',
-  path: '/game/$gameId/lobby',
+  id: "/game/$gameId/lobby",
+  path: "/game/$gameId/lobby",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/host': typeof HostRoute
-  '/join': typeof JoinRoute
-  '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
-  '/game/$gameId/results': typeof GameGameIdResultsRoute
-  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
-  '/game/$gameId/vote': typeof GameGameIdVoteRoute
+  "/": typeof IndexRoute;
+  "/about": typeof AboutRoute;
+  "/host": typeof HostRoute;
+  "/join": typeof JoinRoute;
+  "/game/$gameId/lobby": typeof GameGameIdLobbyRoute;
+  "/game/$gameId/results": typeof GameGameIdResultsRoute;
+  "/game/$gameId/submit": typeof GameGameIdSubmitRoute;
+  "/game/$gameId/vote": typeof GameGameIdVoteRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/host': typeof HostRoute
-  '/join': typeof JoinRoute
-  '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
-  '/game/$gameId/results': typeof GameGameIdResultsRoute
-  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
-  '/game/$gameId/vote': typeof GameGameIdVoteRoute
+  "/": typeof IndexRoute;
+  "/about": typeof AboutRoute;
+  "/host": typeof HostRoute;
+  "/join": typeof JoinRoute;
+  "/game/$gameId/lobby": typeof GameGameIdLobbyRoute;
+  "/game/$gameId/results": typeof GameGameIdResultsRoute;
+  "/game/$gameId/submit": typeof GameGameIdSubmitRoute;
+  "/game/$gameId/vote": typeof GameGameIdVoteRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/host': typeof HostRoute
-  '/join': typeof JoinRoute
-  '/game/$gameId/lobby': typeof GameGameIdLobbyRoute
-  '/game/$gameId/results': typeof GameGameIdResultsRoute
-  '/game/$gameId/submit': typeof GameGameIdSubmitRoute
-  '/game/$gameId/vote': typeof GameGameIdVoteRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/about": typeof AboutRoute;
+  "/host": typeof HostRoute;
+  "/join": typeof JoinRoute;
+  "/game/$gameId/lobby": typeof GameGameIdLobbyRoute;
+  "/game/$gameId/results": typeof GameGameIdResultsRoute;
+  "/game/$gameId/submit": typeof GameGameIdSubmitRoute;
+  "/game/$gameId/vote": typeof GameGameIdVoteRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/about'
-    | '/host'
-    | '/join'
-    | '/game/$gameId/lobby'
-    | '/game/$gameId/results'
-    | '/game/$gameId/submit'
-    | '/game/$gameId/vote'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/about"
+    | "/host"
+    | "/join"
+    | "/game/$gameId/lobby"
+    | "/game/$gameId/results"
+    | "/game/$gameId/submit"
+    | "/game/$gameId/vote";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/about'
-    | '/host'
-    | '/join'
-    | '/game/$gameId/lobby'
-    | '/game/$gameId/results'
-    | '/game/$gameId/submit'
-    | '/game/$gameId/vote'
+    | "/"
+    | "/about"
+    | "/host"
+    | "/join"
+    | "/game/$gameId/lobby"
+    | "/game/$gameId/results"
+    | "/game/$gameId/submit"
+    | "/game/$gameId/vote";
   id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/host'
-    | '/join'
-    | '/game/$gameId/lobby'
-    | '/game/$gameId/results'
-    | '/game/$gameId/submit'
-    | '/game/$gameId/vote'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/about"
+    | "/host"
+    | "/join"
+    | "/game/$gameId/lobby"
+    | "/game/$gameId/results"
+    | "/game/$gameId/submit"
+    | "/game/$gameId/vote";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  HostRoute: typeof HostRoute
-  JoinRoute: typeof JoinRoute
-  GameGameIdLobbyRoute: typeof GameGameIdLobbyRoute
-  GameGameIdResultsRoute: typeof GameGameIdResultsRoute
-  GameGameIdSubmitRoute: typeof GameGameIdSubmitRoute
-  GameGameIdVoteRoute: typeof GameGameIdVoteRoute
+  IndexRoute: typeof IndexRoute;
+  AboutRoute: typeof AboutRoute;
+  HostRoute: typeof HostRoute;
+  JoinRoute: typeof JoinRoute;
+  GameGameIdLobbyRoute: typeof GameGameIdLobbyRoute;
+  GameGameIdResultsRoute: typeof GameGameIdResultsRoute;
+  GameGameIdSubmitRoute: typeof GameGameIdSubmitRoute;
+  GameGameIdVoteRoute: typeof GameGameIdVoteRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/join': {
-      id: '/join'
-      path: '/join'
-      fullPath: '/join'
-      preLoaderRoute: typeof JoinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/host': {
-      id: '/host'
-      path: '/host'
-      fullPath: '/host'
-      preLoaderRoute: typeof HostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/game/$gameId/vote': {
-      id: '/game/$gameId/vote'
-      path: '/game/$gameId/vote'
-      fullPath: '/game/$gameId/vote'
-      preLoaderRoute: typeof GameGameIdVoteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/game/$gameId/submit': {
-      id: '/game/$gameId/submit'
-      path: '/game/$gameId/submit'
-      fullPath: '/game/$gameId/submit'
-      preLoaderRoute: typeof GameGameIdSubmitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/game/$gameId/results': {
-      id: '/game/$gameId/results'
-      path: '/game/$gameId/results'
-      fullPath: '/game/$gameId/results'
-      preLoaderRoute: typeof GameGameIdResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/game/$gameId/lobby': {
-      id: '/game/$gameId/lobby'
-      path: '/game/$gameId/lobby'
-      fullPath: '/game/$gameId/lobby'
-      preLoaderRoute: typeof GameGameIdLobbyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/join": {
+      id: "/join";
+      path: "/join";
+      fullPath: "/join";
+      preLoaderRoute: typeof JoinRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/host": {
+      id: "/host";
+      path: "/host";
+      fullPath: "/host";
+      preLoaderRoute: typeof HostRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/about": {
+      id: "/about";
+      path: "/about";
+      fullPath: "/about";
+      preLoaderRoute: typeof AboutRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/game/$gameId/vote": {
+      id: "/game/$gameId/vote";
+      path: "/game/$gameId/vote";
+      fullPath: "/game/$gameId/vote";
+      preLoaderRoute: typeof GameGameIdVoteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/game/$gameId/submit": {
+      id: "/game/$gameId/submit";
+      path: "/game/$gameId/submit";
+      fullPath: "/game/$gameId/submit";
+      preLoaderRoute: typeof GameGameIdSubmitRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/game/$gameId/results": {
+      id: "/game/$gameId/results";
+      path: "/game/$gameId/results";
+      fullPath: "/game/$gameId/results";
+      preLoaderRoute: typeof GameGameIdResultsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/game/$gameId/lobby": {
+      id: "/game/$gameId/lobby";
+      path: "/game/$gameId/lobby";
+      fullPath: "/game/$gameId/lobby";
+      preLoaderRoute: typeof GameGameIdLobbyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -204,7 +204,7 @@ const rootRouteChildren: RootRouteChildren = {
   GameGameIdResultsRoute: GameGameIdResultsRoute,
   GameGameIdSubmitRoute: GameGameIdSubmitRoute,
   GameGameIdVoteRoute: GameGameIdVoteRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
