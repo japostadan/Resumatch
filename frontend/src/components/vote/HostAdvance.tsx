@@ -4,6 +4,7 @@ import { useParams } from "@tanstack/react-router";
 import { useGameSession, hostHash } from "../../hooks/useGameSession";
 import { useGameState } from "../../hooks/useGameState";
 import { useResultsRedirect } from "../../hooks/useResultsRedirect";
+import { StatusGate } from "../common/StatusGate";
 import { advanceStatement } from "../../lib/api";
 import { Button } from "../common/Button";
 import { Eyebrow } from "../common/Eyebrow";
@@ -44,45 +45,42 @@ export function HostAdvance() {
     }
   }
 
-  if (state === null) {
-    return (
-      <Shell>
-        <Eyebrow>Voting round</Eyebrow>
-        <Heading>Setting up the round</Heading>
-        {error ? <Alert>{error}</Alert> : loading && <Muted>Loading the round…</Muted>}
-      </Shell>
-    );
-  }
-
-  if (state.status !== "ACTIVE") {
-    return (
-      <Shell>
-        <Eyebrow>Voting round</Eyebrow>
-        <Heading>Hang tight</Heading>
-        {error && <Alert>{error}</Alert>}
-        <Muted>The round isn&apos;t running yet — keep this tab open.</Muted>
-      </Shell>
-    );
-  }
-
-  const waitingForPoll = advancing || advancedFromIndex === state.currentStatementIndex;
-  const isLastStatement = state.currentStatementIndex + 1 === state.totalStatements;
-
   return (
-    <Shell>
-      <Eyebrow>
-        Statement {state.currentStatementIndex + 1} of {state.totalStatements}
-      </Eyebrow>
-      <Heading>Who wrote this?</Heading>
-      {error && <Alert>{error}</Alert>}
-      <StatementCard>&ldquo;{state.currentStatement}&rdquo;</StatementCard>
-      <Muted>
-        {state.votesIn} of {state.totalPlayers} votes in
-      </Muted>
-      {advanceError && <Alert>{advanceError}</Alert>}
-      <Button type="button" onClick={handleNext} disabled={waitingForPoll} className="mt-8">
-        {isLastStatement ? "Finish game" : "Next statement"}
-      </Button>
-    </Shell>
+    <StatusGate
+      state={state}
+      loading={loading}
+      error={error}
+      targetStatus="ACTIVE"
+      wrapper={Shell}
+      loadingEyebrow="Voting round"
+      loadingHeading="Setting up the round"
+      loadingBody="Loading the round…"
+      pendingEyebrow="Voting round"
+      pendingHeading="Hang tight"
+      pendingBody="The round isn't running yet — keep this tab open."
+    >
+      {(active) => {
+        const waitingForPoll = advancing || advancedFromIndex === active.currentStatementIndex;
+        const isLastStatement = active.currentStatementIndex + 1 === active.totalStatements;
+
+        return (
+          <Shell>
+            <Eyebrow>
+              Statement {active.currentStatementIndex + 1} of {active.totalStatements}
+            </Eyebrow>
+            <Heading>Who wrote this?</Heading>
+            {error && <Alert>{error}</Alert>}
+            <StatementCard>&ldquo;{active.currentStatement}&rdquo;</StatementCard>
+            <Muted>
+              {active.votesIn} of {active.totalPlayers} votes in
+            </Muted>
+            {advanceError && <Alert>{advanceError}</Alert>}
+            <Button type="button" onClick={handleNext} disabled={waitingForPoll} className="mt-8">
+              {isLastStatement ? "Finish game" : "Next statement"}
+            </Button>
+          </Shell>
+        );
+      }}
+    </StatusGate>
   );
 }

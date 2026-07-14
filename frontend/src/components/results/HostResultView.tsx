@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useGameState } from "../../hooks/useGameState";
-import { ResultsStatusGate } from "./ResultsStatusGate";
+import { StatusGate } from "../common/StatusGate";
 import { ResultsPane } from "./ResultsPane";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
@@ -17,10 +17,13 @@ export function HostResultView({ gameId, hostToken }: HostResultViewProps) {
   const navigate = useNavigate();
 
   return (
-    <ResultsStatusGate
+    <StatusGate
       state={state}
       loading={loading}
       error={error}
+      targetStatus="FINISHED"
+      wrapper={ResultsPane}
+      loadingEyebrow="Results view"
       loadingHeading="Setting up the results"
       loadingBody="Loading the results…"
       pendingEyebrow="Results view"
@@ -72,6 +75,6 @@ export function HostResultView({ gameId, hostToken }: HostResultViewProps) {
           </ResultsPane>
         );
       }}
-    </ResultsStatusGate>
+    </StatusGate>
   );
 }
