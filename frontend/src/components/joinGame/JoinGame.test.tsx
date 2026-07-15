@@ -85,6 +85,18 @@ describe("JoinGame", () => {
     );
   });
 
+  it("normalizes the Game ID to trimmed lowercase before calling the API", async () => {
+    const fetchMock = mockFetch({ playerId: "pid", playerToken: "player-tok" });
+    render(<JoinGame />);
+
+    fillForm({ gameId: "  K4X2ZB " });
+    fireEvent.click(screen.getByRole("button", { name: /join game/i }));
+
+    await vi.waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/games/k4x2zb/join", expect.anything()),
+    );
+  });
+
   it("prefills the Game ID from the URL", () => {
     mockedUseSearch.mockReturnValue({
       gameId: "ABC123",

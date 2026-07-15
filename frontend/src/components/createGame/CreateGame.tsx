@@ -47,7 +47,7 @@ export function CreateGame() {
 
         <dl className="mt-9 grid gap-4">
           <Field label="Game ID">
-            <span className="font-display text-5xl font-black tracking-wider text-violet">
+            <span className="font-mono text-5xl font-black tracking-[0.2em] text-violet">
               {game.gameId}
             </span>
           </Field>

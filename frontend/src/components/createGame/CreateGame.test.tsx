@@ -53,6 +53,16 @@ describe("CreateGame", () => {
     expect(screen.getByText("swordfish")).toBeInTheDocument();
   });
 
+  it("renders the Game ID in a monospace stack to avoid ambiguous glyphs", async () => {
+    mockFetch({ gameId: "abc123", hostToken: "host-tok" });
+    render(<CreateGame />);
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "swordfish" } });
+    fireEvent.click(screen.getByRole("button", { name: /create game/i }));
+
+    expect(await screen.findByText("abc123")).toHaveClass("font-mono");
+  });
+
   it("stores the host token in the URL hash on success", async () => {
     mockFetch({ gameId: "abc123", hostToken: "host-tok" });
     render(<CreateGame />);
