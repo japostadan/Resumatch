@@ -1,5 +1,6 @@
 import { Shell } from "../common/Shell";
 import { Button } from "../common/Button";
+import { Heading } from "../common/Heading";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { createGame, type CreatedGame } from "../../lib/api";
@@ -41,9 +42,7 @@ export function CreateGame() {
       <Shell>
         <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
 
-        <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-          Read this out to the room
-        </h1>
+        <Heading>Read this out to the room</Heading>
 
         <dl className="mt-9 grid gap-4">
           <Field label="Game ID">
@@ -89,7 +88,7 @@ export function CreateGame() {
     <Shell>
       <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Host a game</p>
 
-      <h1 className="mt-4 font-display text-4xl font-black tracking-tight">Create a game</h1>
+      <Heading>Create a game</Heading>
 
       <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
         Pick a password for this session. You'll share it, along with the Game ID, with the room so

@@ -16,7 +16,7 @@
   --color-surface: #221d18; /* lifted panel                 */
   --color-ink: #f5f1e8; /* primary text                 */
   --color-muted: #a8a096; /* secondary text               */
-  --color-line: #4a4239; /* strong rule                  */
+  --color-line: #756a5c; /* strong rule — ≥3:1 vs canvas/surface (WCAG 1.4.11) */
   --color-hair: #2c2620; /* hairline divider             */
   --color-violet: #a78bfa; /* accents                      */
   --color-cta: #7c3aed; /* solid primary button         */
