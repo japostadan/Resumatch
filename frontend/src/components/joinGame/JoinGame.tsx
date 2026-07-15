@@ -20,16 +20,17 @@ export function JoinGame() {
       setError("Enter your name, the Game ID, and the password to join");
       return;
     }
+    const normalizedGameId = gameId.trim().toLowerCase();
     setError(null);
     setSubmitting(true);
     try {
-      const joined = await joinGame(gameId.trim(), password, playerName.trim());
+      const joined = await joinGame(normalizedGameId, password, playerName.trim());
       // Carry the player session in the destination hash — navigating replaces the
       // URL, so writing the hash before navigation would be wiped. The Submit and
       // Lobby screens read it back via useGameSession.
       navigate({
         to: "/game/$gameId/submit",
-        params: { gameId: gameId.trim() },
+        params: { gameId: normalizedGameId },
         hash: playerHash(joined.playerToken, joined.playerId),
       });
     } catch (err) {
