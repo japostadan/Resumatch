@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "../common/Button";
+import { Heading } from "../common/Heading";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { submitStatement } from "../../lib/api";
 import { useGameSession, playerHash } from "../../hooks/useGameSession";
@@ -57,9 +58,7 @@ export function SubmitStatement() {
       <div className="flex min-h-screen flex-col items-center justify-center px-8">
         <div className="w-full max-w-md">
           <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Round closed</p>
-          <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-            The game started without your statement
-          </h1>
+          <Heading>The game started without your statement</Heading>
           <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
             Your statement isn&apos;t part of this round, but you can still vote on everyone
             else&apos;s.
@@ -86,9 +85,7 @@ export function SubmitStatement() {
     <div className="flex min-h-screen flex-col items-center justify-center px-8">
       <div className="w-full max-w-md">
         <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">You&apos;re in</p>
-        <h1 className="mt-4 font-display text-4xl font-black tracking-tight">
-          Submit your statement
-        </h1>
+        <Heading>Submit your statement</Heading>
         <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
           Write one line about yourself. The room will vote on whether it sounds like a real person
           or a resume cliché.

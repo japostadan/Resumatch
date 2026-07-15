@@ -32,6 +32,13 @@ describe("CreateGame", () => {
     expect(screen.getByRole("button", { name: /create game/i })).toBeInTheDocument();
   });
 
+  it("focuses the heading on mount", () => {
+    mockFetch({ gameId: "abc123", hostToken: "t" });
+    render(<CreateGame />);
+
+    expect(screen.getByRole("heading", { name: /create a game/i })).toHaveFocus();
+  });
+
   it("prevents an empty-password submission with a validation message and no API call", () => {
     const fetchMock = mockFetch({});
     render(<CreateGame />);
@@ -51,6 +58,18 @@ describe("CreateGame", () => {
 
     expect(await screen.findByText("abc123")).toBeInTheDocument();
     expect(screen.getByText("swordfish")).toBeInTheDocument();
+  });
+
+  it("moves focus to the confirmation heading once the game is created", async () => {
+    mockFetch({ gameId: "abc123", hostToken: "host-tok" });
+    render(<CreateGame />);
+
+    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "swordfish" } });
+    fireEvent.click(screen.getByRole("button", { name: /create game/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /read this out to the room/i }),
+    ).toHaveFocus();
   });
 
   it("renders the Game ID in a monospace stack to avoid ambiguous glyphs", async () => {

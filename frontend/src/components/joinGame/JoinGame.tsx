@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "../common/Button";
+import { Heading } from "../common/Heading";
 import { useNavigate } from "@tanstack/react-router";
 import { joinGame } from "../../lib/api";
 import { playerHash } from "../../hooks/useGameSession";
@@ -43,7 +44,7 @@ export function JoinGame() {
   return (
     <Shell>
       <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Join a game</p>
-      <h1 className="mt-4 font-display text-4xl font-black tracking-tight">Join the room</h1>
+      <Heading>Join the room</Heading>
       <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-muted">
         Enter your name, then the Game ID and password your host read out to the room.
       </p>

@@ -34,6 +34,14 @@ describe("SubmitStatement", () => {
     expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
   });
 
+  it("focuses the heading on mount", () => {
+    window.location.hash = "playerToken=player-tok&playerId=pid";
+    mockFetch({ ok: true });
+    render(<SubmitStatement />);
+
+    expect(screen.getByRole("heading", { name: /submit your statement/i })).toHaveFocus();
+  });
+
   it("blocks an empty statement with a validation message and no API call", () => {
     window.location.hash = "playerToken=player-tok&playerId=pid";
     const fetchMock = mockFetch({ ok: true });
@@ -101,6 +109,21 @@ describe("SubmitStatement", () => {
     expect(screen.getByRole("button", { name: /join the voting/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /submit statement/i })).not.toBeInTheDocument();
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("moves focus to the round-closed heading when the round closes without the player", async () => {
+    window.location.hash = "playerToken=player-tok&playerId=pid";
+    mockFetch({ error: "Game has already started" }, { ok: false, status: 409 });
+    render(<SubmitStatement />);
+
+    fireEvent.change(screen.getByLabelText(/statement/i), {
+      target: { value: "too late" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit statement/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /started without your statement/i }),
+    ).toHaveFocus();
   });
 
   it("joins the voting with the player session when the round closed without them", async () => {

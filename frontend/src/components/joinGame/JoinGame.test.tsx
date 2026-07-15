@@ -59,6 +59,13 @@ describe("JoinGame", () => {
     expect(screen.getByRole("button", { name: /join game/i })).toBeInTheDocument();
   });
 
+  it("focuses the heading on mount", () => {
+    mockFetch({ playerId: "p", playerToken: "t" });
+    render(<JoinGame />);
+
+    expect(screen.getByRole("heading", { name: /join the room/i })).toHaveFocus();
+  });
+
   it("blocks submission with a validation message and no API call when a field is empty", () => {
     const fetchMock = mockFetch({});
     render(<JoinGame />);
