@@ -9,18 +9,20 @@
 @import "@fontsource/space-grotesk/700.css";
 
 @theme {
-  /* ── Colours — dark navy, magenta/violet accent ──────────────────────────────
+  /* ── Colours — dark navy, terracotta accent ──────────────────────────────────
    * green/red are reserved for verdicts and build status only — never for
    * interactive choices (see CONTEXT.md). This is the default (dark) palette;
-   * the light palette lives below, toggled via <html data-theme="light">. */
-  --color-canvas: #120f2e; /* deep navy page background    */
-  --color-surface: #1c1750; /* lifted panel                 */
-  --color-ink: #f5f2ff; /* primary text                 */
-  --color-muted: #a89fc9; /* secondary text               */
-  --color-line: #6f63a8; /* strong rule — ≥3:1 vs canvas/surface (WCAG 1.4.11) */
-  --color-hair: #241f66; /* hairline divider             */
-  --color-violet: #c026d3; /* accents                      */
-  --color-cta: #9333ea; /* solid primary button         */
+   * the light palette lives below, toggled via <html data-theme="light"> — the
+   * two schemes share the same navy/terracotta pair and just swap which one
+   * dominates, rather than being unrelated palettes. */
+  --color-canvas: #10132a; /* deep navy page background    */
+  --color-surface: #1c2140; /* lifted panel                 */
+  --color-ink: #f2e6cc; /* primary text                 */
+  --color-muted: #a89a7c; /* secondary text               */
+  --color-line: #7a5a3d; /* strong rule — ≥3:1 vs canvas/surface (WCAG 1.4.11) */
+  --color-hair: #221f3e; /* hairline divider             */
+  --color-violet: #d97a3f; /* accents                      */
+  --color-cta: #c2632a; /* solid primary button         */
   --color-distinctive: #4ade80; /* verdict: Distinctive (green) */
   --color-generic: #f87171; /* verdict: Generic (red)       */
   --color-status: #fbbf24; /* development status (amber)   */
@@ -54,11 +56,11 @@
     0 100%,
     0 14px
   );
-  --glow-color: #c026d3;
+  --glow-color: #d97a3f;
   /* Squares + triangles, echoing the logo mark's two shapes, instead of
    * circles — more cohesive with the cut-corner shape language, and reads
    * quieter than overlapping circle outlines behind body text. */
-  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Crect x='14' y='18' width='14' height='14' fill='none' stroke='%236f63a8' stroke-opacity='0.16' stroke-width='1.5'/%3E%3Cpath d='M100 20 112 40 88 40Z' fill='none' stroke='%23c026d3' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='96' y='92' width='11' height='11' fill='none' stroke='%23c026d3' stroke-opacity='0.12' stroke-width='1.5'/%3E%3Cpath d='M22 96 34 116 10 116Z' fill='none' stroke='%236f63a8' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='60' y='60' width='9' height='9' fill='none' stroke='%236f63a8' stroke-opacity='0.1' stroke-width='1.5'/%3E%3C/svg%3E");
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Crect x='14' y='18' width='14' height='14' fill='none' stroke='%237a5a3d' stroke-opacity='0.16' stroke-width='1.5'/%3E%3Cpath d='M100 20 112 40 88 40Z' fill='none' stroke='%23d97a3f' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='96' y='92' width='11' height='11' fill='none' stroke='%23d97a3f' stroke-opacity='0.12' stroke-width='1.5'/%3E%3Cpath d='M22 96 34 116 10 116Z' fill='none' stroke='%237a5a3d' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='60' y='60' width='9' height='9' fill='none' stroke='%237a5a3d' stroke-opacity='0.1' stroke-width='1.5'/%3E%3C/svg%3E");
 }
 
 /* Cut corners on cards/buttons — the shape half of the design system. */
@@ -86,22 +88,24 @@
 }
 
 /* ── Light mode ────────────────────────────────────────────────────────────
- * Toggled via <html data-theme="light"> (see hooks/useColorScheme.ts).
- * Canvas/surface lift to near-white, ink/accent darken (the dark-mode accent
- * reads too washed-out on white), the glow turns off, the ring-pattern
- * background is recoloured rather than removed, and verdict colours darken
- * for text contrast against a light canvas. */
+ * Toggled via <html data-theme="light"> (see hooks/useColorScheme.ts). The
+ * navy/terracotta pair inverts which one leads: dark mode is navy canvas +
+ * glowing terracotta accent, light mode is tan/cream canvas + navy accent —
+ * same two brand colours in both schemes. The glow turns off in light mode
+ * (it's a dark-UI affordance — a glow on a pale canvas just looks like
+ * blur), the background pattern is recoloured rather than removed, and
+ * verdict colours darken for text contrast against a light canvas. */
 :root[data-theme="light"] {
-  --color-canvas: #f5eefc;
-  --color-surface: #ffffff;
-  --color-ink: #1f1033;
-  --color-muted: #7c6f94;
-  --color-line: #a78bc2;
-  --color-hair: #e4d9f2;
-  --color-violet: #a21caf;
-  --color-cta: #7e22ce;
+  --color-canvas: #e4d3b0;
+  --color-surface: #f6ecd6;
+  --color-ink: #14182b;
+  --color-muted: #7a6f5c;
+  --color-line: #c2ab7e;
+  --color-hair: #ddc9a0;
+  --color-violet: #b3541e;
+  --color-cta: #14182b;
   --color-distinctive: #16a34a;
   --color-generic: #dc2626;
   --glow-color: transparent;
-  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Crect x='14' y='18' width='14' height='14' fill='none' stroke='%23a78bc2' stroke-opacity='0.16' stroke-width='1.5'/%3E%3Cpath d='M100 20 112 40 88 40Z' fill='none' stroke='%23a21caf' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='96' y='92' width='11' height='11' fill='none' stroke='%23a21caf' stroke-opacity='0.12' stroke-width='1.5'/%3E%3Cpath d='M22 96 34 116 10 116Z' fill='none' stroke='%23a78bc2' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='60' y='60' width='9' height='9' fill='none' stroke='%23a78bc2' stroke-opacity='0.1' stroke-width='1.5'/%3E%3C/svg%3E");
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Crect x='14' y='18' width='14' height='14' fill='none' stroke='%23c2ab7e' stroke-opacity='0.16' stroke-width='1.5'/%3E%3Cpath d='M100 20 112 40 88 40Z' fill='none' stroke='%23b3541e' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='96' y='92' width='11' height='11' fill='none' stroke='%23b3541e' stroke-opacity='0.12' stroke-width='1.5'/%3E%3Cpath d='M22 96 34 116 10 116Z' fill='none' stroke='%23c2ab7e' stroke-opacity='0.14' stroke-width='1.5'/%3E%3Crect x='60' y='60' width='9' height='9' fill='none' stroke='%23c2ab7e' stroke-opacity='0.1' stroke-width='1.5'/%3E%3C/svg%3E");
 }
