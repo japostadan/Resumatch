@@ -24,16 +24,16 @@ const STEPS: Step[] = [
 
 function HomeHowItWorks() {
   return (
-    <aside className="py-12 md:pl-12">
+    <aside className="mt-2 py-6">
       <div className="flex items-baseline justify-between border-b-2 border-line pb-3.5 text-xs font-bold tracking-widest text-muted uppercase">
         <span>How it works</span>
         <span className="text-ink">{STEPS.length} steps</span>
       </div>
-      <ol>
+      <ol className="grid gap-3 pt-4 sm:grid-cols-2">
         {STEPS.map((step, index) => (
           <li
             key={step.title}
-            className="grid grid-cols-[auto_1fr] items-start gap-3.5 border-b border-hair py-4"
+            className="shape-cut grid grid-cols-[auto_1fr] items-start gap-3 border-2 border-line bg-surface px-3.5 py-3"
           >
             <span className="grid size-6 place-items-center rounded-full bg-violet text-sm font-bold text-canvas">
               {index + 1}

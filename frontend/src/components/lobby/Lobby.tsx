@@ -118,18 +118,18 @@ function HostDashboard({
   }
 
   return (
-    <Shell>
+    <Shell wide>
       <Eyebrow>Lobby</Eyebrow>
       <Heading>Who&apos;s in the room</Heading>
 
-      <div className="mt-5 border-2 border-line bg-surface p-4">
+      <div className="mt-9 flex justify-center border-2 border-line bg-surface p-4">
+        <GameQRCode value={joinUrl.toString()} size={240} />
+      </div>
+      <div className="mt-4 border-2 border-line bg-surface p-4 text-center">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-violet">Game ID</p>
-        <code className="mt-2 block font-mono text-2xl font-bold tracking-[0.2em] text-ink">
+        <code className="game-id mt-2 block font-mono text-6xl font-black tracking-[0.2em] text-ink">
           {gameId}
         </code>
-      </div>
-      <div className="mt-6 flex justify-center">
-        <GameQRCode value={joinUrl.toString()} />
       </div>
       {error && <Alert>{error}</Alert>}
       {players === null ? (
@@ -141,7 +141,7 @@ function HostDashboard({
           <p className="mt-5 text-base text-muted">
             {submittedCount} of {players.length} submitted
           </p>
-          <ul className="mt-6 flex flex-col gap-3">
+          <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {players.map((player) => (
               <li
                 key={player.id}

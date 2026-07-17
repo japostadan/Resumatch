@@ -60,7 +60,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
       loading={loading}
       error={error}
       targetStatus="ACTIVE"
-      wrapper={Shell}
+      wrapper={(props) => <Shell wide {...props} />}
       loadingEyebrow="Voting round"
       loadingHeading="Setting up the round"
       loadingBody="Loading the round…"
@@ -77,7 +77,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
 
         if (hasVoted) {
           return (
-            <Shell>
+            <Shell wide>
               <Eyebrow>Vote in</Eyebrow>
               <Heading>Your guess is locked</Heading>
               {error && <Alert>{error}</Alert>}
@@ -89,7 +89,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
         }
 
         return (
-          <Shell>
+          <Shell wide>
             <Eyebrow>
               Statement {active.currentStatementIndex + 1} of {active.totalStatements}
             </Eyebrow>
@@ -98,8 +98,11 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
             <StatementCard>&ldquo;{active.currentStatement}&rdquo;</StatementCard>
 
             <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
-              <fieldset className="flex flex-col gap-3" disabled={submitting}>
-                <legend className="mb-3 text-sm font-bold tracking-wide text-ink">
+              <fieldset
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                disabled={submitting}
+              >
+                <legend className="col-span-full mb-3 text-sm font-bold tracking-wide text-ink">
                   Select who you think wrote it —{" "}
                   {active.candidates.length === 1
                     ? "1 person"

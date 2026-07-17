@@ -3,9 +3,10 @@ import QRCode from "qrcode";
 
 type Props = {
   value: string;
+  size?: number;
 };
 
-export function GameQRCode({ value }: Props) {
+export function GameQRCode({ value, size = 180 }: Props) {
   const [src, setSrc] = useState("");
 
   useEffect(() => {
@@ -14,5 +15,5 @@ export function GameQRCode({ value }: Props) {
 
   if (!src) return null;
 
-  return <img src={src} alt="QR code for joining the game" width={180} height={180} />;
+  return <img src={src} alt="QR code for joining the game" width={size} height={size} />;
 }

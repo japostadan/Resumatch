@@ -6,6 +6,7 @@ import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Button } from "../common/Button";
 import { StatementCard } from "../common/StatementCard";
+import { VerdictGlyph } from "../common/motifs";
 
 type HostResultViewProps = {
   gameId: string;
@@ -38,10 +39,11 @@ export function HostResultView({ gameId, hostToken }: HostResultViewProps) {
               <div className="font-bold text-base">{result.name}</div>
               <div
                 className={
-                  "rounded-full text-sm font-bold text-canvas px-2 " +
+                  "flex items-center gap-1.5 rounded-full text-sm font-bold text-badge-ink px-2 " +
                   (result.verdict === "Distinctive" ? "bg-distinctive" : "bg-generic")
                 }
               >
+                <VerdictGlyph verdict={result.verdict} />
                 {result.verdict}
               </div>
             </div>

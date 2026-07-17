@@ -67,9 +67,7 @@ describe("CreateGame", () => {
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "swordfish" } });
     fireEvent.click(screen.getByRole("button", { name: /create game/i }));
 
-    expect(
-      await screen.findByRole("heading", { name: /read this out to the room/i }),
-    ).toHaveFocus();
+    expect(await screen.findByRole("heading", { name: /share this with the room/i })).toHaveFocus();
   });
 
   it("renders the Game ID in a monospace stack to avoid ambiguous glyphs", async () => {
