@@ -18,6 +18,13 @@ type PlayerVoteViewProps = {
   playerToken: string;
 };
 
+// Module-scope, not defined inline in StatusGate's `wrapper` prop — an inline
+// arrow there would be a new component on every render, remounting the
+// wrapped subtree (react/no-unstable-nested-components).
+function WideShell({ children }: { children: React.ReactNode }) {
+  return <Shell wide>{children}</Shell>;
+}
+
 // The Player's ballot for the current statement. The polled game state drives
 // what is shown: the ballot while the vote is open, the confirmation once this
 // player has voted, and a waiting message outside the ACTIVE phase. `votedIndex`
@@ -60,7 +67,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
       loading={loading}
       error={error}
       targetStatus="ACTIVE"
-      wrapper={(props) => <Shell wide {...props} />}
+      wrapper={WideShell}
       loadingEyebrow="Voting round"
       loadingHeading="Setting up the round"
       loadingBody="Loading the round…"
