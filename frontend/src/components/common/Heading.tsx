@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { HeadingAccent } from "./motifs";
 
 // Every screen's title flows through this component, so focusing it on mount
 // is what tells a screen-reader or keyboard user that a new screen has
@@ -17,12 +18,18 @@ export function Heading({ children }: { children: React.ReactNode }) {
   }, [children]);
 
   return (
-    <h1
-      ref={ref}
-      tabIndex={-1}
-      className="mt-4 font-display text-4xl font-black tracking-tight focus:outline-2 focus:outline-offset-4 focus:outline-violet"
-    >
-      {children}
-    </h1>
+    <>
+      <HeadingAccent className="glow mt-4 text-violet" />
+      {/* No visible focus ring: the focus-on-mount above is for screen
+       * readers, not a manual tab stop sighted/keyboard users land on, so a
+       * highlighted box here would read as a spurious highlight. */}
+      <h1
+        ref={ref}
+        tabIndex={-1}
+        className="glow-text mt-4 font-display text-4xl font-black tracking-tight focus:outline-none"
+      >
+        {children}
+      </h1>
+    </>
   );
 }

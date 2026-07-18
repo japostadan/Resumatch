@@ -6,7 +6,7 @@ export function Button({ className, ...props }: ButtonHTMLAttributes<HTMLButtonE
   return (
     <button
       {...props}
-      className={`border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white disabled:opacity-60 ${className ?? ""}`.trim()}
+      className={`shape-cut border-2 border-cta bg-cta px-6 py-3.5 text-base font-bold text-white transition duration-150 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:brightness-95 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:brightness-100 ${className ?? ""}`.trim()}
     />
   );
 }

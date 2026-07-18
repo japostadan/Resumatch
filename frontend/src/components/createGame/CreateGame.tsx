@@ -39,30 +39,30 @@ export function CreateGame() {
     joinUrl.searchParams.set("gameId", game.gameId);
 
     return (
-      <Shell>
+      <Shell wide>
         <p className="text-xs font-bold tracking-[0.14em] text-violet uppercase">Game created</p>
 
-        <Heading>Read this out to the room</Heading>
+        <Heading>Share this with the room</Heading>
 
         <dl className="mt-9 grid gap-4">
+          <Field label="Scan to join">
+            <div className="flex justify-center">
+              <GameQRCode value={joinUrl.toString()} size={240} />
+            </div>
+          </Field>
+
           <Field label="Game ID">
-            <span className="font-mono text-5xl font-black tracking-[0.2em] text-violet">
+            <span className="game-id font-mono text-6xl font-black tracking-[0.2em] text-violet">
               {game.gameId}
             </span>
           </Field>
 
-          <Field label="Scan to join">
-            <div className="flex justify-center">
-              <GameQRCode value={joinUrl.toString()} />
-            </div>
-          </Field>
-
           <Field label="Password">
-            <span className="font-display text-3xl font-bold">{password}</span>
+            <span className="font-display text-4xl font-bold">{password}</span>
           </Field>
         </dl>
 
-        <p className="mt-8 max-w-[42ch] text-sm leading-relaxed text-muted">
+        <p className="mt-8 max-w-[52ch] text-base leading-relaxed text-muted">
           Players open Resumatch, choose <span className="font-bold text-ink">Join a game</span>,
           and enter this Game ID and password. Open the lobby to watch them arrive.
         </p>

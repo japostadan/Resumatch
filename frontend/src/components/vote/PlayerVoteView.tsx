@@ -18,6 +18,13 @@ type PlayerVoteViewProps = {
   playerToken: string;
 };
 
+// Module-scope, not defined inline in StatusGate's `wrapper` prop — an inline
+// arrow there would be a new component on every render, remounting the
+// wrapped subtree (react/no-unstable-nested-components).
+function WideShell({ children }: { children: React.ReactNode }) {
+  return <Shell wide>{children}</Shell>;
+}
+
 // The Player's ballot for the current statement. The polled game state drives
 // what is shown: the ballot while the vote is open, the confirmation once this
 // player has voted, and a waiting message outside the ACTIVE phase. `votedIndex`
@@ -60,7 +67,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
       loading={loading}
       error={error}
       targetStatus="ACTIVE"
-      wrapper={Shell}
+      wrapper={WideShell}
       loadingEyebrow="Voting round"
       loadingHeading="Setting up the round"
       loadingBody="Loading the round…"
@@ -77,7 +84,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
 
         if (hasVoted) {
           return (
-            <Shell>
+            <Shell wide>
               <Eyebrow>Vote in</Eyebrow>
               <Heading>Your guess is locked</Heading>
               {error && <Alert>{error}</Alert>}
@@ -89,7 +96,7 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
         }
 
         return (
-          <Shell>
+          <Shell wide>
             <Eyebrow>
               Statement {active.currentStatementIndex + 1} of {active.totalStatements}
             </Eyebrow>
@@ -98,8 +105,11 @@ export function PlayerVoteView({ gameId, playerId, playerToken }: PlayerVoteView
             <StatementCard>&ldquo;{active.currentStatement}&rdquo;</StatementCard>
 
             <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
-              <fieldset className="flex flex-col gap-3" disabled={submitting}>
-                <legend className="mb-3 text-sm font-bold tracking-wide text-ink">
+              <fieldset
+                className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                disabled={submitting}
+              >
+                <legend className="col-span-full mb-3 text-sm font-bold tracking-wide text-ink">
                   Select who you think wrote it —{" "}
                   {active.candidates.length === 1
                     ? "1 person"

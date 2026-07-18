@@ -5,6 +5,7 @@ import { ResultsPane } from "./ResultsPane";
 import { Eyebrow } from "../common/Eyebrow";
 import { Heading } from "../common/Heading";
 import { Muted } from "../common/Muted";
+import { VerdictGlyph } from "../common/motifs";
 
 type PlayerResultViewProps = {
   gameId: string;
@@ -80,16 +81,27 @@ export function PlayerResultView({ gameId, playerId, playerToken }: PlayerResult
 
         return (
           <ResultsPane>
-            <Eyebrow>Your result</Eyebrow>
-            <Heading>{ownResult.verdict}</Heading>
-            <div className="mt-6 border-2 border-line bg-surface px-5 py-4">
-              <div className="text-lg font-bold text-ink">{card.heading}</div>
-              <Muted>{card.intro}</Muted>
-              <ul className="mt-4 list-disc space-y-2 pl-5 text-base text-ink">
-                {card.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+            <div className="shape-cut glow border-2 border-line bg-surface px-6 py-8 text-center">
+              <Eyebrow>Your result</Eyebrow>
+              <Heading>{ownResult.verdict}</Heading>
+              <span
+                className={
+                  "mt-2 inline-flex items-center gap-1.5 rounded-full text-sm font-bold text-badge-ink px-2 " +
+                  (ownResult.verdict === "Distinctive" ? "bg-distinctive" : "bg-generic")
+                }
+              >
+                <VerdictGlyph verdict={ownResult.verdict} />
+                {ownResult.verdict}
+              </span>
+              <div className="mt-6 text-left">
+                <div className="text-lg font-bold text-ink">{card.heading}</div>
+                <Muted>{card.intro}</Muted>
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-base text-ink">
+                  {card.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </ResultsPane>
         );
